@@ -8,13 +8,6 @@ const vision = Vision({
     projectId: 'tada-vision',
     keyFilename: 'Tada-vision-a064f29f06e1.json'
 });
-// const visionClient = vision({
-//     projectId: 'tada-vision',
-//     key: 'AIzaSyBduG9P28-NokBuLVyLxRs8MGJyguJZCU8'
-// });
-
-
-
 
 async function labelImages(photoset, meta) {
     let posts = []
@@ -25,7 +18,6 @@ async function labelImages(photoset, meta) {
                 imageUri: image["low_res"],
             }
         };
-        console.log(r);
         const results = await vision.labelDetection(r);
         const labels = results[0].labelAnnotations;
         let label_des = [];
@@ -71,7 +63,6 @@ app.get('/scrape', (req, res) => {
         var json = {
             posts: []
         }
-        
         if (!error) {
             let $ = cheerio.load(html);
             posts = await processPosts($);
