@@ -9,45 +9,55 @@ const vision = Vision({
     keyFilename: 'Tada-vision-a064f29f06e1.json'
 });
 
+app.set('view engine', 'pug')
+
 async function labelImages(photoset, meta) {
     let posts = []
     for (var j = 0; j < photoset.length; j++) {
-        const image = photoset[j];
-        const r = {
+        let image = photoset[j];
+        
+        let r = {
             source: {
                 imageUri: image["low_res"],
             }
         };
-        const results = await vision.labelDetection(r);
-        const labels = results[0].labelAnnotations;
+        let results = await vision.labelDetection(r);
+        let labels = results[0].labelAnnotations;
         let label_des = [];
         labels.forEach((label) => label_des.push(label.description));
-        meta.labels = labels;
-        meta.label_des = label_des;
-        meta.image_url = {
-            low_res: image["low_res"],
-            high_res: image["high_res"]
-        }
-        posts.push(meta);
+        posts.push({
+            author: meta.author,
+            caption: meta.caption,
+            labels: labels,
+            label_des: label_des,
+            image_url: {
+                low_res: image["low_res"],
+                high_res: image["high_res"]
+            }
+        });
+
     }
+
+
     return posts;
 }
 
 async function processPosts($) {
     let results = [];
     let posts = $('.posts')[0].children;
-    for (var i = 0; i < posts.length; i++) {
-        const post = posts[i];
-        const caption = $(post).find(".post_body p").text();
-        const data = JSON.parse(post.attribs["data-json"]);
-        const author = data["tumblelog"];
+    for (var i = 0; i < 5; i++) {
+        let post = posts[i];
+        let caption = $(post).find(".post_body p").text();
+        let data = JSON.parse(post.attribs["data-json"]);
+        let author = data["tumblelog"];
         if (data.type === "photoset") {
-            const photoset = data["photoset_photos"];
+            let photoset = data["photoset_photos"];
+            
             var meta = {
                 author: author,
                 caption: caption,
             }
-            const posts = await labelImages(photoset, meta);
+            let posts = await labelImages(photoset, meta);
             results = results.concat(posts);
         }
     }
@@ -70,7 +80,8 @@ app.get('/scrape', (req, res) => {
         } else {
             json = error
         }
-        res.send(json)
+
+        res.render('index', json)
     });
 })
 

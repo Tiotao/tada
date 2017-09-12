@@ -1,0 +1,11 @@
+html
+    head
+    body
+        each post in posts
+            img(src=post.image_url.low_res)
+            ul
+                each label in post.labels
+                    li #{label.description} (#{label.score})
+            h3=post.author
+            p=post.caption
+            br
