@@ -63,10 +63,11 @@ async function processImagePostsFromTumblr(html, collection) {
         const post = posts[i];
         const caption = $(post).find('.post_body p').text();
         const meta_data = JSON.parse(post.attribs["data-json"]);
+        const local_id = meta_data["root_id"].toString();
 
         // examine if post has been analyzed
         
-        const post_exists = await collection.find({source:"tumblr", local_id:meta_data["root_id"]}).count() > 0;
+        const post_exists = await collection.find({source:"tumblr", local_id:local_id}).count() > 0;
 
         if (post_exists) {
             continue;
@@ -84,7 +85,7 @@ async function processImagePostsFromTumblr(html, collection) {
         }
 
         let p = {
-            local_id: meta_data["root_id"].toString(),
+            local_id: local_id,
             source: "tumblr",
             media_type: "image",
             author: meta_data["tumblelog"],
