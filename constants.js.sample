@@ -1,4 +1,6 @@
 module.exports = {
-    TUMBLR_SEARCH_URL: 'your search url',
-    DB_URL: 'your mongo db address',
+    TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
+    TUMBLR_SEARCH_KEYWORDS: ['your key words'],
+    DB_URL: 'your db url',
+    SCRAPE_TIME: '*/10 * * * *',
 }

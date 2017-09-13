@@ -28,7 +28,7 @@ async function labelImagePosts(posts) {
                 location: [i, j],
                 request: {
                     source: {
-                        imageUri: images[j]["low_res"]
+                        imageUri: images[j]["high_res"]
                     }
                 }  
             })
@@ -55,7 +55,7 @@ async function labelImagePosts(posts) {
     return posts;
 }
 
-async function processImagePostsFromTumblr(html, collection) {
+async function processImagePostsFromTumblr(html, collection, search_ref) {
     const $ = cheerio.load(html);
     const posts = $('.posts')[0].children;
     let posts_data = [];
@@ -88,6 +88,7 @@ async function processImagePostsFromTumblr(html, collection) {
             local_id: local_id,
             source: "tumblr",
             media_type: "image",
+            search_ref: search_ref,
             author: meta_data["tumblelog"],
             timestamp: Math.round(+new Date()/1000),
             content: {
@@ -103,24 +104,51 @@ async function processImagePostsFromTumblr(html, collection) {
 }
 
 async function updateDB(collection, db_entry) {
+    if(db_entry.length === 0) {
+        logger.info('no change to database.'); 
+        return;
+    }
     await collection.insert(db_entry);
 }
 
+function formTumblrSearchURL(keyword, type) {
+    if (type === 'recent') {
+        return c.TUMBLR_SEARCH_URL + keyword + '/recent';
+    } else {
+        return c.TUMBLR_SEARCH_URL + keyword;
+    }
+}
+
+
 async function scrapeRecentImagesFromTumblr() {
-    const url = c.TUMBLR_SEARCH_URL;
     logger.info('start scarpping tumblr recent posts...');
+    keywords = c.TUMBLR_SEARCH_KEYWORDS;
     try {
-        const html = await request(url);
-        const db = await MongoClient.connect(c.DB_URL);
         logger.info('connecting to database...');
+        const db = await MongoClient.connect(c.DB_URL);
         let collection = db.collection('image_posts');
-        let posts = await processImagePostsFromTumblr(html, collection);
-        logger.info('labelling posts...');
-        let db_entry = await labelImagePosts(posts);
-        await updateDB(collection, db_entry);
-        logger.info('database updated with', db_entry.length, 'posts.');
-        logger.debug(db_entry);
-        return db_entry
+        let search_request = keywords.map((k)=>{
+            const url = formTumblrSearchURL(k, 'recent');
+            const req = { url: url, search_ref: { keyword: k, type: 'recent' }};
+            return req;
+        })
+        // label posts from each keyword
+        let promises = search_request.map(async (r) =>{
+            const html = await request(r.url);
+            let posts = await processImagePostsFromTumblr(html, collection, r.search_ref);
+            logger.info('labelling', r.search_ref.type, 'posts from:', r.search_ref.keyword);
+            let db_entry = await labelImagePosts(posts);
+            return db_entry;
+        });
+        let db_entries_from_all_keywords = await Promise.all(promises);
+
+        // flatten results and update database once
+        logger.debug(db_entries_from_all_keywords);
+        db_entries_from_all_keywords = [].concat.apply([], db_entries_from_all_keywords);
+        await updateDB(collection, db_entries_from_all_keywords);
+        logger.info('database updated with', db_entries_from_all_keywords.length, 'posts.');
+        return db_entries_from_all_keywords;
+
     } catch (err) {
         logger.error(err);
         return error;
@@ -131,6 +159,8 @@ app.get('/scrape_tumblr', async (req, res) => {
     let ret = await scrapeRecentImagesFromTumblr();
     res.send(ret);
 })
+
+
 
 app.listen('8081');
 
