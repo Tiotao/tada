@@ -1,0 +1,4 @@
+module.exports = {
+    TUMBLR_SEARCH_URL: 'your search url',
+    DB_URL: 'your mongo db address',
+}

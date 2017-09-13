@@ -2,6 +2,8 @@
 
 ### Install
 
+install mongodb
+
 ```
 npm install
 ```

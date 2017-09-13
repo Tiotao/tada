@@ -59,3 +59,5 @@ typings/
 
 Tada-vision-a064f29f06e1.json
 package-lock.json
+reference/
+constants.js
