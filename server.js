@@ -1,10 +1,9 @@
 const c = require('./constants');
 
 const express = require('express');
-const fs = require('fs');
 const request = require('request-promise-native');
 const cheerio = require('cheerio');
-const app = express();
+const logger  = require('logger').createLogger();
 const Vision = require('@google-cloud/vision');
 const vision = Vision({
     projectId: 'tada-vision',
@@ -12,31 +11,53 @@ const vision = Vision({
 });
 const MongoClient = require('mongodb').MongoClient;
 
+const app = express();
 
 app.set('view engine', 'pug')
+logger.setLevel('debug');
 
 async function labelImagePosts(posts) {
+
+    // create requests
+    let requests = [];
+    
     for (let i = 0; i < posts.length; i++) {
         const images = posts[i].content.images;
-        
         for (let j = 0; j < images.length; j++) {
-            const image_url = images[j]["low_res"];
-            const request = {
-                source: {
-                    imageUri: image_url
-                }
-            }
-            const results = await vision.labelDetection(request);
-            const labels = results[0].labelAnnotations;
-            let label_des = [];
-            labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
-            posts[i].content.images[j].labels = label_des;
+            requests.push({
+                location: [i, j],
+                request: {
+                    source: {
+                        imageUri: images[j]["low_res"]
+                    }
+                }  
+            })
         }
     }
+    logger.debug("total request:", requests.length);
+    // run all requests together
+    let promises = requests.map((r) => vision.labelDetection(r.request));
+    logger.debug("total promises:", promises.length);
+    let results = await Promise.all(promises);
+    logger.debug("total results:", results.length);
+    logger.info("all image posts are labelled.");
+    // add label into post data
+
+    for (let k = 0; k < results.length; k++) {
+        const i = requests[k].location[0];
+        const j = requests[k].location[1];
+        const labels = results[k][0].labelAnnotations;
+        logger.debug(labels);
+        let label_des = [];
+        labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
+        posts[i].content.images[j].labels = label_des;
+    }
+
     return posts;
 }
 
 async function processImagePostsFromTumblr(html, collection) {
+    
     const $ = cheerio.load(html);
     const posts = $('.posts')[0].children;
     let posts_data = [];
@@ -69,6 +90,7 @@ async function processImagePostsFromTumblr(html, collection) {
             source: "tumblr",
             media_type: "image",
             author: meta_data["tumblelog"],
+            timestamp: Math.round(+new Date()/1000),
             content: {
                 images: images,
                 text: caption
@@ -77,6 +99,7 @@ async function processImagePostsFromTumblr(html, collection) {
 
         posts_data.push(p);
     }
+    logger.info(posts.length, 'recent posts found, ', posts_data.length, 'posts new.')
     return posts_data;
 }
 
@@ -86,17 +109,21 @@ async function updateDB(collection, db_entry) {
 
 async function scrapeRecentImagesFromTumblr() {
     const url = c.TUMBLR_SEARCH_URL;
+    logger.info('start scarpping tumblr recent posts...');
     try {
         const html = await request(url);
         const db = await MongoClient.connect(c.DB_URL);
+        logger.info('connecting to database...');
         let collection = db.collection('image_posts');
         let posts = await processImagePostsFromTumblr(html, collection);
+        logger.info('labelling posts...');
         let db_entry = await labelImagePosts(posts);
         await updateDB(collection, db_entry);
-        console.log(db_entry);
+        logger.info('database updated with', db_entry.length, 'posts.');
+        logger.debug(db_entry);
         return db_entry
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return error;
     }
 }
