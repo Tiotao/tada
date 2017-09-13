@@ -10,14 +10,14 @@ const vision = Vision({
     keyFilename: 'Tada-vision-a064f29f06e1.json'
 });
 const MongoClient = require('mongodb').MongoClient;
+const schedule = require('node-schedule');
 
 const app = express();
 
-app.set('view engine', 'pug')
-logger.setLevel('debug');
+app.set('view engine', 'pug');
+logger.setLevel('info');
 
 async function labelImagePosts(posts) {
-
     // create requests
     let requests = [];
     
@@ -47,7 +47,6 @@ async function labelImagePosts(posts) {
         const i = requests[k].location[0];
         const j = requests[k].location[1];
         const labels = results[k][0].labelAnnotations;
-        logger.debug(labels);
         let label_des = [];
         labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
         posts[i].content.images[j].labels = label_des;
@@ -57,7 +56,6 @@ async function labelImagePosts(posts) {
 }
 
 async function processImagePostsFromTumblr(html, collection) {
-    
     const $ = cheerio.load(html);
     const posts = $('.posts')[0].children;
     let posts_data = [];
@@ -128,38 +126,15 @@ async function scrapeRecentImagesFromTumblr() {
     }
 }
 
-
 app.get('/scrape_tumblr', async (req, res) => {
     let ret = await scrapeRecentImagesFromTumblr();
     res.send(ret);
 })
 
-// app.get('/scrape', (req, res) => {
-//     url = c.TUMBLR_SEARCH_URL;
-//     request(url, async (error, response, html) => {
-//         var json = {
-//             posts: [],
-//             users: []
-//         }
-//         if (!error) {
-//             let $ = cheerio.load(html);
-//             posts = await processPosts($);
-//             json.posts = posts;
-            
-//             const db = await MongoClient.connect('mongodb://localhost:27017/tada-test');
-//             const cursor =  db.collection('usercollection').find();
-//             for (let user = await cursor.next(); user != null; user = await cursor.next()) {
-//                 json.users.push(user.username);
-//             }
-//         } else {
-//             json = error
-//         }
-
-//         res.render('index', json)
-//     });
-// })
-
 app.listen('8081');
+
+// run schedule job
+schedule.scheduleJob(c.SCRAPE_TIME, scrapeRecentImagesFromTumblr);
 
 console.log('Magic happens on 8081');
 

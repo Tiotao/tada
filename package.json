@@ -10,6 +10,7 @@
     "express": "^4.15.4",
     "logger": "0.0.1",
     "mongodb": "^2.2.31",
+    "node-schedule": "^1.2.4",
     "pug": "^2.0.0-rc.4",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4"
