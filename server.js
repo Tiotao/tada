@@ -67,7 +67,7 @@ async function processImagePostsFromTumblr(html, collection, search_ref) {
 
         // examine if post has been analyzed
         
-        const post_exists = await collection.find({source:"tumblr", local_id:local_id}).count() > 0;
+        const post_exists = collection.find({source:"tumblr", local_id:local_id}).count() > 0;
 
         if (post_exists) {
             continue;
