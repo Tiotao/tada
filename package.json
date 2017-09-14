@@ -13,6 +13,7 @@
     "node-schedule": "^1.2.4",
     "pug": "^2.0.0-rc.4",
     "request": "^2.81.0",
-    "request-promise-native": "^1.0.4"
+    "request-promise-native": "^1.0.4",
+    "underscore": "^1.8.3"
   }
 }

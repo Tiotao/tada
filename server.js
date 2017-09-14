@@ -1,5 +1,5 @@
 const c = require('./constants');
-
+const _ = require('underscore');
 const express = require('express');
 const request = require('request-promise-native');
 const cheerio = require('cheerio');
@@ -15,7 +15,7 @@ const schedule = require('node-schedule');
 const app = express();
 
 app.set('view engine', 'pug');
-logger.setLevel('info');
+logger.setLevel('debug');
 
 async function labelImagePosts(posts) {
     // create requests
@@ -90,7 +90,7 @@ async function processImagePostsFromTumblr(html, collection, search_ref) {
             media_type: "image",
             search_ref: search_ref,
             author: meta_data["tumblelog"],
-            timestamp: Math.round(+new Date()/1000),
+            timestamp: Math.round(new Date().getTime() / 1000),
             content: {
                 images: images,
                 text: caption
@@ -129,25 +129,49 @@ async function scrapeRecentImagesFromTumblr() {
         let collection = db.collection('image_posts');
         let search_request = keywords.map((k)=>{
             const url = formTumblrSearchURL(k, 'recent');
-            const req = { url: url, search_ref: { keyword: k, type: 'recent' }};
+            let search_ref = [{
+                keyword: k,
+                type: 'recent'
+            }]
+            const req = { url: url, search_ref: search_ref};
             return req;
         })
         // label posts from each keyword
         let promises = search_request.map(async (r) =>{
             const html = await request(r.url);
             let posts = await processImagePostsFromTumblr(html, collection, r.search_ref);
-            logger.info('labelling', r.search_ref.type, 'posts from:', r.search_ref.keyword);
+            logger.info('labelling', r.search_ref[0].type, 'posts from:', r.search_ref[0].keyword);
             let db_entry = await labelImagePosts(posts);
             return db_entry;
         });
-        let db_entries_from_all_keywords = await Promise.all(promises);
 
+
+        let db_entries = await Promise.all(promises);
+        //TODO needs combine keywords
         // flatten results and update database once
-        logger.debug(db_entries_from_all_keywords);
-        db_entries_from_all_keywords = [].concat.apply([], db_entries_from_all_keywords);
-        await updateDB(collection, db_entries_from_all_keywords);
-        logger.info('database updated with', db_entries_from_all_keywords.length, 'posts.');
-        return db_entries_from_all_keywords;
+        db_entries = [].concat.apply([], db_entries);
+        let merged_entries = [];
+        // merge same post from different keywords
+       
+        for (let i = 0; i < db_entries.length; i++) {
+            const entry = db_entries[i]
+            const exist_index = merged_entries.findIndex((e)=>{
+                return entry.local_id.toString() == e.local_id.toString();
+            });
+            logger.debug(exist_index);
+            if (exist_index >= 0){
+                merged_entries[exist_index].search_ref.push(entry.search_ref[0]);
+            } else {
+                merged_entries.push(entry);
+            }
+        }
+
+        logger.debug(merged_entries);
+
+        logger.info("collapse db with same local_id:", db_entries.length, '->', merged_entries.length);
+        await updateDB(collection, merged_entries);
+        logger.info('database updated with', merged_entries.length, 'posts.');
+        return merged_entries;
 
     } catch (err) {
         logger.error(err);
@@ -160,12 +184,56 @@ app.get('/scrape_tumblr', async (req, res) => {
     res.send(ret);
 })
 
+app.get('/label/:start-:end', async (req, res) => {
+    logger.info('connecting to database...');
+    const db = await MongoClient.connect(c.DB_URL);
+    let collection = db.collection('image_posts');
+    const start_time = parseInt(req.params.start);
+    const end_time = parseInt(req.params.end);
+    let posts = await collection.find({timestamp: {$gt: start_time, $lt: end_time}}).toArray();
 
+    let result_score;
+
+    try {
+        const posts_label_scores = posts.map(post => {
+            const num_images = post.content.images.length;
+            let labels = _.flatten(post.content.images.map(img=>{return img.labels}))
+            labels = labels.reduce((memo, obj) => {
+                    if (!memo[obj.description]) { memo[obj.description] = 0; }
+                    memo[obj.description] += obj.score;
+                    return memo; 
+                }, {});
+                return _.mapObject(labels, (val, key) => {
+                    return val / num_images;
+                })
+            })
+        
+        console.log(posts_label_scores);
+
+        result_score = posts_label_scores.reduce((memo, obj) => {
+            _.mapObject(obj, (val, key) => {
+                if (!memo[key]) { memo[key] = 0; }
+                memo[key] += val;
+            })
+            return memo;
+        })
+    } catch (error) {
+        logger.error(error);
+        result_score = {}
+    }
+
+    // get label score for each post
+    
+    res.send(result_score);
+})
 
 app.listen('8081');
 
 // run schedule job
-schedule.scheduleJob(c.SCRAPE_TIME, scrapeRecentImagesFromTumblr);
+if (c.SCHEDULE_SCRAPE) {
+    schedule.scheduleJob(c.SCRAPE_TIME, scrapeRecentImagesFromTumblr);
+}
+
 
 console.log('Magic happens on 8081');
 
