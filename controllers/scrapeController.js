@@ -6,9 +6,9 @@ const vision = Vision({
 });
 const cheerio = require('cheerio');
 const request = require('request-promise-native');
-const c = require('../constants');
+const configs = require('../configs');
 const logger  = require('logger').createLogger();
-logger.setLevel(c.LOGGER_LEVEL);
+logger.setLevel(configs.LOGGER_LEVEL);
 
 async function processImagePostsFromTumblr(html, collection, search_ref) {
     const $ = cheerio.load(html);
@@ -60,9 +60,9 @@ async function processImagePostsFromTumblr(html, collection, search_ref) {
 
 function formTumblrSearchURL(keyword, type) {
     if (type === 'recent') {
-        return c.TUMBLR_SEARCH_URL + keyword + '/recent';
+        return configs.TUMBLR_SEARCH_URL + keyword + '/recent';
     } else {
-        return c.TUMBLR_SEARCH_URL + keyword;
+        return configs.TUMBLR_SEARCH_URL + keyword;
     }
 }
 
@@ -114,10 +114,10 @@ async function labelImagePosts(posts) {
 
 async function scrapeRecentImagesFromTumblr() {
     logger.info('start scarpping tumblr recent posts...');
-    keywords = c.TUMBLR_SEARCH_KEYWORDS;
+    keywords = configs.TUMBLR_SEARCH_KEYWORDS;
     try {
         logger.info('connecting to database...');
-        const db = await MongoClient.connect(c.DB_URL);
+        const db = await MongoClient.connect(configs.DB_URL);
         let collection = db.collection('image_posts');
         let search_request = keywords.map((k)=>{
             const url = formTumblrSearchURL(k, 'recent');
@@ -175,5 +175,7 @@ module.exports = {
     scrapeTumblr: async (req, res) => {
         const ret = await scrapeRecentImagesFromTumblr();
         res.send(ret);
-    }
+    },
+
+    scheduleScraping: scrapeRecentImagesFromTumblr
 }

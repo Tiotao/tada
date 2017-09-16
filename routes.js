@@ -4,7 +4,9 @@ const scrapeCtrl = require('./controllers/scrapeController');
 
 var router = express.Router();
 
-router.route('/label/:start-:end').get(dataCtrl.getTopTumblrLabels);
+router.route('/labels/top/').post(dataCtrl.getTopTumblrLabels);
+
+router.route('/labels/time/').post(dataCtrl.getTumblrLabelScoreOverTime);
 
 router.route('/scrape_tumblr').get(scrapeCtrl.scrapeTumblr);
 
