@@ -7,10 +7,10 @@ const routes = require('./routes');
 const configs = require('./configs');
 const bodyParser = require('body-parser')
 const router = express.Router();
-
 const scrapeCtrl = require('./controllers/scrapeController');
 
 
+logger.setLevel(configs.LOGGER_LEVEL);
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -19,8 +19,8 @@ app.use(morgan('tiny'));
 app.use('/api', routes);
 app.listen('8081');
 
-
 logger.debug(configs);
+
 
 // run schedule job
 if (configs.SCHEDULE_SCRAPE) {

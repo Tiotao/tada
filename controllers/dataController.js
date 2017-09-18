@@ -79,7 +79,8 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
     logger.info('connecting to database...');
     const db = await MongoClient.connect(configs.DB_URL);
     let collection = db.collection('image_posts');
-    const query = [
+    // query to get score
+    const score_query = [
             {
                 $match: {
                     timestamp: {$gt: start_time, $lt: end_time},
@@ -104,10 +105,8 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
                 }
             },
         ]
-    
-    
-    let posts = await collection.aggregate(query).toArray();
 
+    // query to get image count
     const image_count_query = [
         {
             $match: {
@@ -124,22 +123,36 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
         },
     ]
 
+    let posts = await collection.aggregate(score_query).toArray();
     let image_counts = await collection.aggregate(image_count_query).toArray();
 
     for (let i = 0; i < posts.length; i++) {
-        posts[i].score = posts[i].score / image_counts[i].image_count;
+        const count = image_counts[i].image_count;
+        if (count <= 0) {
+            posts[i].score = 0
+        } else {
+            posts[i].score = posts[i].score / image_counts[i].image_count;
+        }
     }
     
+    // calculate score in different time ranges
+    
     let score_over_time = [];
-    while (end_time > start_time) {
+    let curr_time = end_time;
+    
+    while (curr_time > start_time) {
         const posts_in_time = posts.filter((p)=>{
-            return p.timestamp < end_time;
+            return p.timestamp < curr_time;
         })
         
-        const totol_post_count = await collection.find({timestamp: {$gt: start_time, $lt: end_time}}).count();
-        end_time -= duration;
-        const score = calculateLabelScore(posts_in_time, totol_post_count);
-        score_over_time.push(score / totol_post_count); 
+        const totol_post_count = await collection.find({timestamp: {$gt: start_time, $lt: curr_time}}).count();
+        
+        curr_time -= duration;
+        let score = calculateLabelScore(posts_in_time, totol_post_count) / totol_post_count;
+        if (totol_post_count <= 0) {
+            score = 0
+        } 
+        score_over_time.push(score); 
     }
 
     return {
