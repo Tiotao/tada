@@ -14,7 +14,7 @@ async function queryTopTumblrLabel(start_time, end_time) {
 
     logger.info('connecting to database...');
     const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection('image_posts');
+    let collection = db.collection(configs.DB_COLLECTION);
     let posts = await collection.find({timestamp: {$gt: start_time, $lt: end_time}}).toArray();
     const count = posts.length;
     if (!posts) {
@@ -78,7 +78,7 @@ function calculateLabelScore(entries, count) {
 async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
     logger.info('connecting to database...');
     const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection('image_posts');
+    let collection = db.collection(configs.DB_COLLECTION);
     // query to get score
     const score_query = [
             {

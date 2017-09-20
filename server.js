@@ -7,7 +7,7 @@ const routes = require('./routes');
 const configs = require('./configs');
 const bodyParser = require('body-parser')
 const router = express.Router();
-const scrapeCtrl = require('./controllers/scrapeController');
+const tumblrScrapeCtrl = require('./controllers/tumblrScrapeController');
 
 
 logger.setLevel(configs.LOGGER_LEVEL);
@@ -25,7 +25,7 @@ logger.debug(configs);
 // run schedule job
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
-    schedule.scheduleJob(configs.SCRAPE_TIME, scrapeCtrl.scheduleScraping);
+    schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScrapeCtrl.scheduleScraping);
 }
 
 console.log('Magic happens on 8081');

@@ -93,7 +93,7 @@ async function labelImagePosts(posts) {
     }
     logger.debug("total request:", requests.length);
     // run all requests together
-    let promises = requests.map((r) => vision.labelDetection(r.request));
+    let promises = requests.map((r) => vision.webDetection(r.request));
     logger.debug("total promises:", promises.length);
     let results = await Promise.all(promises);
     logger.debug("total results:", results.length);
@@ -103,9 +103,17 @@ async function labelImagePosts(posts) {
     for (let k = 0; k < results.length; k++) {
         const i = requests[k].location[0];
         const j = requests[k].location[1];
-        const labels = results[k][0].labelAnnotations;
+        const labels = results[k][0].webDetection.webEntities;
         let label_des = [];
-        labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
+
+        if (configs.STANDARD_SCORE) {
+            labels.forEach((label) => label_des.push({description: label.description, score: 1}));
+        } else {
+            labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
+        }
+
+        
+        
         posts[i].content.images[j].labels = label_des;
     }
 
@@ -118,7 +126,7 @@ async function scrapeRecentImagesFromTumblr() {
     try {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(configs.DB_URL);
-        let collection = db.collection('image_posts');
+        let collection = db.collection(configs.DB_COLLECTION);
         let search_request = keywords.map((k)=>{
             const url = formTumblrSearchURL(k, 'recent');
             let search_ref = [{
@@ -172,7 +180,7 @@ async function scrapeRecentImagesFromTumblr() {
 }
 
 module.exports = {
-    scrapeTumblr: async (req, res) => {
+    scrape: async (req, res) => {
         const ret = await scrapeRecentImagesFromTumblr();
         res.send(ret);
     },
