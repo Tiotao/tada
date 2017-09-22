@@ -17,6 +17,7 @@ async function queryTopTumblrLabel(start_time, end_time) {
     let collection = db.collection(configs.DB_COLLECTION);
     let posts = await collection.find({timestamp: {$gt: start_time, $lt: end_time}}).toArray();
     const count = posts.length;
+    
     if (!posts) {
         return result_score;
     }
@@ -30,10 +31,10 @@ async function queryTopTumblrLabel(start_time, end_time) {
                     memo[obj.description] += obj.score;
                     return memo; 
                 }, {});
-                return _.mapObject(labels, (val, key) => {
-                    return val / num_images;
-                })
+            return _.mapObject(labels, (val, key) => {
+                return val / num_images;
             })
+        })
         let scores = posts_label_scores.reduce((memo, obj) => {
             _.mapObject(obj, (val, key) => {
                 if (!memo[key]) { memo[key] = 0; }
@@ -98,8 +99,8 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
                 $group: {
                     _id: "$_id",
                     description: { $first: "$content.images.labels.description" },
+                    images: {$push: "$content.images.high_res"},
                     score: { $sum: "$content.images.labels.score"},
-                    image_count: { $sum: 1},
                     timestamp: { $first: "$timestamp" },
                     local_id: {$first: "$local_id"}
                 }
@@ -131,13 +132,14 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
         if (count <= 0) {
             posts[i].score = 0
         } else {
-            posts[i].score = posts[i].score / image_counts[i].image_count;
+            posts[i].score = posts[i].score / count;
         }
     }
     
     // calculate score in different time ranges
     
     let score_over_time = [];
+    let images_over_time = [];
     let curr_time = end_time;
     
     while (curr_time > start_time) {
@@ -146,6 +148,10 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
         })
         
         const totol_post_count = await collection.find({timestamp: {$gt: start_time, $lt: curr_time}}).count();
+
+        images_over_time = posts.reduce((memo, post) => {
+            return memo.concat(post.images)
+        }, [])
         
         curr_time -= duration;
         let score = calculateLabelScore(posts_in_time, totol_post_count) / totol_post_count;
@@ -162,7 +168,8 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
         start_time: start_time,
         end_time: end_time,
         duration: duration,
-        scores: score_over_time
+        scores: score_over_time,
+        images: images_over_time
     }
 }
 

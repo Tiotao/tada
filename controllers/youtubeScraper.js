@@ -189,11 +189,17 @@ async function scrape() {
             return dict;
         }
 
+        async function ignoreExistingVideos(id) {
+            const post_exists = await collection.find({source:"youtube", local_id:id}).count() > 0;
+            return post_exists;
+        }
+
         // move all keyword results into one array
         videos = _.flatten(videos, true);
         // merge video with same id
-        video_dict = videos.reduce(combineDuplicates, {})
-        Object.keys(video_dict)
+        let video_dict = videos.reduce(combineDuplicates, {});
+        let keys = Object.keys(video_dict);
+        const unique_keys = keys.filter(removeExistingKeys);  //TODO cannot use async for filter
         // remove video that are already in database
         
         // push video to vision api

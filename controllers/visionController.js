@@ -21,7 +21,7 @@ async function labelPosts(posts, options) {
             let request_content;
 
             
-            if (data_type = "url") {
+            if (data_type == "url") {
                 request_content = {
                     source: {
                         imageUri: images[j]["high_res"]

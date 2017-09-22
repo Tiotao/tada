@@ -99,11 +99,11 @@ async function scrapeRecentImagesFromTumblr() {
             logger.info('labelling', r.search_ref[0].type, 'posts from:', r.search_ref[0].keyword);
 
             const vision_options = {
-                api_type: "webDetection", 
+                api_type: "labelDetection", 
                 data_type: "url",
             }
 
-            let db_entry = visionCtrl.labelPosts(posts, options);            
+            let db_entry = visionCtrl.label(posts, vision_options);            
             return db_entry;
         });
 
