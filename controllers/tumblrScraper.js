@@ -7,6 +7,7 @@ const vision = Vision({
 const cheerio = require('cheerio');
 const request = require('request-promise-native');
 const configs = require('../configs');
+const visionCtrl = require('./visionController');
 const logger  = require('logger').createLogger();
 logger.setLevel(configs.LOGGER_LEVEL);
 
@@ -74,55 +75,10 @@ async function updateDB(collection, db_entry) {
     await collection.insert(db_entry);
 }
 
-async function labelImagePosts(posts) {
-    // create requests
-    let requests = [];
-    
-    for (let i = 0; i < posts.length; i++) {
-        const images = posts[i].content.images;
-        for (let j = 0; j < images.length; j++) {
-            requests.push({
-                location: [i, j],
-                request: {
-                    source: {
-                        imageUri: images[j]["high_res"]
-                    }
-                }  
-            })
-        }
-    }
-    logger.debug("total request:", requests.length);
-    // run all requests together
-    let promises = requests.map((r) => vision.webDetection(r.request));
-    logger.debug("total promises:", promises.length);
-    let results = await Promise.all(promises);
-    logger.debug("total results:", results.length);
-    logger.info("all image posts are labelled.");
-    // add label into post data
-
-    for (let k = 0; k < results.length; k++) {
-        const i = requests[k].location[0];
-        const j = requests[k].location[1];
-        const labels = results[k][0].webDetection.webEntities;
-        let label_des = [];
-
-        if (configs.STANDARD_SCORE) {
-            labels.forEach((label) => label_des.push({description: label.description, score: 1}));
-        } else {
-            labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
-        }
-
-        
-        
-        posts[i].content.images[j].labels = label_des;
-    }
-
-    return posts;
-}
 
 async function scrapeRecentImagesFromTumblr() {
     logger.info('start scarpping tumblr recent posts...');
-    keywords = configs.TUMBLR_SEARCH_KEYWORDS;
+    const keywords = configs.TUMBLR_SEARCH_KEYWORDS;
     try {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(configs.DB_URL);
@@ -141,13 +97,18 @@ async function scrapeRecentImagesFromTumblr() {
             const html = await request(r.url);
             let posts = await processImagePostsFromTumblr(html, collection, r.search_ref);
             logger.info('labelling', r.search_ref[0].type, 'posts from:', r.search_ref[0].keyword);
-            let db_entry = await labelImagePosts(posts);
+
+            const vision_options = {
+                api_type: "webDetection", 
+                data_type: "url",
+            }
+
+            let db_entry = visionCtrl.labelPosts(posts, options);            
             return db_entry;
         });
 
 
         let db_entries = await Promise.all(promises);
-        //TODO needs combine keywords
         // flatten results and update database once
         db_entries = [].concat.apply([], db_entries);
         let merged_entries = [];
@@ -171,6 +132,7 @@ async function scrapeRecentImagesFromTumblr() {
         logger.info("collapse db with same local_id:", db_entries.length, '->', merged_entries.length);
         await updateDB(collection, merged_entries);
         logger.info('database updated with', merged_entries.length, 'posts.');
+        db.close();
         return merged_entries;
 
     } catch (err) {

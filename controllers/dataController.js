@@ -57,7 +57,7 @@ async function queryTopTumblrLabel(start_time, end_time) {
         logger.error(error);
         result_score = [];
     }
-
+    db.close();
     return result_score;
 
 }
@@ -154,6 +154,8 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
         } 
         score_over_time.push(score); 
     }
+
+    db.close();
 
     return {
         description: label,
