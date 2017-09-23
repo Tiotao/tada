@@ -20,7 +20,6 @@ async function labelPosts(posts, options) {
             
             let request_content;
 
-            
             if (data_type == "url") {
                 request_content = {
                     source: {
@@ -29,7 +28,7 @@ async function labelPosts(posts, options) {
                 }
             } else {
                 request_content = {
-                    content: images[j]["content"]
+                    content: images[j]["data"]
                 }
             }
 
@@ -39,6 +38,8 @@ async function labelPosts(posts, options) {
             })
         }
     }
+
+    logger.debug(requests);
     
     let promises;
     // run all requests together
@@ -52,6 +53,8 @@ async function labelPosts(posts, options) {
     logger.info("all image posts are labelled.");
     // add label into post data
 
+    logger.debug(results);
+
     for (let k = 0; k < results.length; k++) {
         const i = requests[k].location[0];
         const j = requests[k].location[1];
@@ -63,13 +66,14 @@ async function labelPosts(posts, options) {
         }
         let label_des = [];
 
-        if (configs.STANDARD_SCORE) {
+        if (configs.STANDARD_SCORE && api_type == "webDetection") {
             labels.forEach((label) => label_des.push({description: label.description, score: 1}));
         } else {
             labels.forEach((label) => label_des.push({description: label.description, score: label.score}));
         }
         
         posts[i].content.images[j].labels = label_des;
+        delete posts[i].content.images[j]["data"];
     }
     return posts;
 }

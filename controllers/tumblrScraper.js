@@ -1,12 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
-const Vision = require('@google-cloud/vision');
-const vision = Vision({
-    projectId: 'tada-vision',
-    keyFilename: 'Tada-vision-a064f29f06e1.json'
-});
 const cheerio = require('cheerio');
 const request = require('request-promise-native');
 const configs = require('../configs');
+const _ = require('underscore');
 const visionCtrl = require('./visionController');
 const logger  = require('logger').createLogger();
 logger.setLevel(configs.LOGGER_LEVEL);
@@ -103,35 +99,34 @@ async function scrapeRecentImagesFromTumblr() {
                 data_type: "url",
             }
 
-            let db_entry = visionCtrl.label(posts, vision_options);            
+            const db_entry = await visionCtrl.label(posts, vision_options);
             return db_entry;
         });
+
+        function combineDuplicates(dict, entry) {
+            if (entry.local_id in dict) {
+                let old_search_ref = dict[entry.local_id].search_ref;
+                dict[entry.local_id].search_ref = old_search_ref.concat(entry.search_ref);
+            } else {
+                dict[entry.local_id] = entry;
+            }
+            return dict;
+        }
 
 
         let db_entries = await Promise.all(promises);
         // flatten results and update database once
-        db_entries = [].concat.apply([], db_entries);
-        let merged_entries = [];
-        // merge same post from different keywords
-       
-        for (let i = 0; i < db_entries.length; i++) {
-            const entry = db_entries[i]
-            const exist_index = merged_entries.findIndex((e)=>{
-                return entry.local_id.toString() == e.local_id.toString();
-            });
-            logger.debug(exist_index);
-            if (exist_index >= 0){
-                merged_entries[exist_index].search_ref.push(entry.search_ref[0]);
-            } else {
-                merged_entries.push(entry);
-            }
-        }
+        db_entries = _.flatten(db_entries, true);
+        
+        let db_entries_dict = db_entries.reduce(combineDuplicates, {});
+
+        merged_entries = Object.values(db_entries_dict);
 
         logger.debug(merged_entries);
 
         logger.info("collapse db with same local_id:", db_entries.length, '->', merged_entries.length);
         await updateDB(collection, merged_entries);
-        logger.info('database updated with', merged_entries.length, 'posts.');
+        logger.info('database updated with', db_entries.length, 'posts.');
         db.close();
         return merged_entries;
 

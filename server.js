@@ -9,7 +9,7 @@ const configs = require('./configs');
 const bodyParser = require('body-parser')
 const router = express.Router();
 const tumblrScraper = require('./controllers/tumblrScraper');
-
+const youtubeScraper = require('./controllers/youtubeScraper');
 
 logger.setLevel(configs.LOGGER_LEVEL);
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -31,6 +31,7 @@ logger.debug(configs);
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
+    schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
 }
 
 console.log('Magic happens on 8081');
