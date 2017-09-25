@@ -31,7 +31,7 @@ logger.debug(configs);
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
-    schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
+    // schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
 }
 
 console.log('Magic happens on 8081');
