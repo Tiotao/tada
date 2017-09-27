@@ -24,7 +24,7 @@ app.use(cors());
 app.use('/api', routes);
 app.listen('8081');
 
-logger.debug(configs);
+logger.debug(JSON.stringify(configs, null, 2));
 
 
 // run schedule job
