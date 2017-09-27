@@ -152,7 +152,10 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
             return p.timestamp > start_bound && p.timestamp < end_bound;
         })
 
-        const totol_post_count = await collection.find({timestamp: {$gt: start_bound, $lt: end_bound}, source:"tumblr"}).count();
+        const totol_post_count = await collection.find({
+            timestamp: {$gt: start_bound, $lt: end_bound}, 
+            source:"tumblr"})
+            .count();
         
         let score = calculateLabelScore(posts_in_time, totol_post_count);
         if (totol_post_count <= 0) {
