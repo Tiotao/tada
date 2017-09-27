@@ -1,6 +1,36 @@
-module.exports = {
-    TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
-    TUMBLR_SEARCH_KEYWORDS: ['your key words'],
-    DB_URL: 'your db url',
-    SCRAPE_TIME: '*/10 * * * *',
+configs = {
+    env: "dev",
 }
+    
+configs.dev = {
+    ENV_NAME: "dev",
+    TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
+    TUMBLR_SEARCH_KEYWORDS: ['sims', 'sims+4', 'simblr'],
+    YOUTUBE_SEARCH_KEYWORDS: ['battlefront'],
+    DB_URL: 'mongodb://localhost:27017/tada-test',
+    SCRAPE_TIME: '*/30 * * * *',
+    SCHEDULE_SCRAPE: false,
+    STANDARD_SCORE: true,
+    LOGGER_LEVEL: 'debug',
+    DB_COLLECTION: 'image_posts',
+    TEST_DB_COLLECTION: 'web_entity',
+    SCREENSHOTS_PER_VIDEO: 5,
+},
+
+configs.staging = {
+    ENV_NAME: "staging",
+    TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
+    TUMBLR_SEARCH_KEYWORDS: ['sims', 'sims+4', 'simblr'],
+    YOUTUBE_SEARCH_KEYWORDS: ['battlefront'],
+    DB_URL: 'mongodb://10.14.41.20:27017/tada-test',
+    SCRAPE_TIME: '*/30 * * * *',
+    SCHEDULE_SCRAPE: true,
+    STANDARD_SCORE: true,
+    LOGGER_LEVEL: 'debug',
+    DB_COLLECTION: 'image_posts',
+    TEST_DB_COLLECTION: 'web_entity',
+    SCREENSHOTS_PER_VIDEO: 5,
+}
+
+module.exports = configs[configs.env];
+
