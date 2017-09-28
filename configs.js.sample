@@ -26,7 +26,7 @@ configs.staging = {
     SCRAPE_TIME: '*/30 * * * *',
     SCHEDULE_SCRAPE: true,
     STANDARD_SCORE: true,
-    LOGGER_LEVEL: 'debug',
+    LOGGER_LEVEL: 'info',
     DB_COLLECTION: 'image_posts',
     TEST_DB_COLLECTION: 'web_entity',
     SCREENSHOTS_PER_VIDEO: 5,
