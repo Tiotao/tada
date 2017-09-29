@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 const _ = require('underscore');
 const visionCtrl = require('./visionController');
 const logger  = require('logger').createLogger();
+const utils = require('../utils/scrape-utils');
 logger.setLevel(configs.LOGGER_LEVEL);
 
 async function getListOfVideos(browser, keyword) {
@@ -12,9 +13,6 @@ async function getListOfVideos(browser, keyword) {
     page.setViewport({width: 1280, height: 800, deviceScaleFactor: 1});
     page.on('console', console.log);
     await page.goto(`https://www.youtube.com/results?sp=CAISBAgBEAFQFA%253D%253D&q=${keyword}`, {waitUntil: 'networkidle'});
-
-    // await page.goto(`https://www.youtube.com/results?q=${keyword}`, {waitUntil: 'networkidle'});
-
 
     function scrapeVideoMeta(options) {
 
@@ -29,18 +27,7 @@ async function getListOfVideos(browser, keyword) {
             return [];
         }
 
-        function parseSeconds(str){
-            var p = str.split(':'),
-                s = 0, m = 1;
-
-            while (p.length > 0) {
-                s += m * parseInt(p.pop(), 10);
-                m *= 60;
-            }
-
-            return s;
-        }
-
+        
         function onlyVideo(video) {
             const duration_label = video.querySelector(duration_selector);
             return duration_label && duration_label.getAttribute("aria-label") != 'LIVE';
@@ -49,7 +36,7 @@ async function getListOfVideos(browser, keyword) {
         function extractMeta(video) {
             const title =  video.querySelector(title_selector).getAttribute("title");
             const author = video.querySelector(author_selector).textContent;
-            const duration =  parseSeconds(video.querySelector(duration_selector).textContent.replace(/\s/g, ''));
+            const duration =  utils.parseSeconds(video.querySelector(duration_selector).textContent.replace(/\s/g, ''));
             const window = duration / (options.num_shots+1);
             const video_id = video.querySelector(title_selector).getAttribute("href").replace(/\/watch\?v=/g, '');
 
@@ -162,8 +149,6 @@ async function screenshot(browser, video_id, time) {
             return {left: x, top: y, width, height, id: element.id};
         }, selector);
 
-        
-        
         if (!rect)
             throw Error(`Could not find element that matches selector: ${selector} for ${video_id} at ${time}.`);
 
@@ -210,6 +195,7 @@ async function scrapeKeyword(collection, keyword) {
 
         let videos = [];
 
+        // take screenshot for every video
         for (var i = 0; i < video_list.length; i++) {
             let video = video_list[i];
             const video_id = video.local_id;
@@ -227,7 +213,7 @@ async function scrapeKeyword(collection, keyword) {
             })
             
             const images = await Promise.all(shot_promises);
-
+            // filter away vidoes with incomplete screenshots
             const has_null = images.some((e)=>{ return !e; })
             if (has_null) {
                 video.content.image = null;
@@ -237,35 +223,7 @@ async function scrapeKeyword(collection, keyword) {
             
             videos.push(video);
         }
-
-        // const video_promises = video_list.map(async (video)=>{
-        //     const video_id = video.local_id;
-        //     let shot_promises = video.content.images.map(async (time) => {
-        //         try {
-        //             buffer = await screenshot(browser, video_id, time)
-        //             return {
-        //                 data: buffer,
-        //                 sec: time
-        //             };
-        //         } catch (err) {
-        //             logger.error(err);
-        //             return null;
-        //         }
-        //     })
-            
-        //     const images = await Promise.all(shot_promises);
-
-        //     const has_null = images.some((e)=>{ return !e; })
-        //     if (has_null) {
-        //         video.content.image = null;
-        //     } else {
-        //         video.content.images = images;
-        //     }
-        //     return video;
-        // })
-
-        // videos = await Promise.all(video_promises); 
-
+        
         
         videos = videos.filter((v) => {
             return v.content.images;
@@ -288,33 +246,13 @@ async function scrape() {
         const db = await MongoClient.connect(configs.DB_URL);
         let collection = db.collection(configs.TEST_DB_COLLECTION);
         
-        
         const promises = keywords.map(async (keyword) => {
             return await scrapeKeyword(collection, keyword)
         })
 
-        videos = await Promise.all(promises);
-        
-        function combineDuplicates(dict, video) {
-            if (video.local_id in dict) {
-                let old_search_ref = dict[video.local_id].search_ref;
-                dict[video.local_id].search_ref = old_search_ref.concat(video.search_ref);
-            } else {
-                dict[video.local_id] = video;
-            }
-            return dict;
-        }
+        let videos = await Promise.all(promises);
 
-        // move all keyword results into one array
-        videos = _.flatten(videos, true);
-
-        const raw_length = videos.length;
-        
-        // merge video with same id
-        let video_dict = videos.reduce(combineDuplicates, {});
-        
-        videos = Object.values(video_dict);
-        logger.info("collapse db with same local_id:", raw_length, '->', videos.length);
+        videos = utils.combineDuplicates(videos);
 
         // push video to vision api
         const vision_options = {

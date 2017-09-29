@@ -9,6 +9,7 @@ const configs = require('./configs');
 const bodyParser = require('body-parser')
 const router = express.Router();
 const tumblrScraper = require('./controllers/tumblrScraper');
+const twitterScraper = require('./controllers/twitterScraper');
 const youtubeScraper = require('./controllers/youtubeScraper');
 
 logger.setLevel(configs.LOGGER_LEVEL);
@@ -30,7 +31,8 @@ logger.debug(JSON.stringify(configs, null, 2));
 // run schedule job
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
-    schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
+    // schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
+    schedule.scheduleJob(configs.SCRAPE_TIME, twitterScraper.scheduleScraping);
     // schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
 }
 

@@ -5,6 +5,7 @@ const configs = require('../configs');
 const _ = require('underscore');
 const visionCtrl = require('./visionController');
 const logger  = require('logger').createLogger();
+const utils = require('../utils/scrape-utils');
 logger.setLevel(configs.LOGGER_LEVEL);
 
 async function processImagePostsFromTumblr(html, collection, search_ref) {
@@ -103,29 +104,11 @@ async function scrapeRecentImagesFromTumblr() {
             return db_entry;
         });
 
-        function combineDuplicates(dict, entry) {
-            if (entry.local_id in dict) {
-                let old_search_ref = dict[entry.local_id].search_ref;
-                dict[entry.local_id].search_ref = old_search_ref.concat(entry.search_ref);
-            } else {
-                dict[entry.local_id] = entry;
-            }
-            return dict;
-        }
-
-
         let db_entries = await Promise.all(promises);
         // flatten results and update database once
-        db_entries = _.flatten(db_entries, true);
+        db_entries = utils.combineDuplicates(db_entries)
         
-        let db_entries_dict = db_entries.reduce(combineDuplicates, {});
-
-        merged_entries = Object.values(db_entries_dict);
-
-        logger.debug(merged_entries);
-
-        logger.info("collapse db with same local_id:", db_entries.length, '->', merged_entries.length);
-        await updateDB(collection, merged_entries);
+        await updateDB(collection, db_entries);
         logger.info('database updated with', db_entries.length, 'posts.');
         db.close();
         return merged_entries;
