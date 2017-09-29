@@ -4,6 +4,94 @@ const configs = require('../configs');
 const logger  = require('logger').createLogger();
 logger.setLevel(configs.LOGGER_LEVEL);
 
+async function queryTopTwitterLabel(start_time, end_time) {
+    let result_score = [];
+    
+    if (start_time > end_time) {
+        return result_score;
+    }
+
+    logger.info('connecting to database...');
+    const db = await MongoClient.connect(configs.DB_URL);
+    let collection = db.collection(configs.TEST_DB_COLLECTION);
+
+    const query = {
+        timestamp: {$gt: start_time, $lt: end_time},
+        source: "twitter"
+    }
+
+    
+
+    const post_count = await collection.find(query).count();
+
+    console.log(post_count);
+
+    function collectEntities() {
+        for (let i = 0; i < this.content.entities.length; i++) {
+            const type = this.content.entities[i].type
+            const name = this.content.entities[i].name;
+            
+            let mag = this.content.entities[i].sentiment.magnitude; 
+            let score = this.content.entities[i].sentiment.score;
+            let salience = this.content.entities[i].salience;
+            ;
+
+            const entity_value = {
+                sentiment: score * mag,
+                salience: salience,
+            }
+            
+            const entity_key = {
+                name: name,
+                type: type,
+            };
+            
+            emit(entity_key, entity_value)
+            
+        }
+    }
+
+    function calculateScores(entity_key, entity_values) {
+        print(entity_key, ":", entity_values.length);
+        let reduced_val = {
+            sentiment: 0,
+            salience: 0
+        }
+        for (let i = 0; i < entity_values.length; i++) {
+            reduced_val.sentiment += entity_values[i].sentiment / entity_values.length;
+            reduced_val.salience += entity_values[i].salience;
+        }
+
+        return reduced_val;
+    }
+
+    function normalizeScores(val) {
+        val.score = val.value.salience / post_count * 100;
+        val.sentiment = val.value.sentiment;
+        val.description = val._id;
+        delete val._id;
+        delete val.value;
+        return val
+    }
+
+    let posts = await collection
+    .mapReduce(
+        collectEntities,
+        calculateScores,
+        {
+            query: query,
+            out: {inline: 1}
+        }
+    )
+    posts = JSON.parse(JSON.stringify(posts)).map(normalizeScores).sort((a, b)=>{
+        if (a.score < b.score) return 1;
+        if (a.score > b.score) return -1;
+        return 0
+    });
+    db.close();
+    return posts
+}
+
 async function queryTopTumblrLabel(start_time, end_time) {
 
     let result_score = [];
@@ -191,6 +279,14 @@ async function queryLabelScoresOverTime(label, start_time, end_time, duration) {
 }
 
 module.exports = {
+    getTopTwitterLabels: async (req, res) => {
+        const start_time = parseInt(req.body.start_time);
+        const end_time = parseInt(req.body.end_time);
+        // get label score for each post
+        const ret = await queryTopTwitterLabel(start_time, end_time);
+        res.send(ret);
+    },
+
     getTopTumblrLabels: async (req, res) => {
         const start_time = parseInt(req.body.start_time);
         const end_time = parseInt(req.body.end_time);

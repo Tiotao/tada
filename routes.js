@@ -6,9 +6,11 @@ const twitterScraper = require('./controllers/twitterScraper');
 
 var router = express.Router();
 
-router.route('/labels/top/').post(dataCtrl.getTopTumblrLabels);
+router.route('/labels/tumblr/top/').post(dataCtrl.getTopTumblrLabels);
 
-router.route('/labels/time/').post(dataCtrl.getTumblrLabelScoreOverTime);
+router.route('/labels/tumblr/time/').post(dataCtrl.getTumblrLabelScoreOverTime);
+
+router.route('/labels/twitter/top/').post(dataCtrl.getTopTwitterLabels);
 
 router.route('/youtube/scrape').get(youtubeScraper.scrape)
 
