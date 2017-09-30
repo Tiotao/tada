@@ -12,6 +12,8 @@ router.route('/labels/tumblr/time/').post(dataCtrl.getTumblrLabelScoreOverTime);
 
 router.route('/labels/twitter/top/').post(dataCtrl.getTopTwitterLabels);
 
+router.route('/labels/twitter/time/').post(dataCtrl.getTwitterLabelScoreOverTime);
+
 router.route('/youtube/scrape').get(youtubeScraper.scrape)
 
 router.route('/twitter/scrape').get(twitterScraper.scrape)
