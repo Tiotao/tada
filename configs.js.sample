@@ -1,5 +1,5 @@
 configs = {
-    env: "dev",
+    env: "staging",
 }
     
 configs.dev = {
@@ -7,15 +7,16 @@ configs.dev = {
     TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
     TUMBLR_SEARCH_KEYWORDS: ['sims', 'sims+4', 'simblr'],
     YOUTUBE_SEARCH_KEYWORDS: ['battlefront'],
-    TWITTER_SEARCH_KEYWORDS: ['battlefront'],
+    TWITTER_SEARCH_KEYWORDS: ['star wars battlefront -2 -II'],
     DB_URL: 'mongodb://localhost:27017/tada-test',
-    SCRAPE_TIME: '*/10 * * * *',
-    SCHEDULE_SCRAPE: false,
+    SCRAPE_TIME: '*/5 * * * *',
+    SCHEDULE_SCRAPE: true,
     STANDARD_SCORE: true,
     LOGGER_LEVEL: 'debug',
     DB_COLLECTION: 'image_posts',
-    TEST_DB_COLLECTION: 'web_entity',
+    TEST_DB_COLLECTION: 'twitter_scrape',
     SCREENSHOTS_PER_VIDEO: 5,
+    NLP_SCORE_FACTOR: 100
 },
 
 configs.staging = {
@@ -23,15 +24,16 @@ configs.staging = {
     TUMBLR_SEARCH_URL: 'https://www.tumblr.com/search/',
     TUMBLR_SEARCH_KEYWORDS: ['sims', 'sims+4', 'simblr'],
     YOUTUBE_SEARCH_KEYWORDS: ['battlefront'],
-    TWITTER_SEARCH_KEYWORDS: ['battlefront'],
-    DB_URL: 'mongodb://10.14.41.20:27017/tada-test',
-    SCRAPE_TIME: '*/30 * * * *',
+    TWITTER_SEARCH_KEYWORDS: ['star wars battlefront -2 -II'],
+    DB_URL: 'mongodb://localhost:27017/tada-test',
+    SCRAPE_TIME: '*/5 * * * *',
     SCHEDULE_SCRAPE: true,
     STANDARD_SCORE: true,
-    LOGGER_LEVEL: 'info',
+    LOGGER_LEVEL: 'debug',
     DB_COLLECTION: 'image_posts',
-    TEST_DB_COLLECTION: 'web_entity',
+    TEST_DB_COLLECTION: 'twitter_scrape',
     SCREENSHOTS_PER_VIDEO: 5,
+    NLP_SCORE_FACTOR: 100
 }
 
 module.exports = configs[configs.env];
