@@ -1,14 +1,9 @@
 html
     head
     body
-        each user in users
-            ul
-                li=user
-        each post in posts
-            img(src=post.image_url.low_res)
-            ul
-                each label in post.labels
-                    li #{label.description} (#{label.score})
-            h3=post.author
-            p=post.caption
-            br
+        each list in video_lists
+            h3=list.key
+            each video in list.value
+                - url = `https://www.youtube.com/embed/${video.local_id}`
+                iframe(width=200 height=200 src=url frameborder=0 allowfullscreen)
+                
