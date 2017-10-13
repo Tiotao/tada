@@ -32,9 +32,6 @@ logger.debug(JSON.stringify(configs, null, 2));
 // run schedule job
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
-    // schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
-    // schedule.scheduleJob(configs.SCRAPE_TIME, twitterScraper.scheduleScraping);
-    // schedule.scheduleJob('*/10 * * * *', youtubeScraper.scrapePixel);
     schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
 }
 
