@@ -4,8 +4,10 @@ const puppeteer = require('puppeteer');
 const _ = require('underscore');
 const color = require('img-color');
 const visionCtrl = require('./visionController');
+const languageCtrl = require('./languageController');
 const logger  = require('logger').createLogger();
 const utils = require('../utils/scrape-utils');
+const natural = require('natural');
 logger.setLevel(configs.LOGGER_LEVEL);
 
 async function getListOfVideos(browser, keyword, options) {
@@ -66,15 +68,15 @@ async function getListOfVideos(browser, keyword, options) {
             const window = duration / (options.num_shots+1);
             const video_id = video.querySelector(title_selector).getAttribute("href").replace(/\/watch\?v=/g, '');
 
-            let times = [];
-            for(let i = 1; i <= options.num_shots; i++) {
-                times[i-1] = Math.floor(i *  window);
-            }
+            // let times = [];
+            // for(let i = 1; i <= options.num_shots; i++) {
+            //     times[i-1] = Math.floor(i *  window);
+            // }
 
             const v = {
                 content: {
                     title: title,
-                    images: times,
+                    // images: times,
                     text: "",
                 },
                 source: "youtube",
@@ -208,13 +210,13 @@ async function screenshot(browser, video_id, time) {
 
 }
 
-async function scrapeKeyword(collection, keyword, options) {
+async function scrapeKeyword(video_collection, keyword, options) {
     const browser = await puppeteer.launch();
     let raw_video_list = await getListOfVideos(browser, keyword, options);
     let video_list = []
 
     async function ignoreExistingVideos(video) {
-        const post_exists = await collection.find({source:"youtube", local_id: video.local_id}).count() > 0;
+        const post_exists = await video_collection.find({source:"youtube", local_id: video.local_id}).count() > 0;
         if (!post_exists) {
             video_list.push(video);
         }
@@ -225,41 +227,7 @@ async function scrapeKeyword(collection, keyword, options) {
         let unique_promises = raw_video_list.map(ignoreExistingVideos)
         await Promise.all(unique_promises); 
 
-        let videos = [];
-
-        // take screenshot for every video
-        for (var i = 0; i < video_list.length; i++) {
-            let video = video_list[i];
-            const video_id = video.local_id;
-            let shot_promises = video.content.images.map(async (time) => {
-                try {
-                    buffer = await screenshot(browser, video_id, time)
-                    return {
-                        data: buffer,
-                        sec: time
-                    };
-                } catch (err) {
-                    logger.error(err);
-                    return null;
-                }
-            })
-            
-            const images = await Promise.all(shot_promises);
-            // filter away vidoes with incomplete screenshots
-            const has_null = images.some((e)=>{ return !e; })
-            if (has_null) {
-                video.content.image = null;
-            } else {
-                video.content.images = images;
-            }
-            
-            videos.push(video);
-        }
-        
-        
-        videos = videos.filter((v) => {
-            return v.content.images;
-        })
+        let videos = video_list;
 
         browser.close();
         return videos;
@@ -276,10 +244,11 @@ async function scrape() {
     try {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(configs.DB_URL);
-        let collection = db.collection(configs.TEST_DB_COLLECTION);
+        let video_collection = db.collection(configs.VIDEO_COLLECTION);
+        let label_collection = db.collection(configs.LABEL_COLLECTION);
         
-        const promises = keywords.map(async (keyword) => {
-            return await scrapeKeyword(collection, keyword, {
+        let promises = keywords.map(async (keyword) => {
+            return await scrapeKeyword(video_collection, keyword, {
                 is_recent: true,
                 meta_only: false
             })
@@ -289,24 +258,55 @@ async function scrape() {
 
         videos = utils.combineDuplicates(videos);
 
-        // push video to vision api
-        const vision_options = {
-            api_type: "webDetection", 
-            data_type: "buffer",
+        // label title
+        let labelled_videos = await languageCtrl.label(videos, false);
+
+        async function convertEntityToLabel(entities) {
+            const id_promises = entities.map(async (entity) => {
+
+                let label_name = natural.PorterStemmer.stem(entity.name);
+                
+                const label = await label_collection.findOne({name: label_name});
+                
+                if (label) {
+                    return {
+                        id: label._id,
+                        score: entity.salience
+                    };
+                } else {
+                    const inserted = await label_collection.insertOne({name: label_name})
+                    logger.debug("label not found, create a new label: " + label_name + " with id: " + inserted.insertedId);
+                    return {
+                        id: inserted.insertedId,
+                        score: entity.salience
+                    };
+                }
+            })
+
+            const label_ids = await Promise.all(id_promises);
+
+            return label_ids;
         }
-        
-        const db_entry = await visionCtrl.label(videos, vision_options)
-        
+
+        for (let i = 0; i < labelled_videos.length; i++) {
+            let video = labelled_videos[i];
+            const label_ids = await convertEntityToLabel(video.content.entities);
+            video.content.labels = label_ids;
+            delete video.content.entities;
+            labelled_videos[i] = video;
+        }
+
         // add into databse
-        if(db_entry.length === 0) {
+        if(labelled_videos.length === 0) {
             logger.info('no change to database.'); 
+            db.close();
             return;
         }
-        await collection.insert(db_entry);
+   
+        await video_collection.insert(labelled_videos);
+        logger.info('database updated with', labelled_videos.length, 'posts.');
         db.close();
-        logger.info('database updated with', db_entry.length, 'posts.');
-        
-        return db_entry;
+        return labelled_videos;
 
     } catch (err) {
         logger.error(err);
@@ -397,6 +397,7 @@ async function scrapePixel() {
         return []
     }
 }
+
 
 
 module.exports = {

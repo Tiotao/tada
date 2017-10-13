@@ -3,6 +3,7 @@ const configs = require('../configs');
 const logger  = require('logger').createLogger();
 logger.setLevel(configs.LOGGER_LEVEL);
 
+
 function combine(dict, entry) {
     if (entry.local_id in dict) {
         let old_search_ref = dict[entry.local_id].search_ref;
@@ -34,8 +35,32 @@ function combineDuplicates(entries) {
     return entries;
 }
 
+function groupByHour(data, end_time) {
+    let ret = [[]];
+    let ti = 0, di = 0
+    const p = 3600000;
+    const curr_time = Math.round( Date.now() / p) * p / 1000;
+    let end = curr_time,
+        start = curr_time - 3600;
+    while (start > end_time) {
+        if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
+            delete data[di].timestamp;
+            ret[ti].push(data[di]);
+            di += 1
+        } else {
+            ret.push([]);
+            ti += 1;
+            end = start
+            start = start  - 3600
+        }
+    }
+    return ret;
+}
+
+
 module.exports = {
     combineDuplicates: combineDuplicates,
     parseSeconds: parseSeconds,
+    groupByHour: groupByHour,
 }
 

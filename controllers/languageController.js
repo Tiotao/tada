@@ -6,18 +6,26 @@ const language = Language.v1beta2({
 const logger  = require('logger').createLogger();
 logger.setLevel(configs.LOGGER_LEVEL);
 
-async function labelPosts(posts) {
+async function labelPosts(posts, sentiment=true) {
 
     async function label(post) {
         const document = {
-            content: post.content.text,
+            content: post.content.title,
             type: "PLAIN_TEXT"
         }
 
         try {
-            return await language.analyzeEntitySentiment({
-                document: document
-            })
+
+            if (sentiment) {
+                return await language.analyzeEntitySentiment({
+                    document: document
+                })
+            } else {
+                return await language.analyzeEntities({
+                    document: document
+                })
+            }
+
         } catch (err) {
             logger.error(err);
             return null;
@@ -34,14 +42,14 @@ async function labelPosts(posts) {
         entities = entities.map(function(e){
             delete e.mentions;
             delete e.metadata;
+            delete e.sentiment;
             return e
         })
         posts[i].content.entities = entities;
-        posts[i].content.language = r[0].language;
+        // posts[i].content.language = r[0].language;
     }
 
     const promises = posts.map(label)
-
 
     let response = await Promise.all(promises);
 

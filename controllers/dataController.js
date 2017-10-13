@@ -1,7 +1,9 @@
 const _ = require('underscore');
 const MongoClient = require('mongodb').MongoClient;
+const ObjectId = require('mongodb').ObjectId;
 const configs = require('../configs');
 const logger  = require('logger').createLogger();
+const utils = require('../utils/scrape-utils');
 logger.setLevel(configs.LOGGER_LEVEL);
 
 function calculateLabelSentiment(entries) {
@@ -455,6 +457,186 @@ async function queryTumblrLabelScoresOverTime(label, start_time, end_time, durat
     }
 }
 
+
+async function getOneLabel(id) {
+    const db = await MongoClient.connect(configs.DB_URL);
+    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+    let label_collection = db.collection(configs.LABEL_COLLECTION);
+
+    const oId =  new ObjectId(id)
+
+    const meta = await label_collection.findOne({
+        _id: oId
+    })
+    
+    const videos = await label_collection.aggregate([
+        {
+            $match: { _id: oId}
+        },
+        {
+            $graphLookup: {
+                from: 'video',
+                startWith: '$_id',
+                connectFromField: 'content.labels.id',
+                connectToField: 'content.labels.id',
+                as: 'videos',
+                maxDepth: 0,
+            }
+        },
+        {
+            $unwind: '$videos'
+        },
+        {
+            $project: {
+                _id: 0,
+                id: "$videos._id",
+                href: {
+                    $concat: ["https://www.youtube.com/watch?v=", "$videos.local_id" ]
+                },
+                views: { $literal: 9527 },
+                title: '$videos.content.title',
+                timestamp: "$videos.timestamp"
+            }
+        }
+    ]).toArray();
+
+    
+    
+    const labels = await label_collection.aggregate([
+        {
+            $match: { name: 'battlefront'}
+        },
+        {
+            $graphLookup: {
+                from: 'video',
+                startWith: '$_id',
+                connectFromField: 'content.labels.id',
+                connectToField: 'content.labels.id',
+                as: 'videos',
+                maxDepth: 0,
+            }
+        },
+        {
+            $unwind: '$videos'
+        },
+        {
+            $unwind: '$videos.content'
+        },
+        {
+            $unwind: '$videos.content.labels'
+        },
+        { 
+            $match: { 
+                'videos.content.labels.id': { $ne: oId } 
+            } 
+        },
+        {
+            $group: {
+                _id: '$videos.content.labels.id',
+                score: {
+                    $sum: '$videos.content.labels.score'
+                },
+                count: { $sum: 1}
+            }
+        },
+        {
+            $lookup: {
+                from: 'label',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'labels',
+            }
+        },
+        {
+            $unwind: '$labels'
+        },
+        {
+            $project: {
+                score: 1,
+                count: 1,
+                id: '$_id',
+                _id: 0,
+                name: "$labels.name"
+            }
+        },
+        { $sort: { 'score': -1 } }
+    ]).toArray();
+
+
+    
+    const ret = {
+        name: meta.name,
+        id: id,
+        relations: labels,
+        history: {
+            grouped_by: "hour",
+            videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME)
+        }
+    }
+
+    return ret
+
+}
+
+async function getOneVideo(id) {
+    const db = await MongoClient.connect(configs.DB_URL);
+    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+    let label_collection = db.collection(configs.LABEL_COLLECTION);
+
+    const oId =  new ObjectId(id)
+
+    const meta = await video_collection.findOne({
+        _id: oId
+    })
+
+    const labels = await video_collection.aggregate([
+        {
+            $match: { _id: oId}
+        },
+        {
+            $unwind: "$content"
+        },
+        {
+            $unwind: "$content.labels"
+        },
+        {
+            $lookup: {
+                from: 'label',
+                localField: 'content.labels.id',
+                foreignField: '_id',
+                as: 'labels',
+            }
+        },
+        {
+            $unwind: "$labels"
+        },
+        {
+            $project: {
+                _id: 0,
+                id: "$content.labels.id",
+                score: "$content.labels.score",
+                name: "$labels.name"
+            }
+        },
+        { $sort: { 'score': -1 } }
+        
+    ]).toArray();
+
+    
+    const ret = {
+        id: id,
+        href: `https://www.youtube.com/watch?v=${meta.local_id}`,
+        channel: "YouTube",
+        views: 9527,
+        title: meta.content.title,
+        labels: labels,
+    }
+
+    return ret
+
+}
+
+
 module.exports = {
     getTopTwitterLabels: async (req, res) => {
         const start_time = parseInt(req.body.start_time);
@@ -499,5 +681,15 @@ module.exports = {
         const duration = 1200;
         const ret = await queryPixel(label, start_time, end_time, duration);
         res.render('pixel', {pixels: ret});
+    },
+
+    getOneLabel: async (req, res) => {
+        const ret = await getOneLabel(req.params.id)
+        res.send(ret);
+    },
+
+    getOneVideo: async (req, res) => {
+        const ret = await getOneVideo(req.params.id)
+        res.send(ret);
     }
 }

@@ -22,6 +22,11 @@ api.route('/twitter/scrape').get(twitterScraper.scrape)
 
 api.route('/scrape_tumblr').get(tumblrScraper.scrape);
 
+
+api.route('/label/:id').get(dataCtrl.getOneLabel);
+
+api.route('/video/:id').get(dataCtrl.getOneVideo);
+
 var view = express.Router();
 
 view.route('/').get(youtubeScraper.scrapePopular);

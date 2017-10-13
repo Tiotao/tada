@@ -34,8 +34,8 @@ if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     // schedule.scheduleJob(configs.SCRAPE_TIME, tumblrScraper.scheduleScraping);
     // schedule.scheduleJob(configs.SCRAPE_TIME, twitterScraper.scheduleScraping);
-    schedule.scheduleJob('*/10 * * * *', youtubeScraper.scrapePixel);
-    // schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
+    // schedule.scheduleJob('*/10 * * * *', youtubeScraper.scrapePixel);
+    schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
 }
 
 console.log('Magic happens on 8081');
