@@ -27,6 +27,8 @@ api.route('/labels/:id').get(dataCtrl.getOneLabel);
 
 api.route('/videos/:id').get(dataCtrl.getOneVideo);
 
+api.route('/labels').get(dataCtrl.getLabels);
+
 var view = express.Router();
 
 view.route('/').get(youtubeScraper.scrapePopular);
