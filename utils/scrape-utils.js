@@ -36,15 +36,28 @@ function combineDuplicates(entries) {
 }
 
 function groupByHour(data, end_time) {
+
+    function compare(a,b) {
+        if (a.timestamp < b.timestamp)
+          return 1;
+        if (a.timestamp > b.timestamp)
+          return -1;
+        return 0;
+    }
+
+    data.sort(compare);
+    
     let ret = [[]];
     let ti = 0, di = 0
     const p = 3600000;
     const curr_time = Math.round( Date.now() / p) * p / 1000;
     let end = curr_time,
         start = curr_time - 3600;
-    while (start > end_time) {
+    
+    while (end > end_time) {
+        console.log(di, ti, start, end)
         if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
-            delete data[di].timestamp;
+            // delete data[di].timestamp;
             ret[ti].push(data[di]);
             di += 1
         } else {
@@ -54,6 +67,9 @@ function groupByHour(data, end_time) {
             start = start  - 3600
         }
     }
+    
+    console.log(ret);
+    console.log(di);
     return ret;
 }
 

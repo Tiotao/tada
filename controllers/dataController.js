@@ -562,16 +562,20 @@ async function getOneLabel(id) {
         { $sort: { 'score': -1 } }
     ]).toArray();
 
+    let ret;
 
-    
-    const ret = {
-        name: meta.name,
-        id: id,
-        relations: labels,
-        history: {
-            grouped_by: "hour",
-            videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME)
+    if (meta) {
+        ret = {
+            name: meta.name,
+            id: id,
+            relations: labels,
+            history: {
+                grouped_by: "hour",
+                videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME)
+            }
         }
+    } else {
+        ret = {}
     }
 
     return ret
@@ -622,19 +626,25 @@ async function getOneVideo(id) {
         
     ]).toArray();
 
-    
-    const ret = {
-        id: id,
-        href: `https://www.youtube.com/watch?v=${meta.local_id}`,
-        channel: "YouTube",
-        views: 9527,
-        title: meta.content.title,
-        labels: labels,
-    }
 
+    let ret;
+
+    if (meta) {
+        ret = {
+            id: id,
+            href: `https://www.youtube.com/watch?v=${meta.local_id}`,
+            channel: "YouTube",
+            views: 9527,
+            title: meta.content.title,
+            labels: labels,
+        }
+    } else {
+        ret = {};
+    }
     return ret
 
 }
+
 
 
 module.exports = {
