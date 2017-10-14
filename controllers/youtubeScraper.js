@@ -149,7 +149,7 @@ async function getListOfVideos(browser, keyword, options) {
 
     } catch (err) {
         logger.error(err);
-        browser.close();
+        
         return []
     }
 }
@@ -211,9 +211,17 @@ async function screenshot(browser, video_id, time) {
 }
 
 async function scrapeKeyword(video_collection, keyword, options) {
+    
     const browser = await puppeteer.launch();
+    
     let raw_video_list = await getListOfVideos(browser, keyword, options);
     let video_list = []
+
+    try {
+        browser.close();
+    } catch (err) {
+        console.log("browser close failed")
+    }
 
     async function ignoreExistingVideos(video) {
         const post_exists = await video_collection.find({source:"youtube", local_id: video.local_id}).count() > 0;
@@ -223,19 +231,19 @@ async function scrapeKeyword(video_collection, keyword, options) {
         return;
     }
 
+    let ret;
+
     try {
         let unique_promises = raw_video_list.map(ignoreExistingVideos)
         await Promise.all(unique_promises); 
-
         let videos = video_list;
-
-        browser.close();
-        return videos;
+        ret = videos;
     } catch (err) {
         logger.error(err);
-        browser.close();
-        return [];
+        ret = [];
     }
+
+    return ret;
 }
 
 async function scrape() {
