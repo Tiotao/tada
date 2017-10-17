@@ -68,11 +68,6 @@ async function getListOfVideos(browser, keyword, options) {
             const window = duration / (options.num_shots+1);
             const video_id = video.querySelector(title_selector).getAttribute("href").replace(/\/watch\?v=/g, '');
 
-            // let times = [];
-            // for(let i = 1; i <= options.num_shots; i++) {
-            //     times[i-1] = Math.floor(i *  window);
-            // }
-
             const v = {
                 content: {
                     title: title,
@@ -218,7 +213,7 @@ async function scrapeKeyword(video_collection, keyword, options) {
     let video_list = []
 
     try {
-        browser.close();
+        await browser.close();
     } catch (err) {
         console.log("browser close failed")
     }
@@ -340,12 +335,12 @@ async function scrapePopular() {
         })
 
         let videos = await Promise.all(promises);
-        browser.close();
+        await browser.close();
         return videos;
 
     } catch (err) {
         logger.error(err);
-        browser.close();
+        await browser.close();
         return [];
     }
 }
@@ -396,12 +391,12 @@ async function scrapePixel() {
         await collection.insert(videos);
         db.close();
         logger.info('database updated with', videos.length, 'posts.');
-        browser.close();
+        await browser.close();
         return videos;
 
     } catch (err) {
         logger.error(err);
-        browser.close();
+        await browser.close();
         return []
     }
 }

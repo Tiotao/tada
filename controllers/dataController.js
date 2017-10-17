@@ -475,6 +475,8 @@ async function getOneLabel(id) {
             $match: { _id: oId}
         },
         {
+            
+            
             $graphLookup: {
                 from: 'video',
                 startWith: '$_id',
@@ -508,13 +510,11 @@ async function getOneLabel(id) {
             $match: { _id: oId}
         },
         {
-            $graphLookup: {
+            $lookup: {
                 from: 'video',
-                startWith: '$_id',
-                connectFromField: 'content.labels.id',
-                connectToField: 'content.labels.id',
+                localField: '_id',
+                foreignField: 'content.labels.id',
                 as: 'videos',
-                maxDepth: 0,
             }
         },
         {
