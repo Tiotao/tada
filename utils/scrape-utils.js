@@ -53,6 +53,7 @@ function groupByHour(data, end_time) {
     const curr_time = Math.round( Date.now() / p) * p / 1000;
     let end = curr_time,
         start = curr_time - 3600;
+    const end_time = curr_time - 129600; // 36 hrs
     
     while (end > end_time) {
         if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
