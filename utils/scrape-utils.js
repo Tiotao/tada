@@ -55,7 +55,6 @@ function groupByHour(data, end_time) {
         start = curr_time - 3600;
     
     while (end > end_time) {
-        console.log(di, ti, start, end)
         if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
             // delete data[di].timestamp;
             ret[ti].push(data[di]);
@@ -67,9 +66,6 @@ function groupByHour(data, end_time) {
             start = start  - 3600
         }
     }
-    
-    console.log(ret);
-    console.log(di);
     return ret;
 }
 

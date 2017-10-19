@@ -18,12 +18,14 @@ app.use(bodyParser.json())
 
 app.set('view engine', 'pug');
 app.use(morgan('tiny'));
+app.use(express.static('public'));
 
 // allow cros
 app.use(cors());
 
 app.use('/api', routes.api);
 app.use('/', routes.view);
+app.use('/manage', routes.dashboard);
 app.listen('8081');
 
 logger.debug(JSON.stringify(configs, null, 2));

@@ -463,16 +463,31 @@ async function getOneLabel(id) {
     const db = await MongoClient.connect(configs.DB_URL);
     let video_collection = db.collection(configs.VIDEO_COLLECTION);
     let label_collection = db.collection(configs.LABEL_COLLECTION);
+    let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
 
-    const oId =  new ObjectId(id)
+    const query_oid =  new ObjectId(id)
 
-    const meta = await label_collection.findOne({
-        _id: oId
+    const meta = await meta_label_collection.findOne({
+        _id: query_oid
     })
+
+    const regular = await label_collection.findOne({
+        _id: query_oid
+    })
+
+    let label_oids, query_label
+
+    if (meta) {
+        label_oids = meta.labels;
+        query_label = meta;
+    } else {
+        label_oids = [query_oid];
+        query_label = regular;
+    }
     
     const videos = await label_collection.aggregate([
         {
-            $match: { _id: oId}
+            $match: { _id: { $in: label_oids} }
         },
         {
             
@@ -502,12 +517,10 @@ async function getOneLabel(id) {
             }
         }
     ]).toArray();
-
-    
     
     const labels = await label_collection.aggregate([
         {
-            $match: { _id: oId}
+            $match: { _id: { $in: label_oids} }
         },
         {
             $lookup: {
@@ -528,7 +541,7 @@ async function getOneLabel(id) {
         },
         { 
             $match: { 
-                'videos.content.labels.id': { $ne: oId } 
+                'videos.content.labels.id': { $nin: label_oids } 
             } 
         },
         {
@@ -555,9 +568,58 @@ async function getOneLabel(id) {
             $project: {
                 score: 1,
                 count: 1,
-                id: '$_id',
-                _id: 0,
                 name: "$labels.name"
+            }
+        },
+        {
+            $lookup: {
+                from: 'meta_label',
+                localField: '_id',
+                foreignField: 'labels',
+                as: 'meta_label'
+            }
+        },
+        { $unwind: { "path": "$meta_label", "preserveNullAndEmptyArrays": true }},
+        {
+            $project: {
+                meta_id: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$_id",
+                        "$meta_label._id"
+                    ]
+                },
+                is_meta: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        false,
+                        true
+                    ]
+                },
+                name: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$name",
+                        "$meta_label.name"
+                    ]
+                },
+                score: 1,
+                count: 1
+            }
+        },
+        {
+            $group: {
+                _id: "$meta_id",
+                name: {
+                    $first: "$name"
+                },
+                is_meta: {
+                    $first: "$is_meta"
+                },
+                score: {
+                    $sum: "$score"
+                },
+                count: { $sum: "$count"}
             }
         },
         { $sort: { 'score': -1 } }
@@ -565,9 +627,9 @@ async function getOneLabel(id) {
 
     let ret;
 
-    if (meta) {
+    if (query_label) {
         ret = {
-            name: meta.name,
+            name: query_label.name,
             id: id,
             relations: labels,
             history: {
@@ -578,7 +640,7 @@ async function getOneLabel(id) {
     } else {
         ret = {}
     }
-
+    db.close();
     return ret
 }
 
@@ -616,17 +678,67 @@ async function getOneVideo(id) {
         },
         {
             $project: {
-                _id: 0,
-                id: "$content.labels.id",
+                _id: "$content.labels.id",
                 score: "$content.labels.score",
                 name: "$labels.name"
+            }
+        },
+        {
+            $lookup: {
+                from: 'meta_label',
+                localField: '_id',
+                foreignField: 'labels',
+                as: 'meta_label'
+            }
+        },
+        { $unwind: { "path": "$meta_label", "preserveNullAndEmptyArrays": true }},
+        {
+            $project: {
+                meta_id: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$_id",
+                        "$meta_label._id"
+                    ]
+                },
+                is_meta: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        false,
+                        true
+                    ]
+                },
+                name: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$name",
+                        "$meta_label.name"
+                    ]
+                },
+                score: 1,
+                count: 1
+            }
+        },
+        {
+            $group: {
+                _id: "$meta_id",
+                name: {
+                    $first: "$name"
+                },
+                is_meta: {
+                    $first: "$is_meta"
+                },
+                score: {
+                    $sum: "$score"
+                },
+                count: { $sum: "$count"}
             }
         },
         { $sort: { 'score': -1 } }
         
     ]).toArray();
 
-
+    db.close();
     let ret;
 
     if (meta) {
@@ -641,6 +753,8 @@ async function getOneVideo(id) {
     } else {
         ret = {};
     }
+
+    
     return ret
 
 }
@@ -695,10 +809,61 @@ async function getLabels() {
                 count: { $sum: 1}
             }
         },
+        {
+            $lookup: {
+                from: 'meta_label',
+                localField: '_id',
+                foreignField: 'labels',
+                as: 'meta_label'
+            }
+        },
+        { $unwind: { "path": "$meta_label", "preserveNullAndEmptyArrays": true }},
+        {
+            $project: {
+                meta_id: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$_id",
+                        "$meta_label._id"
+                    ]
+                },
+                is_meta: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        false,
+                        true
+                    ]
+                },
+                name: {
+                    $cond: [
+                        { $not: "$meta_label" },
+                        "$name",
+                        "$meta_label.name"
+                    ]
+                },
+                score: 1,
+                count: 1
+            }
+        },
+        {
+            $group: {
+                _id: "$meta_id",
+                name: {
+                    $first: "$name"
+                },
+                is_meta: {
+                    $first: "$is_meta"
+                },
+                score: {
+                    $sum: "$score"
+                },
+                count: { $sum: "$count"}
+            }
+        },
         { $sort: { 'score': -1 } }
 
     ]).toArray()
-
+    db.close();
     const ret = {
         description: {
             "sorted_by": "popularity",
@@ -706,8 +871,210 @@ async function getLabels() {
         },
         data: labels
     }
-
     return ret;
+}
+
+async function createMetaLabel(name) {
+    const db = await MongoClient.connect(configs.DB_URL);
+    let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+    const label = await meta_label_collection.findOne({name: name, labels:[]});
+
+    try {
+        if (!label) {
+            const inserted = await meta_label_collection.insertOne({name: name});
+            db.close();
+            return {
+                status: "success",
+                value: {
+                    id: inserted.insertedId,
+                    name: name
+                }
+            }
+        } else {
+            db.close();
+            return {
+                status: "duplication",
+                value: {
+                    id: label._id,
+                    name: name
+                }
+            }
+        }
+    } catch(e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+}
+
+async function deleteMetaLabel(id) {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        console.log(typeof id);
+        await meta_label_collection.remove({_id: ObjectId(id)});
+        db.close();
+        return {
+            status: "success"
+        }
+        
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+
+}
+
+async function assignLabel(meta_label_id, id) {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        await meta_label_collection.update(
+            { _id: ObjectId(meta_label_id) },
+            { $push: { 'labels': ObjectId(id) } }
+        )
+        db.close();
+        return  {
+            status: "success"
+        }
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+}
+
+async function unassignLabel(meta_label_id, id) {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        await meta_label_collection.update(
+            { _id: ObjectId(meta_label_id) },
+            { $pull: { 'labels': ObjectId(id) } }
+        )
+        db.close();
+        return  {
+            status: "success"
+        }
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+}
+
+async function getAssignedLabel(meta_label_id) {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        const label_collection = db.collection(configs.LABEL_COLLECTION);
+        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+
+        const labels = await meta_label_collection.aggregate([
+            {
+                $match: {
+                    _id: ObjectId(meta_label_id)
+                }
+            },
+            {
+                $unwind: "$labels"
+            },
+            {
+                $lookup: {
+                    from: 'label',
+                    localField: 'labels',
+                    foreignField: '_id',
+                    as: 'labels_data',
+                }
+            },
+            {
+                $unwind: "$labels_data"
+            },
+            {
+                $group:{ _id: "$_id", l: {$push : "$labels_data"} }
+            },
+            {
+                $project:{ _id:0, labels_data: "$l"}
+            }
+        ]).toArray();
+        return  {
+            status: "success",
+            value: labels[0].labels_data
+        }
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+}
+
+async function getUnassignedLabels() {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        const label_collection = db.collection(configs.LABEL_COLLECTION);
+        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const labels = await label_collection.aggregate([
+            {
+                $lookup: {
+                    from: 'meta_label',
+                    localField: '_id',
+                    foreignField: 'labels',
+                    as: 'meta_label',
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    meta_label_count: {$size: "$meta_label"}
+                }
+            },
+            {
+                $match: {
+                    "meta_label_count": {$eq: 0}
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                }
+            },
+        ]).toArray();
+        db.close();
+        return {
+            status: "success",
+            value: labels
+        }
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
+    
+}
+
+
+async function getMetaLabels() {
+    try {
+        const db = await MongoClient.connect(configs.DB_URL);
+        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const meta_labels = await meta_label_collection.find({}).toArray();
+        db.close();
+        return {
+            status: "success",
+            value: meta_labels
+        }
+    } catch (e) {
+        return {
+            status: "fail",
+            value: e
+        }
+    }
 }
 
 module.exports = {
@@ -769,5 +1136,45 @@ module.exports = {
     getLabels: async (req, res) => {
         const ret = await getLabels()
         res.send(ret);
+    },
+
+    manageLabels: async(req, res) => {
+        res.render('dashboard');
+    },
+
+    createMetaLabel: async(req, res) => {
+        const ret = await createMetaLabel(req.body.name)
+        res.send(ret);
+    },
+
+    deleteMetaLabel: async (req, res) => {
+        const ret = await deleteMetaLabel(req.body.id)
+        res.send(ret);
+    },
+
+    assignLabel: async (req, res) => {
+        const ret = await assignLabel(req.body.mid, req.body.id)
+        res.send(ret);
+    },
+
+    unassignLabel: async (req, res) => {
+        const ret = await unassignLabel(req.body.mid, req.body.id)
+        res.send(ret);
+    },
+
+    getMetaLabels: async(req, res) => {
+        const ret = await getMetaLabels()
+        res.send(ret);
+    },
+
+    getUnassignedLabels: async(req, res) => {
+        const ret = await getUnassignedLabels();
+        res.send(ret);
+    },
+
+    getAssignedLabel: async(req, res) => {
+        const ret = await getAssignedLabel(req.body.id);
+        res.send(ret);
     }
+
 }
