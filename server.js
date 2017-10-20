@@ -11,6 +11,7 @@ const router = express.Router();
 const tumblrScraper = require('./controllers/tumblrScraper');
 const twitterScraper = require('./controllers/twitterScraper');
 const youtubeScraper = require('./controllers/youtubeScraper');
+const dataController = require('./controllers/dataController');
 
 logger.setLevel(configs.LOGGER_LEVEL);
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -34,7 +35,13 @@ logger.debug(JSON.stringify(configs, null, 2));
 // run schedule job
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
-    schedule.scheduleJob(configs.SCRAPE_TIME, youtubeScraper.scheduleScraping);
+    schedule.scheduleJob(configs.SCRAPE_TIME, async () => {
+        logger.logger("Scrapping...");
+        await youtubeScraper.scheduleScraping();
+        logger.logger("Scrapping Completed. Caching...");
+        await dataController.cacheLabels();
+        logger.logger("Caching Completed.");
+    });
 }
 
 console.log('Magic happens on 8081');

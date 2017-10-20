@@ -3,43 +3,54 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const utils = require('./utils/scrape-utils');
 
-async function getOneVideo(id) {
+async function cacheLabels() {
     const db = await MongoClient.connect(configs.DB_URL);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
     let label_collection = db.collection(configs.LABEL_COLLECTION);
+    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
 
-    const oId =  new ObjectId(id)
-
-    const meta = await video_collection.findOne({
-        _id: oId
-    })
-
-    const labels = await video_collection.aggregate([
+    const labels = await label_collection.aggregate([
         {
-            $match: { _id: oId}
-        },
-        {
-            $unwind: "$content"
-        },
-        {
-            $unwind: "$content.labels"
-        },
-        {
-            $lookup: {
-                from: 'label',
-                localField: 'content.labels.id',
-                foreignField: '_id',
-                as: 'labels',
+            $graphLookup: {
+                from: 'video',
+                startWith: '$_id',
+                connectFromField: 'content.labels.id',
+                connectToField: 'content.labels.id',
+                as: 'videos',
+                maxDepth: 0,
             }
         },
         {
-            $unwind: "$labels"
+            $unwind: '$videos'
+        },
+        {
+            $unwind: '$videos.content'
         },
         {
             $project: {
-                _id: "$content.labels.id",
-                score: "$content.labels.score",
-                name: "$labels.name"
+                name: 1,
+                score: {
+                    $arrayElemAt: [{
+                        $filter: {
+                            input: "$videos.content.labels",
+                            as: "label",
+                            cond: {
+                                $eq: ['$$label.id', '$_id']
+                            }
+                        }
+                    }, 0]
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                name: {
+                    $first: "$name"
+                },
+                score: {
+                    $sum: "$score.score"
+                },
+                count: { $sum: 1}
             }
         },
         {
@@ -94,30 +105,14 @@ async function getOneVideo(id) {
             }
         },
         { $sort: { 'score': -1 } }
-        
-    ]).toArray();
+
+    ]).toArray()
 
     console.log(labels);
 
+    await cache_collection.remove();
+    await cache_collection.insertMany(labels);
     db.close();
-    let ret;
-
-    if (meta) {
-        ret = {
-            id: id,
-            href: `https://www.youtube.com/watch?v=${meta.local_id}`,
-            channel: "YouTube",
-            views: 9527,
-            title: meta.content.title,
-            labels: labels,
-        }
-    } else {
-        ret = {};
-    }
-
-    
-    return ret
-
 }
 
-getOneVideo("59e110f7c8b25a5660ce3313");
+cacheLabels();

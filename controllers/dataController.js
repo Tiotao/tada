@@ -458,7 +458,6 @@ async function queryTumblrLabelScoresOverTime(label, start_time, end_time, durat
 }
 
 
-
 async function getOneLabel(id) {
     const db = await MongoClient.connect(configs.DB_URL);
     let video_collection = db.collection(configs.VIDEO_COLLECTION);
@@ -761,8 +760,29 @@ async function getOneVideo(id) {
 
 async function getLabels() {
     const db = await MongoClient.connect(configs.DB_URL);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
+
+    const labels = await cache_collection.find({
+        $query: {},
+        $orderby: { score: -1 }
+    }).toArray();
+    
+
+    const ret = {
+        description: {
+            "sorted_by": "popularity",
+            "label_count": labels.length,
+        },
+        data: labels
+    }
+
+    return ret;
+}
+
+async function cacheLabels() {
+    const db = await MongoClient.connect(configs.DB_URL);
     let label_collection = db.collection(configs.LABEL_COLLECTION);
+    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
 
     const labels = await label_collection.aggregate([
         {
@@ -863,14 +883,9 @@ async function getLabels() {
         { $sort: { 'score': -1 } }
 
     ]).toArray()
+    const ret = await cache_collection.updateMany(labels);
     db.close();
-    const ret = {
-        description: {
-            "sorted_by": "popularity",
-            "label_count": labels.length,
-        },
-        data: labels
-    }
+    logger.debug(ret);
     return ret;
 }
 
@@ -1175,6 +1190,8 @@ module.exports = {
     getAssignedLabel: async(req, res) => {
         const ret = await getAssignedLabel(req.body.id);
         res.send(ret);
-    }
+    },
+
+    cacheLabels: cacheLabels
 
 }
