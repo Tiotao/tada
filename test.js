@@ -110,7 +110,9 @@ async function cacheLabels() {
 
     console.log(labels);
 
-    await cache_collection.remove();
+    if (cache_collection) {
+        await cache_collection.remove();
+    }
     await cache_collection.insertMany(labels);
     db.close();
 }

@@ -36,11 +36,11 @@ logger.debug(JSON.stringify(configs, null, 2));
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(configs.SCRAPE_TIME, async () => {
-        logger.logger("Scrapping...");
+        logger.log("Scrapping...");
         await youtubeScraper.scheduleScraping();
-        logger.logger("Scrapping Completed. Caching...");
+        logger.log("Scrapping Completed. Caching...");
         await dataController.cacheLabels();
-        logger.logger("Caching Completed.");
+        logger.log("Caching Completed.");
     });
 }
 

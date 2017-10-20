@@ -883,11 +883,16 @@ async function cacheLabels() {
         { $sort: { 'score': -1 } }
 
     ]).toArray()
-    const ret = await cache_collection.updateMany(labels);
+
+    console.log(labels);
+
+    if (cache_collection) {
+        await cache_collection.remove();
+    }
+    await cache_collection.insertMany(labels);
     db.close();
-    logger.debug(ret);
-    return ret;
 }
+
 
 async function createMetaLabel(name) {
     const db = await MongoClient.connect(configs.DB_URL);
