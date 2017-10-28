@@ -1,8 +1,11 @@
 const express = require('express');
 const dataCtrl = require('../controllers/dataController');
+const viewCtrl = require('../controllers/viewController');
 const tumblrScraper = require('../controllers/tumblrScraper');
 const youtubeScraper = require('../controllers/youtubeScraper');
 const twitterScraper = require('../controllers/twitterScraper');
+
+
 
 var api = express.Router();
 
@@ -30,9 +33,9 @@ api.route('/labels').get(dataCtrl.getLabels);
 
 var view = express.Router();
 
-view.route('/').get(youtubeScraper.scrapePopular);
+// view.route('/').get(youtubeScraper.scrapePopular);
 
-view.route('/pixel').get(dataCtrl.getPixels);
+view.route('/').get(viewCtrl.renderInterface);
 
 view.route('/dashboard').get(dataCtrl.manageLabels);
 

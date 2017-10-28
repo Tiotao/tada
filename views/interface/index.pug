@@ -1,0 +1,25 @@
+doctype html
+html(leng="en")
+	head
+		title= title
+		link(rel='stylesheet', href='./interface/Styles/main.css')
+	script(src='./interface/Scripts/pixi.min.js')
+	script(src='./interface/Scripts/jquery-3.2.1.min.js')
+	//- script(src='./interface/Scripts/particles.min.js')
+	body(
+		id= 'raw-data'
+		class= 'hidden-data'
+		data-data= data
+	)
+		div#particles-js
+		include Header.pug
+		include LeftBar.pug
+		include TopBar.pug
+		include Chart.pug
+		include Footer.pug
+		include Overlay.pug
+
+	script(src='./interface/Scripts/navigate.js')
+	script(src='./interface/Scripts/timeline.js')
+	//- script(src='./interface/Scripts/particles-config.js')
+	//- script(src='./interface/Scripts/stage.js')

@@ -1,0 +1,6 @@
+ul(class='LeftBarLabels')
+	each val in data
+		li
+			a(class='LeftBarLabel' id=val._id)
+				p(class='LeftBarLabelName')=val.name
+				p(class='LeftBarLabelCount')=val.count

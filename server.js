@@ -27,7 +27,7 @@ app.use(cors());
 app.use('/api', routes.api);
 app.use('/', routes.view);
 app.use('/manage', routes.dashboard);
-app.listen('8081');
+app.listen(configs.PORT);
 
 logger.debug(JSON.stringify(configs, null, 2));
 
@@ -44,6 +44,6 @@ if (configs.SCHEDULE_SCRAPE) {
     });
 }
 
-console.log('Magic happens on 8081');
+console.log('Magic happens on ' + configs.PORT);
 
 exports = module.exports = app;

@@ -1,8 +1,0 @@
-extends layout.pug
-
-block content
-    each slice in pixels
-        div.slice-container(style="width:auto; height: 300px; position:relative; display: inline-block;")
-            each color in slice
-                - style = `width: 10px; height: 10px; border-radius: 10px; margin: 4px 2px; background: ${color}`
-                div.color-block(style=style)

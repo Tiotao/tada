@@ -28,51 +28,6 @@ function calculateLabelScore(entries, count) {
     return score / count;
 }
 
-async function queryPixel(label, start_time, end_time, duration) {
-    logger.info('connecting to database...');
-    console.log(start_time, end_time);
-    const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection("pixel");
-    
-    const pixel_query = {
-        timestamp: {$gt: start_time, $lt: end_time},
-        key: label
-    }
-
-    const pixels = await collection.find(pixel_query).toArray();
-
-    console.log(pixels)
-
-    function gatherPixels(pixels, curr_time, duration) {
-        const start_bound = curr_time - duration * 0.5;
-        const end_bound = curr_time + duration * 0.5;
-
-        const pixels_in_time = pixels.filter((p)=>{
-            return p.timestamp > start_bound && p.timestamp < end_bound;
-        })
-
-        const ret = pixels_in_time.reduce((memo, pixel)=>{
-            memo.push(...pixel.value)
-            return memo
-        }, [])
-        
-        return ret
-    }
-
-    ret = []
-
-    let curr_time = end_time;
-
-    while (curr_time > start_time) {
-        const p = gatherPixels(pixels, curr_time, duration);
-        ret.push(p)
-        curr_time -= duration;
-    }
-
-    return ret
-
-}
-
 async function queryTwitterLabelScoresOverTime(label, type, start_time, end_time, duration) {
     logger.info('connecting to database...');
     const db = await MongoClient.connect(configs.DB_URL);
@@ -634,7 +589,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "hour",
-                videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME)
+                videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME, configs.SCHEDULE_SCRAPE)
             }
         }
     } else {
@@ -1135,16 +1090,6 @@ module.exports = {
         res.send(ret);
     },
 
-    getPixels: async (req, res) => {
-        const curr_time = Math.round(new Date().getTime() / 1000);
-        const start_time = parseInt(curr_time-3600*5);
-        const end_time = parseInt(curr_time);
-        const label = 'overwatch';
-        const duration = 1200;
-        const ret = await queryPixel(label, start_time, end_time, duration);
-        res.render('pixel', {pixels: ret});
-    },
-
     getOneLabel: async (req, res) => {
         const ret = await getOneLabel(req.params.id)
         res.send(ret);
@@ -1161,7 +1106,7 @@ module.exports = {
     },
 
     manageLabels: async(req, res) => {
-        res.render('dashboard');
+        res.render('manage/dashboard');
     },
 
     createMetaLabel: async(req, res) => {
