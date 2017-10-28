@@ -36,7 +36,7 @@ function combineDuplicates(entries) {
 }
 
 function groupByHour(data, end_time) {
-
+    
     function compare(a,b) {
         if (a.timestamp < b.timestamp)
           return 1;
@@ -50,14 +50,12 @@ function groupByHour(data, end_time) {
     let ret = [[]];
     let ti = 0, di = 0
     const p = 3600000;
-    const curr_time = Math.round( Date.now() / p) * p / 1000;
+    const curr_time = Math.round( Date.now() / p) * p / 1000 + 3600; // move forward by 1 hr
     let end = curr_time,
         start = curr_time - 3600;
-    // const end_time = curr_time - 129600; // 36 hrs
-    
+
     while (end > end_time) {
         if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
-            // delete data[di].timestamp;
             ret[ti].push(data[di]);
             di += 1
         } else {
@@ -67,6 +65,7 @@ function groupByHour(data, end_time) {
             start = start  - 3600
         }
     }
+    console.log(ret[0])
     return ret;
 }
 

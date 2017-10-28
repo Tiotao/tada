@@ -512,7 +512,8 @@ async function getOneLabel(id) {
                 },
                 views: { $literal: 9527 },
                 title: '$videos.content.title',
-                timestamp: "$videos.timestamp"
+                timestamp: "$videos.timestamp",
+                labels: "$videos.content.labels.id"
             }
         }
     ]).toArray();
@@ -747,6 +748,7 @@ async function getOneVideo(id) {
             channel: "YouTube",
             views: 9527,
             title: meta.content.title,
+            timestamp: meta.timestamp,
             labels: labels,
         }
     } else {
