@@ -21,8 +21,6 @@ api.route('/youtube/scrape').get(youtubeScraper.scrape)
 
 api.route('/youtube/scrape/popular').get(youtubeScraper.scrapePopular)
 
-api.route('/twitter/scrape').get(twitterScraper.scrape)
-
 api.route('/scrape_tumblr').get(tumblrScraper.scrape);
 
 api.route('/labels/:id').get(dataCtrl.getOneLabel);

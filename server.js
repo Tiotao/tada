@@ -47,4 +47,8 @@ if (configs.SCHEDULE_SCRAPE) {
 
 console.log('Magic happens on ' + configs.PORT);
 
+// youtubeScraper.scrapeStats();
+
+twitterScraper.scrape();
+
 exports = module.exports = app;
