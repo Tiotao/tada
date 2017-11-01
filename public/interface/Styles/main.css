@@ -61,6 +61,7 @@ body {
 
 .LeftBarLabel {
 	position: relative;
+	display: inline-block;
 	width: 100%;
 	cursor: pointer;
 	height: 100%;
@@ -78,7 +79,7 @@ body {
 	margin: 10px 0;
 }
 
-.LeftBarLabelName:hover {
+.LeftBarLabel *:hover {
 	color: #fff;
 }
 

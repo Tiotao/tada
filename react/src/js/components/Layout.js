@@ -1,13 +1,13 @@
 import React from "react";
 
-// import Footer from "./Footer";
 import Header from "./Header";
+import LeftBar from "./LeftBar";
 
 export default class Layout extends React.Component {
   constructor() {
     super();
     this.state = {
-      title: "Welcome",
+      title: "Tada Interface",
     };
   }
 
@@ -15,6 +15,7 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header title={this.state.title} />
+        <LeftBar />
       </div>
     );
   }
