@@ -1,147 +1,140 @@
-const MongoClient = require('mongodb').MongoClient;
 const configs = require('../configs');
-const puppeteer = require('puppeteer');
-const _ = require('underscore');
-const languageCtrl = require('./languageController');
+const MongoClient = require('mongodb').MongoClient;
 const logger  = require('logger').createLogger();
-const utils = require('../utils/scrape-utils');
 logger.setLevel(configs.LOGGER_LEVEL);
 
+const nodeUtil = require('util');
 
-async function getTweets(browser, keyword) {
-    logger.info('labelling', 'recent', 'posts from:', keyword);
-    const page = await browser.newPage();
-    page.on('console', console.log);
-    await page.goto(`https://twitter.com/search?f=tweets&vertical=default&q=${keyword}&src=typd`, {waitUntil: 'networkidle'});
+const Twitter = require('twitter');
+const TwitterClient = new Twitter({
+    consumer_key: configs.TWITTER_CONSUMER_KEY,
+    consumer_secret: configs.TWITTER_CONSUMER_SECRET,
+    bearer_token: configs.TWITTER_BEARER_TOKEN
+});
 
 
-    function scrapeTweet(options) {
-        const container_selector = ".tweet";
-        const text_selector = ".tweet-text";
-        const time_selector = "span._timestamp";
+const TwitterGet = nodeUtil.promisify(TwitterClient.get.bind(TwitterClient));
+const parallel = require('async-await-parallel');
+
+async function grabLatestTweets() {
+    let ret;
+
+    function formatTweet(tweet) {
+        let formatted_tweet = {};
+        formatted_tweet = {
+            content: {
+                text: tweet.text,
+            },
+            source: "twitter",
+            media_type: "text",
+            search_ref: [{
+                keyword: 'battlefront',
+                type: 'recent',
+            }],
+            entities: {
+                urls: tweet.entities.urls.reduce((memo, curr)=>{
+                    memo.push(curr.expanded_url);
+                    return memo
+                }, []),
+                videos: []
         
-        const containers = [...document.querySelectorAll(container_selector)];
-
-        if (!containers) {
-            return [];
+            },
+            local_id: tweet.id_str,
+            author: tweet.user.screen_name,
+            timestamp: new Date(tweet.created_at).getTime() / 1000
         }
 
-        function extractData(tweet) {
-            const text = tweet.querySelector(text_selector).textContent.replace(/\n/g, " ");
-            const tweet_id = tweet.getAttribute("data-tweet-id").toString();
-            const author = tweet.getAttribute("data-screen-name").toString();
-            const timestamp = parseInt(tweet.querySelector(time_selector).getAttribute("data-time"));
-
-            const t = {
-                content: {
-                    text: text,
-                },
-                source: "twitter",
-                media_type: "text",
-                search_ref: [{
-                    keyword: options.keyword,
-                    type: options.search_type
-                }],
-                local_id: tweet_id,
-                author: author,
-                
-                timestamp: timestamp || Math.round(new Date().getTime() / 1000)
+        for (let i = 0; i < formatted_tweet.entities.urls.length; i++) {
+            const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = formatted_tweet.entities.urls[i].match(regExp);
+            if (match && match[2].length == 11) {
+                formatted_tweet.entities.videos.push({
+                    id: match[2],
+                    source: "youtube"
+                })
             }
-
-            return t;
         }
 
-        let tweets = containers
-            .map(extractData);
-        
-        return tweets;
-
-    }
-
-    const scrape_options = { 
-        keyword: keyword,
-        search_type: "recent"
+        return formatted_tweet;
     }
 
     try {
-        let tweets = await page.evaluate(scrapeTweet, scrape_options);
-        logger.debug(tweets);
-        return tweets;
-    } catch (err) {
-        logger.error(err);
-        browser.close();
-        return[];
+        ret = await TwitterGet('search/tweets', {
+            q: 'battlefront',
+            result_type: 'recent',
+            count: 100,
+            // since_id: since_id,
+            include_entities: true
+        });
+    } catch (error) {
+        ret = []
+        console.log(error);
     }
-    
+
+    return ret.statuses.map(formatTweet);
 }
 
-async function scrapeKeyword(collection, keyword) {
-    const browser = await puppeteer.launch();
-    let raw_tweets = await getTweets(browser, keyword);
-    let tweets = []
+async function updateYouTubeLatestMention(tweets) {
 
-    async function ignoreExistingTweets(tweet) {
-        const tweet_exists = await collection.find({source: "twitter", local_id: tweet.local_id}).count() > 0;
-        if (!tweet_exists) {
-            tweets.push(tweet);
+    const db = await MongoClient.connect(configs.DB_URL);
+    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+
+    function tweetWithVideos(tweet) {
+        return tweet.entities.videos.length > 0;
+    }
+
+    function videoMentions(mentions, tweet) {
+        let videos = tweet.entities.videos;
+        for (let i = 0; i < videos.length; i++) {
+            mentions.push({
+                id: videos[i].id,
+                timestamp: tweet.timestamp,
+                source: "twitter",
+                source_id: tweet.local_id,
+            })
         }
-        return;
+        return mentions
     }
 
-    try {
-        await Promise.all(raw_tweets.map(ignoreExistingTweets));
-        browser.close();
-        return tweets;
-    } catch (err) {
-        logger.error(err);
-        browser.close();
-        return [];
+    function updateLastMention(mention) {
+        return async () => {
+            const ret = await video_collection.findOneAndUpdate({
+                "local_id": mention.id
+            }, {
+                $set: {
+                    "stats": {
+                        "last_mention": {
+                            "timestamp": mention.timestamp,
+                            'source': mention.source,
+                            "source_id": mention.source_id
+                        }
+                    }
+                }
+            })
+            return ret;
+        }
     }
     
-}
+    const mentions = tweets.filter(tweetWithVideos).reduce(videoMentions, []);
+    
+    let promises = mentions.map(updateLastMention);
 
+    const ret = await parallel(promises, 100);
+    
+    const updated_entry = ret.filter((r)=>{ return r.value !== null });
+
+    logger.debug(updated_entry);
+
+    logger.log(`${updated_entry.length} video entries updated, ${ret.length - updated_entry.length} not found.`);
+
+}
 
 async function scrape() {
-    logger.info('start scarpping twitter recent posts...');
-    const keywords = configs.TWITTER_SEARCH_KEYWORDS;
-    try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        let collection = db.collection(configs.TEST_DB_COLLECTION);
-
-        const promises = keywords.map(async (keyword) => {
-            return await scrapeKeyword(collection, keyword);
-        })
-
-        let tweets = await Promise.all(promises);
-
-        tweets = utils.combineDuplicates(tweets);
-
-        db_entry = await languageCtrl.label(tweets);
-
-        logger.info(db_entry);
-
-        if(db_entry.length === 0) {
-            logger.info('no change to database.'); 
-            return;
-        }
-        await collection.insert(db_entry);
-        db.close();
-        logger.info('database updated with', db_entry.length, 'posts.');
-        
-        return db_entry;
-
-    } catch (err) {
-        logger.error(err);
-        return err;
-    }
-
+    const tweets = await grabLatestTweets();
+    updateYouTubeLatestMention(tweets);
 }
 
+
 module.exports = {
-    scrape: async (req, res) => {
-        const ret = await scrape();
-        res.send(ret);
-    },
-    
-    scheduleScraping: scrape,
+    scrape: scrape,
 }

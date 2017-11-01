@@ -8,7 +8,39 @@ const languageCtrl = require('./languageController');
 const logger  = require('logger').createLogger();
 const utils = require('../utils/scrape-utils');
 const natural = require('natural');
+const parallel = require('async-await-parallel');
 logger.setLevel(configs.LOGGER_LEVEL);
+
+async function getVideoStats(browser, video_id) {
+    logger.info('getting stats for video: ' + video_id)
+    try {
+        const page = await browser.newPage();
+        await page.goto(`https://www.youtube.com/watch?v=${video_id}`, {waitUntil: 'networkidle'});
+    
+        const view_count_selector = "span.view-count";
+        const view_count = await page.evaluate(selector => {
+            const element = document.querySelector(selector);
+            let d = ""
+            if (element) {
+                d = element.textContent;
+            }
+            return d;
+        }, view_count_selector);
+        await page.close();
+        return {
+            id: video_id,
+            view_count: parseInt(view_count.replace(/views/g,'')) || -1
+        }
+    } catch (err) {
+        logger.error(err);
+        await page.close();
+        return {
+            id: video_id,
+            view_count: -1
+        }
+    }
+    
+}
 
 async function getListOfVideos(browser, keyword, options) {
     logger.info('labelling', 'recent', 'posts from:', keyword);
@@ -118,7 +150,7 @@ async function getListOfVideos(browser, keyword, options) {
             }
             return d;
         }, desc_selector);
-        page.close();
+        await page.close();
         return desc;
     }
 
@@ -200,7 +232,7 @@ async function screenshot(browser, video_id, time) {
     });
 
     logger.debug(`Took screenshot of ${video_id} at ${time}`);
-    page.close();
+    await page.close();
     return img_buffer;
 
 }
@@ -317,6 +349,67 @@ async function scrape() {
     }
 }
 
+async function scrapeStats() {
+    try {
+
+        console.time("SCRAPE_STATS");
+
+        logger.info('scrapping stats of youtube video...')
+        logger.info('connecting to database...');
+        const db = await MongoClient.connect(configs.DB_URL);
+        let video_collection = db.collection(configs.VIDEO_COLLECTION);
+
+        let videos = await video_collection.aggregate(
+            [
+                {
+                    $project: {
+                        _id: 0,
+                        local_id: 1
+                    }
+                }
+            ]
+        ).toArray();
+
+        // videos = videos.slice(0, 10);
+
+        const browser = await puppeteer.launch();
+
+        let promises = videos.map((v) => {
+            return async ()=>{
+                const data = await getVideoStats(browser, v.local_id);
+                logger.debug(v.local_id + " finished!")
+                return data;
+            }
+        });
+
+        const view_counts = await parallel(promises, 20);
+
+        let update_promises = view_counts.map((vc) => {
+            return async() => {
+                await video_collection.findOneAndUpdate({
+                    "local_id": vc.id
+                }, {
+                    $set: {
+                        "stats": {
+                            "view_count": vc.view_count
+                        }
+                    }
+                })
+            }
+        })
+
+        await parallel(update_promises, 100);
+
+        logger.log(`${update_promises.length} videos' stats updated.`)
+        console.timeEnd("SCRAPE_STATS");
+        await browser.close();
+    } catch (err) {
+        logger.error(err);
+        await browser.close();
+    }
+
+}
+
 async function scrapePopular() {
     logger.info('start scarpping youtube popular posts...');
     const keywords = configs.YOUTUBE_POPULAR_SEARCH_KEYWORDS;
@@ -345,64 +438,6 @@ async function scrapePopular() {
     }
 }
 
-async function scrapePixel() {
-    logger.info('start scarpping youtube popular posts into pixel...');
-    const keywords = configs.YOUTUBE_SEARCH_KEYWORDS;
-    try {
-
-        logger.info('connecting to database...');
-        const db = await MongoClient.connect(configs.DB_URL);
-        let collection = db.collection("pixel");
-
-
-        const browser = await puppeteer.launch();
-        
-        const promises = keywords.map(async (keyword) => {
-
-            const vs = await getListOfVideos(browser, keyword, {
-                is_recent: true,
-                meta_only: true
-            })
-
-            let ret = []
-
-            for (let i = 0; i < vs.length; i++) {
-                const video_id = vs[i].local_id;
-                const url = `https://img.youtube.com/vi/${video_id}/0.jpg`;
-                const c = await color.getDominantColor(url)
-                ret.push(`#${c.dColor}`);
-            }
-
-            return {
-                value: ret, 
-                key: keyword,
-                timestamp: Math.round(new Date().getTime() / 1000)
-            }
-
-        })
-
-        let videos = await Promise.all(promises);
-
-        if(videos.length === 0) {
-            logger.info('no change to database.'); 
-            return;
-        }
-
-        await collection.insert(videos);
-        db.close();
-        logger.info('database updated with', videos.length, 'posts.');
-        await browser.close();
-        return videos;
-
-    } catch (err) {
-        logger.error(err);
-        await browser.close();
-        return []
-    }
-}
-
-
-
 module.exports = {
     scrape: async (req, res) => {
         const ret = await scrape();
@@ -413,8 +448,9 @@ module.exports = {
         const ret = await scrapePopular();
         res.render('index', {video_lists: ret});
     },
+
+    scrapeStats: scrapeStats,
     
     scheduleScraping: scrape,
 
-    scrapePixel: scrapePixel,
 }
