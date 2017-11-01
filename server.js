@@ -20,6 +20,7 @@ app.use(bodyParser.json())
 app.set('view engine', 'pug');
 app.use(morgan('tiny'));
 app.use(express.static('public'));
+console.log("serving public")
 
 // allow cros
 app.use(cors());
