@@ -1,7 +1,8 @@
-import React from "react";
-import PIXI from "pixi";
+import React, {Component, PropTypes} from "react";
+import * as PIXI from "pixi.js"
 
 export default class Canvas extends React.Component {
+
 	componentDidMount() {
 		this.renderer = PIXI.autoDetectRenderer(100, 200);
 		this.refs.canvas.appendChild(this.renderer.view);
