@@ -2,253 +2,127 @@ const MongoClient = require('mongodb').MongoClient;
 const configs = require('../configs');
 const puppeteer = require('puppeteer');
 const _ = require('underscore');
+const nodeUtil = require('util');
 const color = require('img-color');
 const visionCtrl = require('./visionController');
 const languageCtrl = require('./languageController');
+const google = require('googleapis');
+const YouTubeClient = google.youtube({
+    version: 'v3',
+    auth: configs.YOUTUBE_API_KEY
+ });
+
+const YouTubeGetStats = nodeUtil.promisify(YouTubeClient.videos.list.bind(YouTubeClient.videos))
+const YouTubeGetRecent = nodeUtil.promisify(YouTubeClient.search.list.bind(YouTubeClient.search))
+
 const logger  = require('logger').createLogger();
 const utils = require('../utils/scrape-utils');
 const natural = require('natural');
 const parallel = require('async-await-parallel');
 logger.setLevel(configs.LOGGER_LEVEL);
 
-async function getVideoStats(browser, video_id) {
-    logger.info('getting stats for video: ' + video_id)
-    try {
-        const page = await browser.newPage();
-        await page.goto(`https://www.youtube.com/watch?v=${video_id}`, {waitUntil: 'networkidle'});
-    
-        const view_count_selector = "span.view-count";
-        const view_count = await page.evaluate(selector => {
-            const element = document.querySelector(selector);
-            let d = ""
-            if (element) {
-                d = element.textContent;
-            }
-            return d;
-        }, view_count_selector);
-        await page.close();
-        return {
-            id: video_id,
-            view_count: parseInt(view_count.replace(/views/g,'')) || -1
+async function getListOfVideos(query, method) {
+    logger.info('labelling', 'recent', 'posts from:', query);
+
+    function formatVideo(video, method, mention) {
+        let formatted_video = {};
+        formatted_video = {
+            content: {
+                title: video.snippet.title,
+                // images: times,
+                text: video.snippet.description,
+            },
+            source: "youtube",
+            media_type: "video",
+            search_ref: [{
+                keyword: query,
+                type: 'recent',
+            }],
+            local_id: video.id.videoId || video.id,
+            author: video.snippet.channelTitle,
+            timestamp: new Date(video.snippet.publishedAt).getTime() / 1000
         }
-    } catch (err) {
-        logger.error(err);
-        await page.close();
-        return {
-            id: video_id,
-            view_count: -1
-        }
-    }
-    
-}
-
-async function getListOfVideos(browser, keyword, options) {
-    logger.info('labelling', 'recent', 'posts from:', keyword);
-    const page = await browser.newPage();
-    page.setViewport({width: 1280, height: 800, deviceScaleFactor: 1});
-    page.on('console', console.log);
-    let url;
-    if (options.is_recent) {
-        url = `https://www.youtube.com/results?sp=CAISBAgBEAFQFA%253D%253D&q=${keyword}`
-    } else {
-        url = `https://www.youtube.com/results?q=${keyword}`
-    }
-
-    await page.goto(url, {waitUntil: 'networkidle'});
-    
-    function scrapeVideoMeta(options) {
-
-        const container_selector = "ytd-video-renderer";
-        const title_selector = "#video-title";
-        const author_selector = '#byline';
-        const duration_selector = "ytd-thumbnail ytd-thumbnail-overlay-time-status-renderer span";
-
-        const containers = [...document.querySelectorAll(container_selector)];
-        
-        if (!containers) {
-            return [];
-        }
-
-        
-        function onlyVideo(video, index) {
-            const duration_label = video.querySelector(duration_selector);
-            let reached_max;
-            if (options.max) {
-                reached_max = index > options.max;
-            } else {
-                reached_max = false;
-            }
-            return duration_label && duration_label.getAttribute("aria-label") != 'LIVE' && !reached_max;
-        }
-
-        function extractMeta(video) {
-
-            function parseSeconds(str){
-                var p = str.split(':'),
-                    s = 0, m = 1;
-
-                while (p.length > 0) {
-                    s += m * parseInt(p.pop(), 10);
-                    m *= 60;
+        if (method == "id") {
+            formatted_video.stats = {
+                "view_count": parseInt(video.statistics.viewCount),
+                "like_count": parseInt(video.statistics.likeCount),
+                "dislike_count": parseInt(video.statistics.dislikeCount),
+                "fav_count": parseInt(video.statistics.favoriteCount),
+                "comment_count": parseInt(video.statistics.commentCount),
+                "vl_ratio": video.statistics.likeCount / video.statistics.viewCount,
+                "last_mention": {
+                    "timestamp": mention.timestamp,
+                    'source': mention.source,
+                    "source_id": mention.source_id
                 }
-                return s;
-            }
-                        
-            const title =  video.querySelector(title_selector).getAttribute("title");
-            const author = video.querySelector(author_selector).textContent;
-            const duration =  parseSeconds(video.querySelector(duration_selector).textContent.replace(/\s/g, ''));
-            const window = duration / (options.num_shots+1);
-            const video_id = video.querySelector(title_selector).getAttribute("href").replace(/\/watch\?v=/g, '');
-
-            const v = {
-                content: {
-                    title: title,
-                    // images: times,
-                    text: "",
-                },
-                source: "youtube",
-                media_type: "video",
-                search_ref: [{
-                    keyword: options.keyword,
-                    type: options.search_type
-                }],
-                local_id: video_id,
-                author: author,
-                
-                timestamp: Math.round(new Date().getTime() / 1000)
-            }
-            return v;
+            };
+            formatted_video.search_ref = [{
+                keyword: 'battlefront',
+                type: 'twitter_mention',
+            }];
         }
-
-        
-
-        let videos = containers
-            .filter(onlyVideo, this)
-            .map(extractMeta);
-        
-        
-        
-
-        return videos
+        return formatted_video;
     }
 
-    async function getVideoDescription(video) {
-        const page = await browser.newPage();
-        page.on('console', console.log);
-        page.setViewport({width: 1280, height: 800, deviceScaleFactor: 1});
-        const video_id = video.local_id
-        logger.debug(video_id);
-        await page.goto(`https://www.youtube.com/watch?v=${video_id}`, {waitUntil: 'networkidle'});
-
-        const desc_selector = "#description";
-
-        const desc = await page.evaluate(selector => {
-            const element = document.querySelector(selector);
-            let d = ""
-            if (element) {
-                d = element.textContent;
-            }
-            return d;
-        }, desc_selector);
-        await page.close();
-        return desc;
+    function videoToDict(dict, video) {
+        dict[video.local_id] = video;
+        return dict;
     }
 
-    const scrape_options = { 
-        num_shots: configs.SCREENSHOTS_PER_VIDEO, 
-        keyword: keyword,
-        search_type: "recent",
-        max: options.max
+    function appendStats(dict, vs) {
+        dict[vs.id].stats =  {
+            "view_count": parseInt(vs.statistics.viewCount),
+            "like_count": parseInt(vs.statistics.likeCount),
+            "dislike_count": parseInt(vs.statistics.dislikeCount),
+            "fav_count": parseInt(vs.statistics.favoriteCount),
+            "comment_count": parseInt(vs.statistics.commentCount),
+            "vl_ratio": vs.statistics.likeCount / vs.statistics.viewCount
+        }
+        return dict;
     }
 
     try {
-        let videos = await page.evaluate(scrapeVideoMeta, scrape_options);
-        if (!options.meta_only) {
-            logger.debug(videos)
-            let desc_promises = videos.map(async(video) => {
-                const desc = await getVideoDescription(video);
-                video.content.text = desc;
-                return video;
+        let response;
+        if (method == "keyword") {
+            response = await YouTubeGetRecent({
+                "part": "snippet",
+                "q": query,
+                "type": "video",
+                "maxResults": 50,
+                "order": "date"
             })
-            videos = await Promise.all(desc_promises);
+        } else {
+            response = await YouTubeGetStats({
+                "part": "snippet, statistics",
+                "id": query.ids.join(','),
+            })
+
         }
+
+        
+        let videos = response.items.map((v)=>{ 
+            return formatVideo(v, method, query.mentions[v.id])});
+
+        if (method == "id") {
+            return videos;
+        }
+        
+        let videos_dict = videos.reduce(videoToDict, {});
+        const video_stats = await scrapeStats(videos);
+        videos_dict = video_stats.reduce(appendStats, videos_dict);
+        videos = _.values(videos_dict);
         return videos;
 
     } catch (err) {
         logger.error(err);
-        
         return []
     }
 }
 
-async function screenshot(browser, video_id, time) {
+async function scrapeKeyword(video_collection, keyword) {
     
-    // const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    
-    page.setViewport({width: 1280, height: 800, deviceScaleFactor: 1});
-    page.on('console', console.log);
-
-    logger.debug(`Taking screenshot of ${video_id} at ${time}`);
-
-    await page.goto(`https://www.youtube.com/embed/${video_id}?hd=1&autoplay=1&start=${time}`, {waitUntil: 'networkidle'});
-
-    async function screenshotDOMElement(opts = {}) {
-        const padding = 'padding' in opts ? opts.padding : 0;
-        const selector = opts.selector;
-        const video_id = opts.video_id;
-        const time = opts.time;
-        if (!selector) 
-            throw Error('Please provide a selector.');
-
-        const rect = await page.evaluate(selector => {
-            const element = document.querySelector(selector);
-            if (!element)
-                return null;
-            const {x, y, width, height} = element.getBoundingClientRect();
-            
-            return {left: x, top: y, width, height, id: element.id};
-        }, selector);
-
-        if (!rect)
-            throw Error(`Could not find element that matches selector: ${selector} for ${video_id} at ${time}.`);
-
-        const shot = await page.screenshot({
-            clip: {
-                x: rect.left - padding,
-                y: rect.top - padding,
-                width: rect.width + padding * 2,
-                height: rect.height + padding * 2
-            }
-        });
-        return shot;
-    }
-
-    const img_buffer = await screenshotDOMElement({
-        selector: '.ytp-iv-video-content, video',
-        video_id: video_id,
-        time: time,
-        padding: 0
-    });
-
-    logger.debug(`Took screenshot of ${video_id} at ${time}`);
-    await page.close();
-    return img_buffer;
-
-}
-
-async function scrapeKeyword(video_collection, keyword, options) {
-    
-    const browser = await puppeteer.launch();
-    
-    let raw_video_list = await getListOfVideos(browser, keyword, options);
+    let raw_video_list = await getListOfVideos(keyword, "keyword");
     let video_list = []
-
-    try {
-        await browser.close();
-    } catch (err) {
-        console.log("browser close failed")
-    }
 
     async function ignoreExistingVideos(video) {
         const post_exists = await video_collection.find({source:"youtube", local_id: video.local_id}).count() > 0;
@@ -273,7 +147,8 @@ async function scrapeKeyword(video_collection, keyword, options) {
     return ret;
 }
 
-async function scrape() {
+async function scrape(mentions) {
+    
     logger.info('start scarpping youtube recent posts...');
     const keywords = configs.YOUTUBE_SEARCH_KEYWORDS;
     try {
@@ -281,15 +156,20 @@ async function scrape() {
         const db = await MongoClient.connect(configs.DB_URL);
         let video_collection = db.collection(configs.VIDEO_COLLECTION);
         let label_collection = db.collection(configs.LABEL_COLLECTION);
-        
-        let promises = keywords.map(async (keyword) => {
-            return await scrapeKeyword(video_collection, keyword, {
-                is_recent: true,
-                meta_only: false
+        let promises;
+
+        if (mentions) {
+            logger.info('start scarpping youtube video with id: ' + mentions);
+            promises = [await getListOfVideos(mentions, "id")]
+        } else {
+            promises = keywords.map(async (keyword) => {
+                return await scrapeKeyword(video_collection, keyword)
             })
-        })
+        }
 
         let videos = await Promise.all(promises);
+
+        
 
         videos = utils.combineDuplicates(videos);
 
@@ -349,94 +229,90 @@ async function scrape() {
     }
 }
 
-async function scrapeStats() {
+async function scrapeStats(query_videos) {
     try {
-
         console.time("SCRAPE_STATS");
-
         logger.info('scrapping stats of youtube video...')
         logger.info('connecting to database...');
         const db = await MongoClient.connect(configs.DB_URL);
         let video_collection = db.collection(configs.VIDEO_COLLECTION);
+        let videos;
 
-        let videos = await video_collection.aggregate(
-            [
-                {
-                    $project: {
-                        _id: 0,
-                        local_id: 1
+        if (!query_videos) {
+            videos = await video_collection.aggregate(
+                [
+                    {
+                        $project: {
+                            _id: 0,
+                            local_id: 1
+                        }
                     }
-                }
-            ]
-        ).toArray();
+                ]
+            ).toArray();
+        } else {
+            videos = query_videos;
+        }
+        
+        const video_ids = videos.reduce((ids, v)=>{
+            ids.push(v.local_id);
+            return ids
+        }, []);
 
-        // videos = videos.slice(0, 10);
+        // split ids into chunks
+        const call_chunks = 50
+        let stats_promises = [];
+        for (let i = 0; i < video_ids.length; i+= call_chunks) {
+            let ids = video_ids.slice(i, i+call_chunks);
+            stats_promises.push(async()=>{
+                return await YouTubeGetStats({
+                    part: 'statistics',
+                    id: ids.join(',')
+                })
+            })
+        }
 
-        const browser = await puppeteer.launch();
+        const response = await parallel(stats_promises, 100);
 
-        let promises = videos.map((v) => {
-            return async ()=>{
-                const data = await getVideoStats(browser, v.local_id);
-                logger.debug(v.local_id + " finished!")
-                return data;
-            }
-        });
+        const video_stats = response.reduce((stats, res)=>{
+            stats.push.apply(stats, res.items);
+            return stats;
+        }, [])
 
-        const view_counts = await parallel(promises, 20);
-
-        let update_promises = view_counts.map((vc) => {
+        if (query_videos) {
+            return video_stats;
+        }
+        
+        let update_promises = video_stats.map((vs) => {
             return async() => {
                 await video_collection.findOneAndUpdate({
-                    "local_id": vc.id
+                    "local_id": vs.id
                 }, {
                     $set: {
-                        "stats": {
-                            "view_count": vc.view_count
-                        }
+                        "stats.view_count": parseInt(vs.statistics.viewCount),
+                        "stats.like_count": parseInt(vs.statistics.likeCount),
+                        "stats.dislike_count": parseInt(vs.statistics.dislikeCount),
+                        "stats.fav_count": parseInt(vs.statistics.favoriteCount),
+                        "stats.comment_count": parseInt(vs.statistics.commentCount),
+                        "stats.vl_ratio": vs.statistics.likeCount / vs.statistics.viewCount
                     }
                 })
             }
         })
 
         await parallel(update_promises, 100);
+        
+        logger.log(`Out of ${video_ids.length} videos, ${update_promises.length} videos' stats updated. `)
 
-        logger.log(`${update_promises.length} videos' stats updated.`)
         console.timeEnd("SCRAPE_STATS");
-        await browser.close();
-    } catch (err) {
-        logger.error(err);
-        await browser.close();
-    }
-
-}
-
-async function scrapePopular() {
-    logger.info('start scarpping youtube popular posts...');
-    const keywords = configs.YOUTUBE_POPULAR_SEARCH_KEYWORDS;
-    try {
-        const browser = await puppeteer.launch();
-        const promises = keywords.map(async (keyword) => {
-            return {
-                value: await getListOfVideos(browser, keyword, {
-                    is_recent: false,
-                    meta_only: true,
-                    max: 5
-                }), 
-                key: keyword
-            }
-
-        })
-
-        let videos = await Promise.all(promises);
-        await browser.close();
-        return videos;
 
     } catch (err) {
         logger.error(err);
-        await browser.close();
         return [];
+        // await browser.close();
     }
+
 }
+
 
 module.exports = {
     scrape: async (req, res) => {
@@ -444,13 +320,8 @@ module.exports = {
         res.send(ret);
     },
 
-    scrapePopular: async(req, res) => {
-        const ret = await scrapePopular();
-        res.render('index', {video_lists: ret});
-    },
-
     scrapeStats: scrapeStats,
-    
+    getListOfVideos: getListOfVideos,
     scheduleScraping: scrape,
 
 }

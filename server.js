@@ -37,18 +37,24 @@ logger.debug(JSON.stringify(configs, null, 2));
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(configs.SCRAPE_TIME, async () => {
-        logger.log("Scrapping...");
-        await youtubeScraper.scheduleScraping();
+        logger.log("Monitering Twitter Mentions...");
+        await twitterScraper.scrape();
         logger.log("Scrapping Completed. Caching...");
         await dataController.cacheLabels();
         logger.log("Caching Completed.");
+    });
+
+    schedule.scheduleJob(configs.STATS_TIME, async () => {
+        logger.log("Updating Video Stats...");
+        await youtubeScraper.scrapeStats();
+        logger.log("Stats Update Completed.");
     });
 }
 
 console.log('Magic happens on ' + configs.PORT);
 
-// youtubeScraper.scrapeStats();
-
 twitterScraper.scrape();
+
+
 
 exports = module.exports = app;
