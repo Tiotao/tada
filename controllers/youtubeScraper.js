@@ -1,9 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const configs = require('../configs');
-const puppeteer = require('puppeteer');
 const _ = require('underscore');
 const nodeUtil = require('util');
-const color = require('img-color');
 const visionCtrl = require('./visionController');
 const languageCtrl = require('./languageController');
 const google = require('googleapis');
@@ -24,7 +22,7 @@ logger.setLevel(configs.LOGGER_LEVEL);
 async function getListOfVideos(query, method) {
     logger.info('labelling', 'recent', 'posts from:', query);
 
-    function formatVideo(video, method, mention) {
+    function formatVideo(video, method) {
         let formatted_video = {};
         formatted_video = {
             content: {
@@ -43,6 +41,7 @@ async function getListOfVideos(query, method) {
             timestamp: new Date(video.snippet.publishedAt).getTime() / 1000
         }
         if (method == "id") {
+            let mention = query.mentions[video.id]
             formatted_video.stats = {
                 "view_count": parseInt(video.statistics.viewCount),
                 "like_count": parseInt(video.statistics.likeCount),
@@ -99,9 +98,9 @@ async function getListOfVideos(query, method) {
 
         }
 
-        
         let videos = response.items.map((v)=>{ 
-            return formatVideo(v, method, query.mentions[v.id])});
+            return formatVideo(v, method)
+        });
 
         if (method == "id") {
             return videos;
@@ -159,7 +158,7 @@ async function scrape(mentions) {
         let promises;
 
         if (mentions) {
-            logger.info('start scarpping youtube video with id: ' + mentions);
+            logger.info('start scarpping youtube video with id');
             promises = [await getListOfVideos(mentions, "id")]
         } else {
             promises = keywords.map(async (keyword) => {
@@ -301,7 +300,7 @@ async function scrapeStats(query_videos) {
 
         await parallel(update_promises, 100);
         
-        logger.log(`Out of ${video_ids.length} videos, ${update_promises.length} videos' stats updated. `)
+        logger.info(`Out of ${video_ids.length} videos, ${update_promises.length} videos' stats updated. `)
 
         console.timeEnd("SCRAPE_STATS");
 

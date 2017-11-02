@@ -20,7 +20,6 @@ app.use(bodyParser.json())
 app.set('view engine', 'pug');
 app.use(morgan('tiny'));
 app.use(express.static('public'));
-console.log("serving public")
 
 // allow cros
 app.use(cors());
@@ -37,23 +36,27 @@ logger.debug(JSON.stringify(configs, null, 2));
 if (configs.SCHEDULE_SCRAPE) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(configs.SCRAPE_TIME, async () => {
+        logger.log("Scraping New Videos...");
+        await youtubeScraper.scheduleScraping();
         logger.log("Monitering Twitter Mentions...");
         await twitterScraper.scrape();
         logger.log("Scrapping Completed. Caching...");
         await dataController.cacheLabels();
         logger.log("Caching Completed.");
-    });
-
-    schedule.scheduleJob(configs.STATS_TIME, async () => {
-        logger.log("Updating Video Stats...");
         await youtubeScraper.scrapeStats();
         logger.log("Stats Update Completed.");
     });
+
+    // schedule.scheduleJob(configs.STATS_TIME, async () => {
+    //     logger.log("Updating Video Stats...");
+    //     await youtubeScraper.scrapeStats();
+    //     logger.log("Stats Update Completed.");
+    // });
 }
 
 console.log('Magic happens on ' + configs.PORT);
 
-twitterScraper.scrape();
+// twitterScraper.scrape();
 
 
 
