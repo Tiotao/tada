@@ -465,7 +465,7 @@ async function getOneLabel(id) {
                 href: {
                     $concat: ["https://www.youtube.com/watch?v=", "$videos.local_id" ]
                 },
-                views: { $literal: 9527 },
+                views:'$videos.stats.view_count',
                 title: '$videos.content.title',
                 timestamp: "$videos.timestamp",
                 labels: "$videos.content.labels.id"
@@ -701,7 +701,7 @@ async function getOneVideo(id) {
             id: id,
             href: `https://www.youtube.com/watch?v=${meta.local_id}`,
             channel: "YouTube",
-            views: 9527,
+            views: meta.stats.view_count,
             title: meta.content.title,
             timestamp: meta.timestamp,
             labels: labels,

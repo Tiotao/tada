@@ -5,6 +5,8 @@ logger.setLevel(configs.LOGGER_LEVEL);
 
 const nodeUtil = require('util');
 
+const youtubeScraper = require('./youtubeScraper');
+
 const Twitter = require('twitter');
 const TwitterClient = new Twitter({
     consumer_key: configs.TWITTER_CONSUMER_KEY,
@@ -102,20 +104,23 @@ async function updateYouTubeLatestMention(tweets) {
                 "local_id": mention.id
             }, {
                 $set: {
-                    "stats": {
-                        "last_mention": {
-                            "timestamp": mention.timestamp,
-                            'source': mention.source,
-                            "source_id": mention.source_id
-                        }
+                    "stats.last_mention": {
+                        "timestamp": mention.timestamp,
+                        'source': mention.source,
+                        "source_id": mention.source_id
                     }
                 }
             })
+            ret.id = mention.id;
             return ret;
         }
     }
     
     const mentions = tweets.filter(tweetWithVideos).reduce(videoMentions, []);
+    const mentions_dict = mentions.reduce((dict, m)=>{
+        dict[m.id] = m;
+        return dict;
+    }, {})
     
     let promises = mentions.map(updateLastMention);
 
@@ -123,9 +128,14 @@ async function updateYouTubeLatestMention(tweets) {
     
     const updated_entry = ret.filter((r)=>{ return r.value !== null });
 
-    logger.debug(updated_entry);
+    const new_video_ids = ret.filter((r)=>{ return r.value == null }).reduce((arr, r)=>{arr.push(r.id); return arr}, []);
+    
 
-    logger.log(`${updated_entry.length} video entries updated, ${ret.length - updated_entry.length} not found.`);
+    await youtubeScraper.scheduleScraping({mentions: mentions_dict, ids: new_video_ids})
+
+    // console.log(new_video_ids)
+
+    logger.log(`${updated_entry.length} video entries updated, ${new_video_ids.length} not found. Created`);
 
 }
 

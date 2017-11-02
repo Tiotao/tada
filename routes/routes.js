@@ -17,10 +17,6 @@ api.route('/labels/twitter/top/').post(dataCtrl.getTopTwitterLabels);
 
 api.route('/labels/twitter/time/').post(dataCtrl.getTwitterLabelScoreOverTime);
 
-api.route('/youtube/scrape').get(youtubeScraper.scrape)
-
-api.route('/youtube/scrape/popular').get(youtubeScraper.scrapePopular)
-
 api.route('/scrape_tumblr').get(tumblrScraper.scrape);
 
 api.route('/labels/:id').get(dataCtrl.getOneLabel);
@@ -31,7 +27,6 @@ api.route('/labels').get(dataCtrl.getLabels);
 
 var view = express.Router();
 
-// view.route('/').get(youtubeScraper.scrapePopular);
 
 view.route('/').get(viewCtrl.renderInterface);
 
