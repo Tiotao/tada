@@ -30,7 +30,6 @@ function combineDuplicates(entries) {
     const raw_length = entries.length;
     let entry_dict = entries.reduce(combine, {});
     entries = Object.values(entry_dict);
-    logger.debug(entries);
     logger.info("collapse db with same local_id:", raw_length, '->', entries.length);
     return entries;
 }
