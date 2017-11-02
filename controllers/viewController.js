@@ -26,7 +26,6 @@ async function renderInterface(req, res) {
         title: "Tada interface prototype"
         // data: json.data
     })
-    console.log("asdfsf")
     
 }
 
