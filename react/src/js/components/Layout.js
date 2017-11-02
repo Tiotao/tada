@@ -37,7 +37,6 @@ export default class Layout extends React.Component {
     this.setState({
       labelData : data
     })
-    console.log(data)
   }
 
   render() {
