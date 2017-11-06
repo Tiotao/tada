@@ -10,8 +10,8 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidMount() {
-		this.renderer = PIXI.autoDetectRenderer(2500, 800, {
-			transparent: true,
+		this.renderer = PIXI.autoDetectRenderer(1000, 700, {
+			transparent: false,
 			resolution: 1,
 			antialias: true
 		});
@@ -19,23 +19,38 @@ export default class Canvas extends React.Component {
 
 		this.stage = new PIXI.Container();
 
-		this.animate();
+		var dot = new PIXI.Graphics();
+		dot.beginFill(16777215);
+		dot.drawRoundedRect(0, 0, 40, 40, 8);
+		dot.finalX = 20;
+		dot.finalY = 20;
+		dot.x = Math.random() * 10;
+		dot.y = Math.random() * 10;
+		dot.interactive = true;
+		dot.on('pointerdown', ()=> {
+			console.log("yooooo");
+		})
+		
+		this.dot = dot;
+		this.stage.addChild(this.dot);
+
+		// this.animate();
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
-		return nextProps.data !== this.props.data;
-	}
+	// shouldComponentUpdate(nextProps, nextState) {
+	// 	return nextProps.data !== this.props.data;
+	// }
 
-	componentWillReceiveProps(nextProps) {
-		this.updateChart(nextProps);
-	}
+	// componentWillReceiveProps(nextProps) {
+	// 	this.updateChart(nextProps);
+	// }
 
 	animate() {
 		// var data = this.props.labelData;
+		// this.dot.x += 1;
 
-
-		// this.renderer.render(this.stage);
-		// this.frame = requestAnimationFrame(this.animate);
+		this.renderer.render(this.stage);
+		this.frame = requestAnimationFrame(this.animate);
 	}
 
 	updateChart(props) {
