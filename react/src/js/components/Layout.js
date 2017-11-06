@@ -43,7 +43,6 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header title={this.state.title} />
-        <TopBar name={this.state.labelData.name} />
         <LeftBar data={this.state.data} handleLabelData={this.handleLabelData}/>
         <Canvas labelData={this.state.labelData} />
       </div>

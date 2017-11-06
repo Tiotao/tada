@@ -25,8 +25,9 @@ export default class Label extends React.Component {
 		const { id, name, is_meta, score, count } = this.props;
 
 		return (
-			<li>
-				<a class="LeftBarLabel">
+			<li  class="LeftBarLabel">
+				<a>
+					<div class="LeftBarLabelHeatmap"></div>
 					<p class="LeftBarLabelName" id={this.props._id} onClick={this.handleClick}>{name}</p>
 					<p class="LeftBarLabelCount">{count}</p>
 				</a>
