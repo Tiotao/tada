@@ -4,6 +4,10 @@ import axios from "axios";
 import Label from "./Label";
 
 export default class LeftBar extends React.Component {
+	constructor(props) {
+		super();
+	}
+
 	render() {
 		const labels = this.props.data;
 
@@ -11,14 +15,13 @@ export default class LeftBar extends React.Component {
 
 		if(labels) {
 			Labels = labels.map((label) => {
-				return <Label key={label._id} {...label}/>;
+				return <Label key={label._id} {...label} handleLabelData={this.props.handleLabelData}/>;
 			});
-			console.log(labels)
 		}
 
 		return (
 			<div class="LeftBar">
-				<ul class="LeftBarLabels">{Labels}</ul>
+				<ul class="LeftBarLabels">{Labels} </ul>
 			</div>
 		);
 	}

@@ -39,8 +39,8 @@ body {
 .LeftBarLabels {
 	width: 280px;
 	padding: 20px;
-	height: 100%;
-	overflow-y: scroll;
+	height: 100vh;
+	overflow-y: auto;
 	list-style: none;
 	float: left;
 	margin: 0;
@@ -64,7 +64,6 @@ body {
 	display: inline-block;
 	width: 100%;
 	cursor: pointer;
-	height: 100%;
 }
 
 .LeftBarLabelName {
@@ -134,13 +133,13 @@ body {
 	color: #fff;
 }
 
-#ChartStage {
+.Canvas {
 	position: absolute;
-	top: 150px;
+	top: 120px;
 	right: 50px;
 	float: right;
-	width: 1400px;
-	height: 800px;
+	width: 1000px;
+	height: 700px;
 	overflow: hidden;
 }
 
