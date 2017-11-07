@@ -34,12 +34,14 @@ function combineDuplicates(entries) {
     return entries;
 }
 
-function groupByHour(data, end_time, now=true) {
+function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d.timestamp}) {
     
+    const max_count = configs.MAX_WINDOW / duration;
+
     function compare(a,b) {
-        if (a.timestamp < b.timestamp)
+        if (keyFunc(a) < keyFunc(b))
           return 1;
-        if (a.timestamp > b.timestamp)
+        if (keyFunc(a) > keyFunc(b))
           return -1;
         return 0;
     }
@@ -51,25 +53,25 @@ function groupByHour(data, end_time, now=true) {
     const p = 3600000;
     let curr_time;  // move forward by 1 hr
     if (now) {
-        curr_time = Math.round( Date.now() / p) * p / 1000 + 3600;
+        curr_time = Math.round( Date.now() / p) * p / 1000 + duration;
     } else{
-        curr_time = configs.SCRAPE_END_TIME + 3600;
+        curr_time = configs.SCRAPE_END_TIME + duration;
     }
     let end = curr_time,
-        start = curr_time - 3600;
+        start = curr_time - duration,
+        window_count = 0
 
-    while (end > end_time) {
-        if (di < data.length && data[di].timestamp > start && data[di].timestamp <= end) {
+    while (ti < max_count-1) {
+        if (di < data.length && keyFunc(data[di]) > start && keyFunc(data[di]) <= end) {
             ret[ti].push(data[di]);
             di += 1
         } else {
             ret.push([]);
             ti += 1;
-            end = start
-            start = start  - 3600
+            end = start;
+            start = start  - duration;
         }
     }
-    console.log(ret[0])
     return ret;
 }
 
@@ -77,6 +79,6 @@ function groupByHour(data, end_time, now=true) {
 module.exports = {
     combineDuplicates: combineDuplicates,
     parseSeconds: parseSeconds,
-    groupByHour: groupByHour,
+    groupByDuration: groupByDuration,
 }
 
