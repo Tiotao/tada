@@ -702,8 +702,10 @@ async function getOneVideo(id) {
             channel: "YouTube",
             stats: meta.stats,
             title: meta.content.title,
+            description: meta.content.text,
             timestamp: meta.timestamp,
             labels: labels,
+            thumbnail: `http://img.youtube.com/vi/${meta.local_id}/mqdefault.jpg`
         }
     } else {
         ret = {};
