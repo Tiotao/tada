@@ -13,7 +13,7 @@
   <div id="container"></div>
   <script>
     var renderer = PIXI.autoDetectRenderer(1300, 800, {
-      transparent: false,
+      transparent: true,
       resolution: 1,
       antialias: true
     });
@@ -21,8 +21,8 @@
 
     var stage = new PIXI.Container();
 
-    var col = 10;
-    var row = 20;
+    var col = 12;
+    var row = 30;
 
     for(var i = 0; i < col; i++) {
       for(var j = 0; j < row; j++) {
@@ -77,20 +77,18 @@
     // }
 
     function onButtonOver() {
-      var col = 10;
-      var row = 20;
       var c = this.index[0];
       var r = this.index[1];
       console.log("target: " + this.index)
       console.log(this.parent.parent.getChildIndex(this.parent))
 
       for(var i = 0; i<col; i++) {
-        var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 40, 20, true);
-        var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 40, 20, true);
-        var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 30, 20, true);
-        var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 30, 20, true);
-        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 30, 20, true);
-        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 30, 20, true);
+        var tweenH = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]), "height", 40, 20, true);
+        var tweenW = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]), "width", 40, 20, true);
+        var tweenHup = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]-1), "height", 30, 20, true);
+        var tweenWup = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]-1), "width", 30, 20, true);
+        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]+1), "height", 30, 20, true);
+        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]+1), "width", 30, 20, true);
         // var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y - 30, 20, true);
         // var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y + 30, 20, true);
         tweenH.easing = Tween.outCubic;
@@ -107,12 +105,12 @@
 
     function onButtonOut() {
       for(var i = 0; i<col; i++) {
-        var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 10, 30, true);
-        var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 10, 30, true);
-        var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 10, 30, true);
-        var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 10, 30, true);
-        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 10, 30, true);
-        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 10, 30, true);
+        var tweenH = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]), "height", 10, 30, true);
+        var tweenW = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]), "width", 10, 30, true);
+        var tweenHup = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]-1), "height", 10, 30, true);
+        var tweenWup = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]-1), "width", 10, 30, true);
+        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]+1), "height", 10, 30, true);
+        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*30+this.index[1]+1), "width", 10, 30, true);
         // var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y + 30, 20, true);
         // var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y - 30, 20, true);
         tweenH.easing = Tween.outCubic;
