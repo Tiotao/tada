@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://pixijs.download/v4.6.0/pixi.min.js"></script>
+  <script type="text/javascript" src="./tween.js"></script>
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    svg { width:100%; height: 100% }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+  <script>
+    var renderer = PIXI.autoDetectRenderer(1300, 800, {
+      transparent: false,
+      resolution: 1,
+      antialias: true
+    });
+    document.getElementById('container').appendChild(renderer.view);
+
+    var stage = new PIXI.Container();
+
+    var col = 10;
+    var row = 20;
+
+    for(var i = 0; i < col; i++) {
+      for(var j = 0; j < row; j++) {
+        var box = new PIXI.Container();
+        var dot = new PIXI.Graphics();
+        box.x = 100*(i+1);
+        box.y = 30*(j+1);
+        box.pivot.x = box.width / 2;
+        box.pivot.y = box.height / 2;
+        box.index = [i, j];
+
+        box.addChild(dot);
+
+        dot.index = [i,j];
+        dot.beginFill(3093046);
+        dot.drawCircle(0, 0, 5);
+        dot.y = random();
+        dot.interactive = true;
+        dot.buttonMode = true;
+        
+        var tweenX = new Tween(dot, "x", 0, 60, true);
+        var tweenY = new Tween(dot, "y", 0, 60, true);
+        tweenX.easing = Tween.outCubic;
+        tweenY.easing = Tween.outCubic;
+        //outCubic, inCubic, outElastic, inElastic, inQuintic
+
+        dot
+          .on('pointerdown', onButtonDown)
+          .on('pointerover', onButtonOver)
+          .on('pointerout', onButtonOut);
+
+        stage.addChild(box);
+      }
+    }
+
+
+    function onButtonDown() {
+      var tweenH = new Tween(this, "height", 100, 20, true);
+      var tweenW = new Tween(this, "width", 100, 20, true);
+      tweenH.easing = Tween.outCubic;
+      tweenW.easing = Tween.outCubic;
+    }
+
+    // function onButtonUp() {
+    //   this.isdown = false;
+    //   if(this.isOver) {
+    //     this.setTransform(0, 0, 1.5, 1.5);
+    //   }
+    //   else {
+    //     this.setTransform(0, 0, 1, 1);
+    //   }
+    // }
+
+    function onButtonOver() {
+      var col = 10;
+      var row = 20;
+      var c = this.index[0];
+      var r = this.index[1];
+      console.log("target: " + this.index)
+      console.log(this.parent.parent.getChildIndex(this.parent))
+
+      for(var i = 0; i<col; i++) {
+        var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 60, 20, true);
+        var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 60, 20, true);
+        var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 30, 20, true);
+        var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 30, 20, true);
+        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 30, 20, true);
+        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 30, 20, true);
+        var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y - 30, 20, true);
+        var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y + 30, 20, true);
+        tweenH.easing = Tween.outCubic;
+        tweenW.easing = Tween.outCubic;
+        tweenHup.easing = Tween.outCubic;
+        tweenWup.easing = Tween.outCubic;
+        tweenHdw.easing = Tween.outCubic;
+        tweenWdw.easing = Tween.outCubic;
+        tweenYup.easing = Tween.outCubic;
+        tweenYdw.easing = Tween.outCubic;
+      }
+
+    }
+
+    function onButtonOut() {
+      for(var i = 0; i<col; i++) {
+        var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 10, 30, true);
+        var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 10, 30, true);
+        var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 10, 30, true);
+        var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 10, 30, true);
+        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 10, 30, true);
+        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 10, 30, true);
+        var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y + 30, 20, true);
+        var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y - 30, 20, true);
+        tweenH.easing = Tween.outCubic;
+        tweenW.easing = Tween.outCubic;
+        tweenHup.easing = Tween.outCubic;
+        tweenWup.easing = Tween.outCubic;
+        tweenHdw.easing = Tween.outCubic;
+        tweenWdw.easing = Tween.outCubic;
+        tweenYup.easing = Tween.outCubic;
+        tweenYdw.easing = Tween.outCubic;
+      }
+    }
+
+    function random()
+    {
+      var min = -500, max = 500;
+      return Math.floor(Math.random()*(max-min+1)+min);
+    }
+
+    animate = function() {
+      // dot.x += 1;
+      Tween.runTweens();
+      renderer.render(stage);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>

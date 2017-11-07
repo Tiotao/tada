@@ -1,5 +1,5 @@
 import React from "react";
-import Label from "./Label";
+import Selected from "./Selected";
 
 export default class TopBar extends React.Component {
 	constructor(props) {
@@ -7,13 +7,27 @@ export default class TopBar extends React.Component {
 	}
 
 	render() {
+		const names = this.props.name;
+		
+		let Selected
+
+		if(names.length == 0) {
+			console.log("emotyyy")
+		}
+		console.log(names)
+		if(names.length > 0) {
+			Selected = names.map((name, index) => {
+
+				// console.log(<Selected key={index} name={name} />)
+				return <Selected key={index} />;
+			});
+		}
+
 		return (
 			<div class="TopBarLabels">
-				<div class="CurrentLabel">
-					<p class="CurrentLabelName">{this.props.name}</p>
-					<ul class="CurrentLabelRelations">
-					</ul>
-				</div>
+				<ul class="TopBarLabels">
+					{Selected}
+				</ul>
 			</div>
 		);
 	}
