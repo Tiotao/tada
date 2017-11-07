@@ -8,13 +8,12 @@ export default class TopBar extends React.Component {
 
 	render() {
 		return (
-			<div class="TopBarLabels">
-				<div class="CurrentLabel">
-					<p class="CurrentLabelName">{this.props.name}</p>
-					<ul class="CurrentLabelRelations">
-					</ul>
-				</div>
-			</div>
+			<ul class="TopBarLabels">
+				<li class="TopBarLabel">
+					<p class="TopBarLabelName">{this.props.name}</p>
+					<div class="TopBarLabelRemove"></div>
+				</li>
+			</ul>
 		);
 	}
 }

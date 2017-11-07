@@ -7,6 +7,10 @@ body {
 	overflow: hidden;
 }
 
+ul {
+	padding: 0;
+}
+
 .Header {
 	position: fixed;
 	height: 70px;
@@ -39,13 +43,13 @@ body {
 .LeftBar {
 	position: relative;
 	width: 100%;
-	height: 50%;
+	height: 400px;
+	padding:20px;
 }
 
 .LeftBarLabels {
 	width: 100%;
-	padding: 20px;
-	height: 400px;
+	height: 100%;
 	overflow-y: auto;
 	list-style: none;
 	float: left;
@@ -102,43 +106,32 @@ body {
 }
 
 .TopBarLabels {
-	position: absolute;
-	left: 300px;
-	overflow: hidden;
 	text-transform: uppercase;
-}
-
-.LastLabelName {
-	font-size: 26px;
-	font-weight: 900;
-	margin: 10px 50px;
-	color: #28539A;
-}
-
-.CurrentLabelRelations {
+	background-color: #323f4c;
+	padding: 10px 50px;
 	list-style: none;
+}
+
+.TopBarLabel {
+	margin-right: 20px;
+}
+
+.TopBarLabelName {
 	display: inline-block;
-	margin: 0;
-}
-
-.CurrentLabelName {
-	font-size: 42px;
 	font-weight: 900;
-	margin: 0 50px;
 	color: #fff;
 }
 
-.CurrentLabelRelationsName {
-	float: left;
-	margin: 10px;
-	color: #ababab;
-	font-size: 20px;
-	font-weight: 900;
+.TopBarLabelRemove {
+	display: inline-block;
+	position: relative;
+	left: 5px;
+	top: 3px;
+	height: 20px;
+	width: 20px;
+	background-image: url('http://area.in/images/closeIcon.png');
+	background-size: 20px 20px;
 	cursor: pointer;
-}
-
-.CurrentLabelRelationsName:hover {
-	color: #fff;
 }
 
 .Canvas {
