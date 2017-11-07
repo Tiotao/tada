@@ -14,7 +14,6 @@ export default class Label extends React.Component {
 		axios.get('http://localhost:3000/api/labels/'+e.target.id)
       .then(res => {
         this.props.handleLabelData(res.data)
-        console.log(res.data)
       })
       .catch(err => {
         console.log(err);

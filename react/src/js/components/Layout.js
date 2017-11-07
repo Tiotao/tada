@@ -15,7 +15,8 @@ export default class Layout extends React.Component {
       title: "Tada Interface",
       labelData: {
         name: "Welcome"
-      }
+      },
+      selected: []
     };
 
     this.handleLabelData = this.handleLabelData.bind(this);
@@ -35,7 +36,8 @@ export default class Layout extends React.Component {
 
   handleLabelData(data) {
     this.setState({
-      labelData : data
+      labelData: data,
+      selected: [...this.state.selected, data.name]
     })
   }
 
@@ -44,7 +46,7 @@ export default class Layout extends React.Component {
       <div>
         <Header title={this.state.title} />
         <LeftBar data={this.state.data} handleLabelData={this.handleLabelData}/>
-        <TopBar name={this.state.labelData.name} />
+        <TopBar name={this.state.selected} />
         <Canvas labelData={this.state.labelData} />
       </div>
     );
