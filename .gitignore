@@ -62,3 +62,6 @@ Tada-youtube.json
 package-lock.json
 references/
 configs.js
+
+# Mac
+.DS_Store
