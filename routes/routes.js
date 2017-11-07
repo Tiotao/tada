@@ -25,6 +25,8 @@ api.route('/videos/:id').get(dataCtrl.getOneVideo);
 
 api.route('/labels').get(dataCtrl.getLabels);
 
+api.route('/filter').post(dataCtrl.graphQuery);
+
 var view = express.Router();
 
 

@@ -412,7 +412,6 @@ async function queryTumblrLabelScoresOverTime(label, start_time, end_time, durat
     }
 }
 
-
 async function getOneLabel(id) {
     const db = await MongoClient.connect(configs.DB_URL);
     let video_collection = db.collection(configs.VIDEO_COLLECTION);
@@ -589,7 +588,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "hour",
-                videos: utils.groupByHour(videos, configs.SCRAPE_START_TIME, configs.SCHEDULE_SCRAPE)
+                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE)
             }
         }
     } else {
@@ -761,6 +760,7 @@ async function cacheLabels() {
         {
             $project: {
                 name: 1,
+                video_id: '$videos._id',
                 score: {
                     $arrayElemAt: [{
                         $filter: {
@@ -783,7 +783,8 @@ async function cacheLabels() {
                 score: {
                     $sum: "$score.score"
                 },
-                count: { $sum: 1}
+                videos: { $push: "$video_id" }
+                
             }
         },
         {
@@ -819,9 +820,10 @@ async function cacheLabels() {
                     ]
                 },
                 score: 1,
-                count: 1
+                videos: 1,
             }
         },
+        { $unwind: { "path": "$videos", "preserveNullAndEmptyArrays": true }},
         {
             $group: {
                 _id: "$meta_id",
@@ -834,7 +836,8 @@ async function cacheLabels() {
                 score: {
                     $sum: "$score"
                 },
-                count: { $sum: "$count"}
+                count: { $sum: 1 },
+                videos: { $push: "$videos" },
             }
         },
         { $sort: { 'score': -1 } }
@@ -849,7 +852,6 @@ async function cacheLabels() {
     await cache_collection.insertMany(labels);
     db.close();
 }
-
 
 async function createMetaLabel(name) {
     const db = await MongoClient.connect(configs.DB_URL);
@@ -1054,6 +1056,132 @@ async function getMetaLabels() {
     }
 }
 
+async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
+
+    const db = await MongoClient.connect(configs.DB_URL);
+    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
+    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+
+    if (!view_count_range) {
+        view_count_range = [0, Infinity];
+    }
+
+    if (!vl_ratio_range) {
+        vl_ratio_range = [0, 1];
+    }
+
+    label_ids = label_ids.map((id)=>{return new ObjectId(id)});
+
+    // get videos
+    let video_ids = await cache_collection.aggregate([
+        {
+            $match: {
+                _id: { $in: label_ids }
+            }
+        },
+        {
+            $group: {
+                _id: 0,
+                sets: { $push: "$videos" },
+                init: { $first: "$videos" }
+            }
+        },
+        {
+            $project: {
+                "common": {
+                    $reduce: {
+                        "input": "$sets",
+                        "initialValue": "$init",
+                        "in": { $setIntersection: ["$$value", "$$this"] }
+                    }
+                }
+            }
+        }
+    ]).toArray();
+    
+    video_ids = video_ids[0].common;
+
+    let videos = await video_collection.aggregate([
+        {
+            $match: {
+                _id: {$in: video_ids},
+                "stats.view_count": {
+                    $gt: view_count_range[0],
+                    $lt: view_count_range[1],
+                },
+                "stats.vl_ratio": {
+                    $gt: vl_ratio_range[0],
+                    $lt: vl_ratio_range[1],
+                }
+            }
+        },
+        {
+            $project: {
+                local_id: 1,
+                timestamp: 1,
+                stats: 1
+            }
+        }
+
+    ]).toArray();
+
+
+    // post date
+
+    result = {}
+    
+    videos.map((v)=>{
+        result[v._id.toString()] = {}
+        configs.AXIS_DURATION.map((d)=>{
+            result[v._id.toString()][d] = [];
+        })
+    })
+
+    let x_axis_key_functions = [
+        (v)=>{return v.timestamp},
+        (v)=>{return v.timestamp}
+    ]
+
+    function calcDotsPosition(keyFunc) {
+        configs.AXIS_DURATION.map((duration)=>{
+            let groups = utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, duration, (v)=>{return v.timestamp});
+
+            let view_count_groups = groups.map((window)=>{
+                return window.sort((a, b)=>{return a.stats.view_count > b.stats.view_count})
+            })
+
+            for (let i = 0; i < view_count_groups.length; i++) {
+                for(let j = 0; j < view_count_groups[i].length; j++) {
+                    let v = view_count_groups[i][j]
+                    result[v._id.toString()][duration].push([view_count_groups.length-i, j])
+                }
+            }
+
+            let vl_ratio_groups = groups.map((window)=>{
+                return window.sort((a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio})
+            })
+
+            
+            for (let i = 0; i < vl_ratio_groups.length; i++) {
+                for(let j = 0; j < vl_ratio_groups[i].length; j++) {
+                    let v = vl_ratio_groups[i][j]
+                    result[v._id.toString()][duration].push([vl_ratio_groups.length-i, j])
+                }
+            }
+        })
+    }
+
+    x_axis_key_functions.map(calcDotsPosition);
+    // console.log(JSON.stringify(result))
+    
+    const ret = {
+        total: videos.length,
+        positions: result
+    }
+    
+    return ret
+}
+
 module.exports = {
     getTopTwitterLabels: async (req, res) => {
         const start_time = parseInt(req.body.start_time);
@@ -1141,6 +1269,26 @@ module.exports = {
 
     getAssignedLabel: async(req, res) => {
         const ret = await getAssignedLabel(req.body.id);
+        res.send(ret);
+    },
+
+    graphQuery: async(req, res)=>{
+
+        console.log(req.body)
+
+        const ids = req.body.ids;
+        let view_count_range = req.body.view_count_range;
+        let vl_ratio_range = req.body.like_ratio_range;
+
+        console.log(view_count_range)
+
+        view_count_range = view_count_range.map(parseFloat);
+        vl_ratio_range = vl_ratio_range.map(parseFloat);
+
+        console.log(view_count_range)
+
+        const ret = await graphQuery(ids, view_count_range, vl_ratio_range);
+
         res.send(ret);
     },
 
