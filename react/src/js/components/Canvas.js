@@ -7,34 +7,41 @@ export default class Canvas extends React.Component {
 
 		this.animate = this.animate.bind(this);
 		this.updateChart = this.updateChart.bind(this);
+		this.resize = this.resize.bind(this);
 	}
 
 	componentDidMount() {
-		this.renderer = PIXI.autoDetectRenderer(20, 20, {
+		this.renderer = PIXI.autoDetectRenderer(1000, 800, {
 			transparent: false,
 			resolution: 1,
 			antialias: true
 		});
+
 		this.refs.canvas.appendChild(this.renderer.view);
+
+		window.addEventListener("resize", this.resize);
+		this.resize();
 
 		this.stage = new PIXI.Container();
 
-		var dot = new PIXI.Graphics();
-		dot.beginFill(16777215);
-		dot.drawRoundedRect(0, 0, 40, 40, 8);
-		dot.finalX = 20;
-		dot.finalY = 20;
-		dot.x = Math.random() * 10;
-		dot.y = Math.random() * 10;
-		dot.interactive = true;
-		dot.on('pointerdown', ()=> {
-			console.log("yooooo");
-		})
-		
-		this.dot = dot;
-		this.stage.addChild(this.dot);
+		var box = new PIXI.Container();
+    var dot = new PIXI.Graphics();
+    box.x = 100;
+    box.y = 100;
+    box.pivot.x = box.width / 2;
+    box.pivot.y = box.height / 2;
 
-		// this.animate();
+    box.addChild(dot);
+
+    dot.beginFill(3093046);
+    dot.drawCircle(0, 0, 50);
+
+    dot.interactive = true;
+    dot.buttonMode = true;
+
+    this.stage.addChild(box);
+
+		this.animate();
 	}
 
 	// shouldComponentUpdate(nextProps, nextState) {
@@ -46,11 +53,15 @@ export default class Canvas extends React.Component {
 	// }
 
 	animate() {
-		// var data = this.props.labelData;
-		// this.dot.x += 1;
-
 		this.renderer.render(this.stage);
 		this.frame = requestAnimationFrame(this.animate);
+	}
+
+	resize() {
+		var w = window.innerWidth;
+		var h = window.innerHeight / 2;
+
+		this.renderer.resize(w, h);
 	}
 
 	updateChart(props) {
