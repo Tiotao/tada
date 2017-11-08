@@ -13,7 +13,7 @@
   <div id="container"></div>
   <script>
     var renderer = PIXI.autoDetectRenderer(1300, 800, {
-      transparent: false,
+      transparent: true,
       resolution: 1,
       antialias: true
     });
@@ -85,23 +85,44 @@
       console.log(this.parent.parent.getChildIndex(this.parent))
 
       for(var i = 0; i<col; i++) {
-        var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 60, 20, true);
-        var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 60, 20, true);
-        var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 30, 20, true);
-        var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 30, 20, true);
-        var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 30, 20, true);
-        var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 30, 20, true);
-        var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y - 30, 20, true);
-        var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y + 30, 20, true);
-        tweenH.easing = Tween.outCubic;
-        tweenW.easing = Tween.outCubic;
-        tweenHup.easing = Tween.outCubic;
-        tweenWup.easing = Tween.outCubic;
-        tweenHdw.easing = Tween.outCubic;
-        tweenWdw.easing = Tween.outCubic;
-        tweenYup.easing = Tween.outCubic;
-        tweenYdw.easing = Tween.outCubic;
+        if(i != this.index[0]){
+          var tweenH = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "height", 60, 20, true);
+          var tweenW = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]), "width", 60, 20, true);
+          var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 30, 20, true);
+          var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 30, 20, true);
+          var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 30, 20, true);
+          var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 30, 20, true);
+          var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y - 30, 20, true);
+          var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y + 30, 20, true);
+          tweenH.easing = Tween.outCubic;
+          tweenW.easing = Tween.outCubic;
+          tweenHup.easing = Tween.outCubic;
+          tweenWup.easing = Tween.outCubic;
+          tweenHdw.easing = Tween.outCubic;
+          tweenWdw.easing = Tween.outCubic;
+          tweenYup.easing = Tween.outCubic;
+          tweenYdw.easing = Tween.outCubic;
+        }
+        else {
+          var tweenHup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "height", 30, 20, true);
+          var tweenWup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "width", 30, 20, true);
+          var tweenHdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "height", 30, 20, true);
+          var tweenWdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "width", 30, 20, true);
+          var tweenYup = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]-1), "y", this.parent.parent.getChildAt(i*20+this.index[1]-1).y - 30, 20, true);
+          var tweenYdw = new Tween(this.parent.parent.getChildAt(i*20+this.index[1]+1), "y", this.parent.parent.getChildAt(i*20+this.index[1]+1).y + 30, 20, true);
+          tweenHup.easing = Tween.outCubic;
+          tweenWup.easing = Tween.outCubic;
+          tweenHdw.easing = Tween.outCubic;
+          tweenWdw.easing = Tween.outCubic;
+          tweenYup.easing = Tween.outCubic;
+          tweenYdw.easing = Tween.outCubic;
+        }
+        
       }
+      var tweenMh = new Tween(this, "height", 130, 20, true);
+      var tweenMw = new Tween(this, "width", 130, 20, true);
+      tweenMh.easing = Tween.outCubic;
+      tweenMw.easing = Tween.outCubic;
 
     }
 

@@ -29,34 +29,29 @@
         var box = new PIXI.Container();
         var dot = new PIXI.Graphics();
         box.x = 100*(i+1);
-        box.y = 20*(j+1);
+        box.y = 25*(j+1);
         box.pivot.x = box.width / 2;
         box.pivot.y = box.height / 2;
+        box.index = [i, j];
 
         box.addChild(dot);
 
         dot.index = [i,j];
         dot.beginFill(3093046);
-        dot.drawCircle(0, 0, 5);
-        dot.x = random();
+        dot.drawCircle(0, 0, 10);
         dot.y = random();
         dot.interactive = true;
         dot.buttonMode = true;
+        dot.viewed = false;
         
-        var tweenX = new Tween(dot, "x", 0, 60, true);
         var tweenY = new Tween(dot, "y", 0, 60, true);
-        tweenX.easing = Tween.outCubic;
-        tweenY.easing = Tween.outCubic;
+        tweenY.easing = Tween.outElastic;
         //outCubic, inCubic, outElastic, inElastic, inQuintic
-
-        // setTimeout(function() {
-        //   dot.x = dot.finalX;
-        //   dot.y = dot.finalY;
-        // }, 300);
 
         dot
           .on('pointerdown', onButtonDown)
           .on('pointerover', onButtonOver)
+          .on('pointerup', onButtonUp)
           .on('pointerout', onButtonOut);
 
         stage.addChild(box);
@@ -65,42 +60,41 @@
 
 
     function onButtonDown() {
-      var tweenH = new Tween(this, "height", 600, 20, true);
-      var tweenW = new Tween(this, "width", 600, 20, true);
+      var tweenH = new Tween(this, "height", 500, 20, true);
+      var tweenW = new Tween(this, "width", 500, 20, true);
       tweenH.easing = Tween.outCubic;
       tweenW.easing = Tween.outCubic;
-      // var x = this.x,
-      //   y = this.y;
-      // var popup = new PIXI.Graphics();
-      // console.log(this.parent.x)
-      // this.parent.addChild(popup);
-      // popup.beginFill(16777215);
-      // popup.drawRoundedRect(-250, -250, 500, 500, 10);
-      // popup.zOrder = 100;
     }
 
-    // function onButtonUp() {
-    //   this.isdown = false;
-    //   if(this.isOver) {
-    //     this.setTransform(0, 0, 1.5, 1.5);
-    //   }
-    //   else {
-    //     this.setTransform(0, 0, 1, 1);
-    //   }
-    // }
+    function onButtonUp() {
+      this.viewed = true;
+
+      var tweenH = new Tween(this, "height", 10, 20, true);
+      var tweenW = new Tween(this, "width", 10, 20, true);
+      tweenH.easing = Tween.outCubic;
+      tweenW.easing = Tween.outCubic;
+    }
 
     function onButtonOver() {
-      var tweenH = new Tween(this, "height", 60, 20, true);
-      var tweenW = new Tween(this, "width", 60, 20, true);
+      var tweenH = new Tween(this, "height", 100, 20, true);
+      var tweenW = new Tween(this, "width", 100, 20, true);
       tweenH.easing = Tween.outCubic;
       tweenW.easing = Tween.outCubic;
     }
 
     function onButtonOut() {
-      var tweenH = new Tween(this, "height", 10, 30, true);
-      var tweenW = new Tween(this, "width", 10, 30, true);
-      tweenH.easing = Tween.outCubic;
-      tweenW.easing = Tween.outCubic;
+      if(this.viewed == false) {
+        var tweenH = new Tween(this, "height", 20, 20, true);
+        var tweenW = new Tween(this, "width", 20, 20, true);
+        tweenH.easing = Tween.outCubic;
+        tweenW.easing = Tween.outCubic;
+      }
+      else {
+        var tweenH = new Tween(this, "height", 10, 20, true);
+        var tweenW = new Tween(this, "width", 10, 20, true);
+        tweenH.easing = Tween.outCubic;
+        tweenW.easing = Tween.outCubic;
+      }
     }
 
     function random()
@@ -110,7 +104,6 @@
     }
 
     animate = function() {
-      // dot.x += 1;
       Tween.runTweens();
       renderer.render(stage);
       requestAnimationFrame(animate);
