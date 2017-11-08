@@ -26,8 +26,8 @@ export default class Canvas extends React.Component {
 
 		var box = new PIXI.Container();
     var dot = new PIXI.Graphics();
-    box.x = 100;
-    box.y = 100;
+    box.x = 300;
+    box.y = 200;
     box.pivot.x = box.width / 2;
     box.pivot.y = box.height / 2;
 
@@ -39,10 +39,50 @@ export default class Canvas extends React.Component {
     dot.interactive = true;
     dot.buttonMode = true;
 
+  //   var onButtonDown = function() {
+  //   	console.log("asdfasdf")
+		// 	var x = this.x;
+		// 	var y = this.y;
+		// 	var gx = this.toGlobal(this.stage.position);
+		// 	console.log(x, y, gx)
+		// }
+
+    dot
+      // .on('pointerdown', onButtonDown)
+      .on('pointerover', onButtonOver)
+      .on('pointerout', onButtonOut);
+
+    function onButtonOver() {
+    	var stage = this.parent.parent;
+
+			var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+
+			var top = viewportOffset.top;
+			var left = viewportOffset.left;
+
+			var canvasPosition = new PIXI.Point(left, top);
+
+			var elementPostion = this.parent.toGlobal(canvasPosition);
+			console.log(elementPostion)
+
+			var i = document.createElement('IMG');
+			i.id = "preview";
+			i.src = './interface/images/ea-white.png'
+			i.width = 50;
+			i.height = 50;
+			i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+			document.body.appendChild(i);
+    }
+
+    function onButtonOut() {
+    	document.getElementById('preview').outerHTML = "";
+    }
+
     this.stage.addChild(box);
 
 		this.animate();
 	}
+
 
 	// shouldComponentUpdate(nextProps, nextState) {
 	// 	return nextProps.data !== this.props.data;
@@ -92,13 +132,11 @@ export default class Canvas extends React.Component {
 				}
 			}
 		}
-		
-		
 	}
 
 	render() {
 		return (
-			<div class="Canvas" ref="canvas">
+			<div class="Canvas" ref="canvas" id="canvas">
 			</div>
 		);
 	}
