@@ -1,9 +1,25 @@
-html
-    head
-    body
-        each list in video_lists
-            h3=list.key
-            each video in list.value
-                - url = `https://www.youtube.com/embed/${video.local_id}`
-                iframe(width=200 height=200 src=url frameborder=0 allowfullscreen)
-                
+extends layout.pug
+
+block scripts
+    script(src="../manage/js/app.js")
+
+block content
+    .container(ng-app="dashboard" ng-controller="labelHeatmapCtrl")
+        .row
+            .col-md-12
+                .row
+                    .col-md-12
+                        h3 LABELS
+                .row
+                    .col-md-3(ng-repeat="label in labels|limitTo:32")
+                        .heatmap
+                            .row
+                                .col-md-12
+                                    svg
+                                        line(ng-repeat="day in label.history track by $index", stroke="rgb({{day*8}}, {{day*8}}, {{day*8}})", stroke-width="4px", x1="{{$index*4}}", y1= 0, x2="{{$index*4}}", y2="60")
+
+                                .col-md-12
+                                    h4 {{ label.name }}
+
+       
+            

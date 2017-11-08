@@ -1,3 +1,7 @@
 .selected {
     background: #ccc;
 }
+
+.heatmap svg {
+    height: 60px;
+}

@@ -74,3 +74,13 @@ app.controller('metaLabelCtrl', ($scope, $http)=>{
     refreshUnassignedLabelList();
 
 })
+
+app.controller('labelHeatmapCtrl', ($scope, $http)=>{
+    function getLabels() {
+        $http.get('/api/labels').then((res) => {
+            $scope.labels = res.data.data;
+            console.log($scope.labels[0].history)
+        });
+    }
+    getLabels();
+})

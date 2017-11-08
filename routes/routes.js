@@ -32,6 +32,8 @@ var view = express.Router();
 
 view.route('/').get(viewCtrl.renderInterface);
 
+view.route('/heatmap').get(dataCtrl.manageHeatmaps);
+
 view.route('/dashboard').get(dataCtrl.manageLabels);
 
 var dashboard = express.Router();
