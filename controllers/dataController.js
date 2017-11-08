@@ -587,8 +587,8 @@ async function getOneLabel(id) {
             id: id,
             relations: labels,
             history: {
-                grouped_by: "hour",
-                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE)
+                grouped_by: "day",
+                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
             }
         }
     } else {
@@ -762,7 +762,10 @@ async function cacheLabels() {
         {
             $project: {
                 name: 1,
-                video_id: '$videos._id',
+                video: {
+                    id: '$videos._id',
+                    timestamp: '$videos.timestamp',
+                },
                 score: {
                     $arrayElemAt: [{
                         $filter: {
@@ -785,7 +788,7 @@ async function cacheLabels() {
                 score: {
                     $sum: "$score.score"
                 },
-                videos: { $push: "$video_id" }
+                videos: { $push: "$video" }
                 
             }
         },
@@ -846,7 +849,17 @@ async function cacheLabels() {
 
     ]).toArray()
 
-    console.log(labels);
+    labels.map((label)=>{
+        let counts = utils.groupByDuration(label.videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
+        label.history = counts;
+        return label
+    })
+
+    labels.map((label)=>{
+        let videos = label.videos.map((v)=>{return v.id})
+        label.videos = videos;
+        return label
+    })
 
     if (cache_collection) {
         await cache_collection.remove();
@@ -854,6 +867,7 @@ async function cacheLabels() {
     await cache_collection.insertMany(labels);
     db.close();
 }
+
 
 async function createMetaLabel(name) {
     const db = await MongoClient.connect(configs.DB_URL);
@@ -1237,6 +1251,10 @@ module.exports = {
 
     manageLabels: async(req, res) => {
         res.render('manage/dashboard');
+    },
+
+    manageHeatmaps: async(req, res) => {
+        res.render('manage/index');
     },
 
     createMetaLabel: async(req, res) => {
