@@ -32,6 +32,21 @@ export default class Layout extends React.Component {
       .catch(err => {
         console.log(err);
       })
+
+    axios.post('http://localhost:3000/api/filter-videos', {
+        'ids':['59e1570ec7e0c22a00d7648e', '59e92e81dc4aaf47c4e09871'],
+        'view_count_range': ["0", "Infinity"],
+        'like_ratio_range': ["0", "1"]
+      })
+      .then(res => {
+        console.log(res);
+        this.setState({
+          videos : res.data
+        })
+      })
+      .catch(err => {
+        console.log(err);
+      })
   }
 
   handleLabelData(data) {

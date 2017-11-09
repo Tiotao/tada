@@ -12,7 +12,7 @@ export default class Canvas extends React.Component {
 
 	componentDidMount() {
 		this.renderer = PIXI.autoDetectRenderer(1000, 800, {
-			transparent: false,
+			transparent: true,
 			resolution: 1,
 			antialias: true
 		});
