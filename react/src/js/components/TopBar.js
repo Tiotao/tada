@@ -9,25 +9,17 @@ export default class TopBar extends React.Component {
 	render() {
 		const names = this.props.name;
 		
-		let Selected
+		let Names
 
-		if(names.length == 0) {
-			console.log("emotyyy")
-		}
-		console.log(names)
 		if(names.length > 0) {
-			Selected = names.map((name, index) => {
-
-				// console.log(<Selected key={index} name={name} />)
-				// return <Selected key={index} />;
+			Names = names.map((name, i) => {
+				return <Selected key={name} name={name} />;
 			});
 		}
 
 		return (
 			<div class="TopBarLabels">
-				<ul class="TopBarLabels">
-					{Selected}
-				</ul>
+				<ul>{Names} </ul>
 			</div>
 		);
 	}

@@ -16,7 +16,7 @@ export default class Layout extends React.Component {
       labelData: {
         name: "Welcome"
       },
-      selected: []
+      selected: ['test']
     };
 
     this.handleLabelData = this.handleLabelData.bind(this);
@@ -35,10 +35,12 @@ export default class Layout extends React.Component {
   }
 
   handleLabelData(data) {
-    this.setState({
-      labelData: data,
-      selected: [...this.state.selected, data.name]
-    })
+    if(this.state.selected.indexOf(data.name) < 0) {
+      this.setState({
+        labelData: data,
+        selected: [...this.state.selected, data.name]
+      })
+    }
   }
 
   render() {

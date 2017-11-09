@@ -86,6 +86,11 @@ ul {
 
 .LeftBarLabelHeatmapSVG {
 	padding-left: 2.5px;
+	width: 100%;
+}
+
+.LeftBarLabel:hover {
+	opacity: 0.5;
 }
 
 .LeftBarLabelName {
@@ -94,7 +99,7 @@ ul {
 	float: left;
 	text-transform: uppercase;
 	font-weight: 900;
-	color: #ababab;
+	color: #efefef;
 	margin: 10px 0;
 }
 
@@ -105,19 +110,23 @@ ul {
 	margin: 10px 0;
 }
 
-.LeftBarLabel *:hover {
-	color: #fff;
-}
-
 .TopBarLabels {
 	text-transform: uppercase;
 	background-color: #323f4c;
 	padding: 10px 50px;
 	list-style: none;
+	overflow: auto;
+}
+
+.TopBarLabels>ul {
+	margin: 0;
 }
 
 .TopBarLabel {
-	margin-right: 20px;
+	float: left;
+	list-style: none;
+	margin-right: 30px;
+	transition: 300ms ease;
 }
 
 .TopBarLabelName {
@@ -129,7 +138,7 @@ ul {
 .TopBarLabelRemove {
 	display: inline-block;
 	position: relative;
-	left: 5px;
+	left: 2px;
 	top: 3px;
 	height: 20px;
 	width: 20px;

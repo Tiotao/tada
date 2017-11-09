@@ -37,7 +37,7 @@ export default class Label extends React.Component {
 			}
 
 			days.push(
-				<line 
+				<line key={i}
 					x1={i*strokeWidth} x2={i*strokeWidth} y1="0" y2="100" 
 					style={styles} 
 				/>)
