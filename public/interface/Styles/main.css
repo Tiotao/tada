@@ -84,6 +84,10 @@ ul {
 	margin: 0 auto;
 }
 
+.LeftBarLabelHeatmapSVG {
+	padding-left: 2.5px;
+}
+
 .LeftBarLabelName {
 	position: relative;
 	left: 0;
@@ -136,11 +140,9 @@ ul {
 
 .Canvas {
 	position: absolute;
-	top: 120px;
-	right: 50px;
 	float: right;
-	width: 20px;
-	height: 20px;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 }
 

@@ -19,7 +19,7 @@ export default class TopBar extends React.Component {
 			Selected = names.map((name, index) => {
 
 				// console.log(<Selected key={index} name={name} />)
-				return <Selected key={index} />;
+				// return <Selected key={index} />;
 			});
 		}
 

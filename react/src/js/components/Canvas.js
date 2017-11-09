@@ -7,35 +7,82 @@ export default class Canvas extends React.Component {
 
 		this.animate = this.animate.bind(this);
 		this.updateChart = this.updateChart.bind(this);
+		this.resize = this.resize.bind(this);
 	}
 
 	componentDidMount() {
-		this.renderer = PIXI.autoDetectRenderer(20, 20, {
+		this.renderer = PIXI.autoDetectRenderer(1000, 800, {
 			transparent: false,
 			resolution: 1,
 			antialias: true
 		});
+
 		this.refs.canvas.appendChild(this.renderer.view);
+
+		window.addEventListener("resize", this.resize);
+		this.resize();
 
 		this.stage = new PIXI.Container();
 
-		var dot = new PIXI.Graphics();
-		dot.beginFill(16777215);
-		dot.drawRoundedRect(0, 0, 40, 40, 8);
-		dot.finalX = 20;
-		dot.finalY = 20;
-		dot.x = Math.random() * 10;
-		dot.y = Math.random() * 10;
-		dot.interactive = true;
-		dot.on('pointerdown', ()=> {
-			console.log("yooooo");
-		})
-		
-		this.dot = dot;
-		this.stage.addChild(this.dot);
+		var box = new PIXI.Container();
+    var dot = new PIXI.Graphics();
+    box.x = 300;
+    box.y = 200;
+    box.pivot.x = box.width / 2;
+    box.pivot.y = box.height / 2;
 
-		// this.animate();
+    box.addChild(dot);
+
+    dot.beginFill(3093046);
+    dot.drawCircle(0, 0, 50);
+
+    dot.interactive = true;
+    dot.buttonMode = true;
+
+  //   var onButtonDown = function() {
+  //   	console.log("asdfasdf")
+		// 	var x = this.x;
+		// 	var y = this.y;
+		// 	var gx = this.toGlobal(this.stage.position);
+		// 	console.log(x, y, gx)
+		// }
+
+    dot
+      // .on('pointerdown', onButtonDown)
+      .on('pointerover', onButtonOver)
+      .on('pointerout', onButtonOut);
+
+    function onButtonOver() {
+    	var stage = this.parent.parent;
+
+			var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+
+			var top = viewportOffset.top;
+			var left = viewportOffset.left;
+
+			var canvasPosition = new PIXI.Point(left, top);
+
+			var elementPostion = this.parent.toGlobal(canvasPosition);
+			console.log(elementPostion)
+
+			var i = document.createElement('IMG');
+			i.id = "preview";
+			i.src = './interface/images/ea-white.png'
+			i.width = 50;
+			i.height = 50;
+			i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+			document.body.appendChild(i);
+    }
+
+    function onButtonOut() {
+    	document.getElementById('preview').outerHTML = "";
+    }
+
+    this.stage.addChild(box);
+
+		this.animate();
 	}
+
 
 	// shouldComponentUpdate(nextProps, nextState) {
 	// 	return nextProps.data !== this.props.data;
@@ -46,11 +93,15 @@ export default class Canvas extends React.Component {
 	// }
 
 	animate() {
-		// var data = this.props.labelData;
-		// this.dot.x += 1;
-
 		this.renderer.render(this.stage);
 		this.frame = requestAnimationFrame(this.animate);
+	}
+
+	resize() {
+		var w = window.innerWidth;
+		var h = window.innerHeight / 2;
+
+		this.renderer.resize(w, h);
 	}
 
 	updateChart(props) {
@@ -81,13 +132,11 @@ export default class Canvas extends React.Component {
 				}
 			}
 		}
-		
-		
 	}
 
 	render() {
 		return (
-			<div class="Canvas" ref="canvas">
+			<div class="Canvas" ref="canvas" id="canvas">
 			</div>
 		);
 	}
