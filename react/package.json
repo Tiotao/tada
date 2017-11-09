@@ -26,11 +26,13 @@
     "compass": "^0.1.1",
     "css-loader": "^0.28.7",
     "pixi": "^0.3.1",
-    "style-loader": "^0.19.0"
+    "style-loader": "^0.19.0",
+    "uglifyjs-webpack-plugin": "^1.0.1"
   },
   "scripts": {
     "dev": "webpack-dev-server --content-base src --inline --hot",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --optimize-minimize"
   },
   "author": "Jiayang",
   "license": "ISC"
