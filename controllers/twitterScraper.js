@@ -30,7 +30,7 @@ async function grabLatestTweets() {
             source: "twitter",
             media_type: "text",
             search_ref: [{
-                keyword: 'battlefront',
+                keyword: configs.YOUTUBE_SEARCH_KEYWORDS[0],
                 type: 'recent',
             }],
             entities: {
@@ -62,7 +62,7 @@ async function grabLatestTweets() {
 
     try {
         ret = await TwitterGet('search/tweets', {
-            q: 'battlefront',
+            q: configs.YOUTUBE_SEARCH_KEYWORDS[0],
             result_type: 'recent',
             count: 100,
             // since_id: since_id,

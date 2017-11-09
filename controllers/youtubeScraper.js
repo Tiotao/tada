@@ -56,7 +56,7 @@ async function getListOfVideos(query, method) {
                 }
             };
             formatted_video.search_ref = [{
-                keyword: 'battlefront',
+                keyword: query,
                 type: 'twitter_mention',
             }];
         }
