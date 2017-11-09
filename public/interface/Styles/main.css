@@ -84,6 +84,10 @@ ul {
 	margin: 0 auto;
 }
 
+.LeftBarLabelHeatmapSVG {
+	padding-left: 2.5px;
+}
+
 .LeftBarLabelName {
 	position: relative;
 	left: 0;
