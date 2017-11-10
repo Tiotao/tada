@@ -42,13 +42,17 @@ async function getListOfVideos(query, method) {
         }
         if (method == "id") {
             let mention = query.mentions[video.id]
+            let vl_ratio = video.statistics.likeCount / video.statistics.viewCount;
+            if (!vl_ratio) {
+                vl_ratio = 0;
+            }
             formatted_video.stats = {
                 "view_count": parseInt(video.statistics.viewCount),
                 "like_count": parseInt(video.statistics.likeCount),
                 "dislike_count": parseInt(video.statistics.dislikeCount),
                 "fav_count": parseInt(video.statistics.favoriteCount),
                 "comment_count": parseInt(video.statistics.commentCount),
-                "vl_ratio": video.statistics.likeCount / video.statistics.viewCount,
+                "vl_ratio": vl_ratio,
                 "last_mention": {
                     "timestamp": mention.timestamp,
                     'source': mention.source,
@@ -69,13 +73,17 @@ async function getListOfVideos(query, method) {
     }
 
     function appendStats(dict, vs) {
+        let vl_ratio = vs.statistics.likeCount / vs.statistics.viewCount;
+        if (!vl_ratio) {
+            vl_ratio = 0;
+        }
         dict[vs.id].stats =  {
             "view_count": parseInt(vs.statistics.viewCount),
             "like_count": parseInt(vs.statistics.likeCount),
             "dislike_count": parseInt(vs.statistics.dislikeCount),
             "fav_count": parseInt(vs.statistics.favoriteCount),
             "comment_count": parseInt(vs.statistics.commentCount),
-            "vl_ratio": vs.statistics.likeCount / vs.statistics.viewCount
+            "vl_ratio": vl_ratio
         }
         return dict;
     }
@@ -283,6 +291,10 @@ async function scrapeStats(query_videos) {
         
         let update_promises = video_stats.map((vs) => {
             return async() => {
+                let vl_ratio = vs.statistics.likeCount / vs.statistics.viewCount;
+                if (!vl_ratio) {
+                    vl_ratio = 0;
+                }
                 await video_collection.findOneAndUpdate({
                     "local_id": vs.id
                 }, {
@@ -292,7 +304,7 @@ async function scrapeStats(query_videos) {
                         "stats.dislike_count": parseInt(vs.statistics.dislikeCount),
                         "stats.fav_count": parseInt(vs.statistics.favoriteCount),
                         "stats.comment_count": parseInt(vs.statistics.commentCount),
-                        "stats.vl_ratio": vs.statistics.likeCount / vs.statistics.viewCount
+                        "stats.vl_ratio": vl_ratio
                     }
                 })
             }
@@ -317,6 +329,11 @@ module.exports = {
     scrape: async (req, res) => {
         const ret = await scrape();
         res.send(ret);
+    },
+
+    scrapeStatsAPI: async(req, res)=>{
+        await scrapeStats();
+        res.sendStatus(200);
     },
 
     scrapeStats: scrapeStats,
