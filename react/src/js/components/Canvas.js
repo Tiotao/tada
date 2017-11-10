@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react";
-import * as PIXI from "pixi.js"
+import * as PIXI from "pixi.js";
 
 export default class Canvas extends React.Component {
 	constructor(props) {
@@ -10,6 +10,7 @@ export default class Canvas extends React.Component {
 		this.resize = this.resize.bind(this);
 		this.handleVideoPosition = this.handleVideoPosition.bind(this);
 		this.drawDots = this.drawDots.bind(this);
+		this.drawDot = this.drawDot.bind(this);
 	}
 
 	componentDidUpdate() {
@@ -18,7 +19,8 @@ export default class Canvas extends React.Component {
 			var positions = this.props.videos.positions;
 			var videoIDs = Object.keys(positions);
 
-			var pos3600 = videoIDs.map(this.handleVideoPosition)
+			// var pos3600 = videoIDs.map(this.handleVideoPosition)
+			videoIDs.map(this.handleVideoPosition);
 
 			//3600 timeframe
 			this.drawDots(pos3600);
@@ -26,26 +28,33 @@ export default class Canvas extends React.Component {
 	}
 
 	handleVideoPosition(videoID) {
-		var positions = this.props.videos.positions[videoID]['21600'];
+		var positions = this.props.videos.positions[videoID]['3600'];
 		
 		if(positions[0]) {
 			var x = positions[0][0];
 			var y = positions[0][1];
-			return [x, y];
+			this.drawDot(x, y, videoID);
 		}
-		return [];
+		else {
+			return;
+		}
 	}
 
-	drawDots(pos) {
+	drawDot(x, y, id) {
 		var canvasHight = 300;
 		var dotMargin = 15;
-		for(var i = 0; i < pos.length; i++) {
+		
 			var box = new PIXI.Container();
 			var dot = new PIXI.Graphics();
-			box.x = pos[i][0] * dotMargin;
-			box.y = - pos[i][1] * dotMargin + canvasHight;
+			box.x = x * dotMargin;
+			// box.y = - pos[i][1] * dotMargin + canvasHight;
+			box.y = this.random();
 			box.pivot.x = box.width / 2;
 	    box.pivot.y = box.height / 2;
+	    box.index = id;
+
+	    var tweenY = new Tween(box, "y", - y * dotMargin + canvasHight, 60, true);
+	    tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
 	    dot.beginFill(3093046);
@@ -55,12 +64,78 @@ export default class Canvas extends React.Component {
 	    dot.buttonMode = true;
 
 	    dot
-	      // .on('pointerdown', onButtonDown)
+	      .on('pointerdown', onButtonDown)
 	      .on('pointerover', onButtonOver)
 	      .on('pointerout', onButtonOut);
 
-	    function onButtonOver() {
-	    	var stage = this.parent.parent;
+	    function onButtonDown() {
+	    	// var videoID = 
+	    	console.log(this)
+	    }
+
+	  	function onButtonOver() {
+	  		var stage = this.parent.parent;
+
+				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+
+				var top = viewportOffset.top;
+				var left = viewportOffset.left;
+
+				var canvasPosition = new PIXI.Point(left, top);
+
+				var elementPostion = this.parent.toGlobal(canvasPosition);
+
+				var i = document.createElement('IMG');
+				i.id = "preview";
+				i.src = './interface/images/ea-white.png'
+				i.width = 50;
+				i.height = 50;
+				i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+				document.body.appendChild(i);
+	    }
+
+	    function onButtonOut() {
+	    	document.getElementById('preview').outerHTML = "";
+	    }
+	    this.stage.addChild(box);
+
+	}
+
+	drawDots(pos) {
+		var canvasHight = 300;
+		var dotMargin = 15;
+		for(var i = 0; i < pos.length; i++) {
+			var box = new PIXI.Container();
+			var dot = new PIXI.Graphics();
+			box.x = pos[i][0] * dotMargin;
+			// box.y = - pos[i][1] * dotMargin + canvasHight;
+			box.y = this.random();
+			box.pivot.x = box.width / 2;
+	    box.pivot.y = box.height / 2;
+	    box.index = 
+
+	    var tweenY = new Tween(box, "y", - pos[i][1] * dotMargin + canvasHight, 60, true);
+	    tweenY.easing = Tween.outCubic;
+
+	    box.addChild(dot);
+	    dot.beginFill(3093046);
+	    dot.drawCircle(0, 0, 5);
+
+	    dot.interactive = true;
+	    dot.buttonMode = true;
+
+	    dot
+	      .on('pointerdown', onButtonDown)
+	      .on('pointerover', onButtonOver)
+	      .on('pointerout', onButtonOut);
+
+	    function onButtonDown() {
+	    	// var videoID = 
+	    	console.log(this)
+	    }
+
+	  	function onButtonOver() {
+	  		var stage = this.parent.parent;
 
 				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
@@ -104,6 +179,11 @@ export default class Canvas extends React.Component {
 		this.animate();
 	}
 
+	random() {
+    var min = -500, max = 500;
+    return Math.floor(Math.random()*(max-min+1)+min);
+  }
+
 
 	// shouldComponentUpdate(nextProps, nextState) {
 	// 	return nextProps.data !== this.props.data;
@@ -114,6 +194,7 @@ export default class Canvas extends React.Component {
 	// }
 
 	animate() {
+		Tween.runTweens();
 		this.renderer.render(this.stage);
 		this.frame = requestAnimationFrame(this.animate);
 	}
