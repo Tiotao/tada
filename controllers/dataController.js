@@ -851,7 +851,7 @@ async function cacheLabels() {
 
     labels.map((label)=>{
         let counts = utils.groupByDuration(label.videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
-        label.history = counts;
+        label.history = counts.reverse();
         return label
     })
 
