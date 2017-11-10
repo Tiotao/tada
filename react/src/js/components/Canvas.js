@@ -48,7 +48,7 @@ export default class Canvas extends React.Component {
 	    box.pivot.y = box.height / 2;
 	    box.index = id;
 
-	    var tweenY = new Tween(box, "y", - y * dotMargin + canvasHight, 60, true);
+	    var tweenY = new Tween(box, "y", - y * dotMargin + canvasHight, 30, true);
 	    tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
@@ -71,6 +71,11 @@ export default class Canvas extends React.Component {
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
+	  		var tweenH = new Tween(this, "height", 300, 20, true);
+	      var tweenW = new Tween(this, "width", 300, 20, true);
+	      tweenH.easing = Tween.outCubic;
+	      tweenW.easing = Tween.outCubic;
+
 				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
 				var top = viewportOffset.top;
@@ -90,10 +95,15 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	    	document.getElementById('preview').outerHTML = "";
-	    }
-	    this.stage.addChild(box);
+	      var tweenH = new Tween(this, "height", 5, 30, true);
+	      var tweenW = new Tween(this, "width", 5, 30, true);
+	      tweenH.easing = Tween.outCubic;
+	      tweenW.easing = Tween.outCubic;
 
+	      document.getElementById('preview').outerHTML = "";
+	    }
+
+	    this.stage.addChild(box);
 	}
 
 	componentDidMount() {
