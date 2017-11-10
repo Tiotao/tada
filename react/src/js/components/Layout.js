@@ -28,12 +28,8 @@ export default class Layout extends React.Component {
           data : res.data.data.slice(0,50)
         })
 
-        var labelIDs = res.data.data.slice(0,1).map(function(label) {
-          return label._id;
-        })
-
         return axios.post('http://localhost:3000/api/filter', {
-          "ids": labelIDs,
+          "ids": [],
           "view_count_range": ["0", "Infinity"],
           "like_ratio_range": ["0", "1"]
         })
