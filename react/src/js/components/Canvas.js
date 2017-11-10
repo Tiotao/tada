@@ -9,7 +9,6 @@ export default class Canvas extends React.Component {
 		this.updateChart = this.updateChart.bind(this);
 		this.resize = this.resize.bind(this);
 		this.handleVideoPosition = this.handleVideoPosition.bind(this);
-		this.drawDots = this.drawDots.bind(this);
 		this.drawDot = this.drawDot.bind(this);
 	}
 
@@ -19,11 +18,7 @@ export default class Canvas extends React.Component {
 			var positions = this.props.videos.positions;
 			var videoIDs = Object.keys(positions);
 
-			// var pos3600 = videoIDs.map(this.handleVideoPosition)
 			videoIDs.map(this.handleVideoPosition);
-
-			//3600 timeframe
-			this.drawDots(pos3600);
 		}
 	}
 
@@ -99,67 +94,6 @@ export default class Canvas extends React.Component {
 	    }
 	    this.stage.addChild(box);
 
-	}
-
-	drawDots(pos) {
-		var canvasHight = 300;
-		var dotMargin = 15;
-		for(var i = 0; i < pos.length; i++) {
-			var box = new PIXI.Container();
-			var dot = new PIXI.Graphics();
-			box.x = pos[i][0] * dotMargin;
-			// box.y = - pos[i][1] * dotMargin + canvasHight;
-			box.y = this.random();
-			box.pivot.x = box.width / 2;
-	    box.pivot.y = box.height / 2;
-	    box.index = 
-
-	    var tweenY = new Tween(box, "y", - pos[i][1] * dotMargin + canvasHight, 60, true);
-	    tweenY.easing = Tween.outCubic;
-
-	    box.addChild(dot);
-	    dot.beginFill(3093046);
-	    dot.drawCircle(0, 0, 5);
-
-	    dot.interactive = true;
-	    dot.buttonMode = true;
-
-	    dot
-	      .on('pointerdown', onButtonDown)
-	      .on('pointerover', onButtonOver)
-	      .on('pointerout', onButtonOut);
-
-	    function onButtonDown() {
-	    	// var videoID = 
-	    	console.log(this)
-	    }
-
-	  	function onButtonOver() {
-	  		var stage = this.parent.parent;
-
-				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
-
-				var top = viewportOffset.top;
-				var left = viewportOffset.left;
-
-				var canvasPosition = new PIXI.Point(left, top);
-
-				var elementPostion = this.parent.toGlobal(canvasPosition);
-
-				var i = document.createElement('IMG');
-				i.id = "preview";
-				i.src = './interface/images/ea-white.png'
-				i.width = 50;
-				i.height = 50;
-				i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
-				document.body.appendChild(i);
-	    }
-
-	    function onButtonOut() {
-	    	document.getElementById('preview').outerHTML = "";
-	    }
-	    this.stage.addChild(box);
-		}
 	}
 
 	componentDidMount() {
