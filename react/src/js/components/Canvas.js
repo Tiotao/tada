@@ -8,6 +8,83 @@ export default class Canvas extends React.Component {
 		this.animate = this.animate.bind(this);
 		this.updateChart = this.updateChart.bind(this);
 		this.resize = this.resize.bind(this);
+		this.handleVideoPosition = this.handleVideoPosition.bind(this);
+		this.drawDots = this.drawDots.bind(this);
+	}
+
+	componentDidUpdate() {
+		
+		if(this.props.videos) {
+			var positions = this.props.videos.positions;
+			var videoIDs = Object.keys(positions);
+
+			var pos3600 = videoIDs.map(this.handleVideoPosition)
+
+			//3600 timeframe
+			this.drawDots(pos3600);
+		}
+	}
+
+	handleVideoPosition(videoID) {
+		var positions = this.props.videos.positions[videoID]['21600'];
+		
+		if(positions[0]) {
+			var x = positions[0][0];
+			var y = positions[0][1];
+			return [x, y];
+		}
+		return [];
+	}
+
+	drawDots(pos) {
+		var canvasHight = 300;
+		var dotMargin = 15;
+		for(var i = 0; i < pos.length; i++) {
+			var box = new PIXI.Container();
+			var dot = new PIXI.Graphics();
+			box.x = pos[i][0] * dotMargin;
+			box.y = - pos[i][1] * dotMargin + canvasHight;
+			box.pivot.x = box.width / 2;
+	    box.pivot.y = box.height / 2;
+
+	    box.addChild(dot);
+	    dot.beginFill(3093046);
+	    dot.drawCircle(0, 0, 5);
+
+	    dot.interactive = true;
+	    dot.buttonMode = true;
+
+	    dot
+	      // .on('pointerdown', onButtonDown)
+	      .on('pointerover', onButtonOver)
+	      .on('pointerout', onButtonOut);
+
+	    function onButtonOver() {
+	    	var stage = this.parent.parent;
+
+				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+
+				var top = viewportOffset.top;
+				var left = viewportOffset.left;
+
+				var canvasPosition = new PIXI.Point(left, top);
+
+				var elementPostion = this.parent.toGlobal(canvasPosition);
+
+				var i = document.createElement('IMG');
+				i.id = "preview";
+				i.src = './interface/images/ea-white.png'
+				i.width = 50;
+				i.height = 50;
+				i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+				document.body.appendChild(i);
+	    }
+
+	    function onButtonOut() {
+	    	document.getElementById('preview').outerHTML = "";
+	    }
+	    this.stage.addChild(box);
+		}
 	}
 
 	componentDidMount() {
@@ -23,62 +100,6 @@ export default class Canvas extends React.Component {
 		this.resize();
 
 		this.stage = new PIXI.Container();
-
-		var box = new PIXI.Container();
-    var dot = new PIXI.Graphics();
-    box.x = 300;
-    box.y = 200;
-    box.pivot.x = box.width / 2;
-    box.pivot.y = box.height / 2;
-
-    box.addChild(dot);
-
-    dot.beginFill(3093046);
-    dot.drawCircle(0, 0, 50);
-
-    dot.interactive = true;
-    dot.buttonMode = true;
-
-  //   var onButtonDown = function() {
-  //   	console.log("asdfasdf")
-		// 	var x = this.x;
-		// 	var y = this.y;
-		// 	var gx = this.toGlobal(this.stage.position);
-		// 	console.log(x, y, gx)
-		// }
-
-    dot
-      // .on('pointerdown', onButtonDown)
-      .on('pointerover', onButtonOver)
-      .on('pointerout', onButtonOut);
-
-    function onButtonOver() {
-    	var stage = this.parent.parent;
-
-			var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
-
-			var top = viewportOffset.top;
-			var left = viewportOffset.left;
-
-			var canvasPosition = new PIXI.Point(left, top);
-
-			var elementPostion = this.parent.toGlobal(canvasPosition);
-			console.log(elementPostion)
-
-			var i = document.createElement('IMG');
-			i.id = "preview";
-			i.src = './interface/images/ea-white.png'
-			i.width = 50;
-			i.height = 50;
-			i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
-			document.body.appendChild(i);
-    }
-
-    function onButtonOut() {
-    	document.getElementById('preview').outerHTML = "";
-    }
-
-    this.stage.addChild(box);
 
 		this.animate();
 	}

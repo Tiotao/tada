@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 
-
 import Canvas from "./Canvas";
 import Header from "./Header";
 import LabelStore from "../stores/LabelStore";
@@ -28,20 +27,20 @@ export default class Layout extends React.Component {
         this.setState({
           data : res.data.data.slice(0,50)
         })
-      })
-      .catch(err => {
-        console.log(err);
-      })
 
-    axios.post('http://localhost:3000/api/filter-videos', {
-        'ids':['59e1570ec7e0c22a00d7648e', '59e92e81dc4aaf47c4e09871'],
-        'view_count_range': ["0", "Infinity"],
-        'like_ratio_range': ["0", "1"]
+        var labelIDs = res.data.data.slice(0,1).map(function(label) {
+          return label._id;
+        })
+
+        return axios.post('http://localhost:3000/api/filter', {
+          "ids": labelIDs,
+          "view_count_range": ["0", "Infinity"],
+          "like_ratio_range": ["0", "1"]
+        })
       })
-      .then(res => {
-        console.log(res);
+      .then(response => {
         this.setState({
-          videos : res.data
+          videos : response.data
         })
       })
       .catch(err => {
@@ -64,7 +63,7 @@ export default class Layout extends React.Component {
         <Header title={this.state.title} />
         <LeftBar data={this.state.data} handleLabelData={this.handleLabelData}/>
         <TopBar name={this.state.selected} />
-        <Canvas labelData={this.state.labelData} />
+        <Canvas videos={this.state.videos} />
       </div>
     );
   }
