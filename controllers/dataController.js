@@ -1088,8 +1088,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     label_ids = label_ids.map((id)=>{return new ObjectId(id)});
 
-    // get videos
-    let video_ids = await cache_collection.aggregate([
+    let id_query = [
         {
             $match: {
                 _id: { $in: label_ids }
@@ -1113,11 +1112,18 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
                 }
             }
         }
-    ]).toArray();
-    
-    video_ids = video_ids[0].common;
+    ]
 
-    let videos = await video_collection.aggregate([
+    let video_ids;
+
+    if (label_ids.length > 0) {
+        video_ids = await cache_collection.aggregate(id_query).toArray();
+        video_ids = video_ids[0].common;
+    } else{
+        video_ids = []
+    }
+
+    let video_query = [
         {
             $match: {
                 _id: {$in: video_ids},
@@ -1139,7 +1145,24 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
             }
         }
 
-    ]).toArray();
+    ]
+
+    // get videos
+    
+    if (video_ids.length <= 0) {
+        video_query[0].$match = {
+            "stats.view_count": {
+                $gt: view_count_range[0],
+                $lt: view_count_range[1],
+            },
+            "stats.vl_ratio": {
+                $gt: vl_ratio_range[0],
+                $lt: vl_ratio_range[1],
+            }
+        }
+    }
+
+    let videos = await video_collection.aggregate(video_query).toArray();
 
 
     // post date
