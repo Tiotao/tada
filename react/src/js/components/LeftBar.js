@@ -9,7 +9,7 @@ export default class LeftBar extends React.Component {
 	}
 
 	render() {
-		const labels = this.props.data;
+		const labels = this.props.labels;
 
 		let Labels 
 

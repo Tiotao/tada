@@ -39,7 +39,7 @@ export default class Canvas extends React.Component {
 	}
 
 	drawDot(x, y, id) {
-		var canvasHight = 300;
+		var canvasHight = 500;
 		var dotMargin = 15;
 		
 			var box = new PIXI.Container();
@@ -55,7 +55,8 @@ export default class Canvas extends React.Component {
 	    tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
-	    dot.beginFill(3093046);
+	    // dot.beginFill(3093046);
+	    dot.beginFill(12369084);
 	    dot.drawCircle(0, 0, 5);
 
 	    dot.interactive = true;
@@ -80,7 +81,6 @@ export default class Canvas extends React.Component {
 
 	      axios.get('http://localhost:3000/api/videos/'+this.parent.index)
 	      	.then(res => {
-			    	console.log(res.data);
 			    	var data = res.data;
 
 			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
@@ -102,7 +102,7 @@ export default class Canvas extends React.Component {
 						setTimeout(function() {
 							document.body.appendChild(i);
 							i.classList.add('load');
-						}, 100)
+						}, 150)
 						
 	      	})
 	      	.catch(err => {

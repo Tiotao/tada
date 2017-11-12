@@ -12,13 +12,27 @@ export default class Label extends React.Component {
 	handleClick(e) {
 		e.preventDefault();
 
-		axios.get('http://localhost:3000/api/labels/'+e.target.id)
-      .then(res => {
-        this.props.handleLabelData(res.data)
-      })
-      .catch(err => {
-        console.log(err);
-      })
+		// axios.get('http://localhost:3000/api/labels/'+e.target.id)
+  //     .then(res => {
+  //       this.props.handleLabelData(res.data)
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //     })
+  	var name = e.target.innerHTML;
+
+    axios.post('http://localhost:3000/api/filter', {
+	      "ids": [e.target.id],
+	      "view_count_range": ["0", "Infinity"],
+	      "like_ratio_range": ["0", "1"]
+	    })
+	    .then(res => {
+	    	console.log(name)
+	      this.props.handleLabelData(name, res.data)
+	    })
+	    .catch(err => {
+	      console.log(err);
+	    })
 	}
 
 	drawHeatmap() {

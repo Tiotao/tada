@@ -12,9 +12,6 @@ export default class Layout extends React.Component {
     super();
     this.state = {
       title: "Tada Interface",
-      labelData: {
-        name: "Welcome"
-      },
       selected: ['test']
     };
 
@@ -25,7 +22,7 @@ export default class Layout extends React.Component {
     axios.get('http://localhost:3000/api/labels')
       .then(res => {
         this.setState({
-          data : res.data.data.slice(0,50)
+          labels : res.data.data.slice(0,50)
         })
 
         return axios.post('http://localhost:3000/api/filter', {
@@ -44,11 +41,12 @@ export default class Layout extends React.Component {
       })
   }
 
-  handleLabelData(data) {
+  handleLabelData(name, data) {
+    console.log(data)
     if(this.state.selected.indexOf(data.name) < 0) {
       this.setState({
-        labelData: data,
-        selected: [...this.state.selected, data.name]
+        data: data,
+        selected: [...this.state.selected, name]
       })
     }
   }
@@ -57,7 +55,7 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header title={this.state.title} />
-        <LeftBar data={this.state.data} handleLabelData={this.handleLabelData}/>
+        <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData}/>
         <TopBar name={this.state.selected} />
         <Canvas videos={this.state.videos} />
       </div>
