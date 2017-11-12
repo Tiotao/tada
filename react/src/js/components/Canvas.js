@@ -1,5 +1,8 @@
 import React, {Component, PropTypes} from "react";
 import * as PIXI from "pixi.js";
+import axios from "axios";
+
+import Preview from "./Preview";
 
 export default class Canvas extends React.Component {
 	constructor(props) {
@@ -64,34 +67,47 @@ export default class Canvas extends React.Component {
 	      .on('pointerout', onButtonOut);
 
 	    function onButtonDown() {
-	    	// var videoID = 
-	    	console.log(this)
+	    	console.log(this.parent.index)
 	    }
 
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
-	  		var tweenH = new Tween(this, "height", 300, 20, true);
-	      var tweenW = new Tween(this, "width", 300, 20, true);
+	  		var tweenH = new Tween(this, "height", 300, 10, true);
+	      var tweenW = new Tween(this, "width", 300, 10, true);
 	      tweenH.easing = Tween.outCubic;
 	      tweenW.easing = Tween.outCubic;
 
-				var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+	      axios.get('http://localhost:3000/api/videos/'+this.parent.index)
+	      	.then(res => {
+			    	console.log(res.data);
+			    	var data = res.data;
 
-				var top = viewportOffset.top;
-				var left = viewportOffset.left;
+			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
-				var canvasPosition = new PIXI.Point(left, top);
+						var top = viewportOffset.top - 150;
+						var left = viewportOffset.left - 150;
 
-				var elementPostion = this.parent.toGlobal(canvasPosition);
+						var canvasPosition = new PIXI.Point(left, top);
+						var elementPostion = this.parent.toGlobal(canvasPosition);
 
-				var i = document.createElement('IMG');
-				i.id = "preview";
-				i.src = './interface/images/ea-white.png'
-				i.width = 50;
-				i.height = 50;
-				i.style = "position: absolute; left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
-				document.body.appendChild(i);
+						var i = document.createElement('IMG');
+						i.classList.add('Preview');
+						i.id = this.parent.index;
+						i.src = data.thumbnail;
+						i.style = "left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+						i.addEventListener('mouseout', function(e) {
+							this.outerHTML = "";
+						})
+						setTimeout(function() {
+							document.body.appendChild(i);
+							i.classList.add('load');
+						}, 100)
+						
+	      	})
+	      	.catch(err => {
+	      		console.log(err);
+	      	})
 	    }
 
 	    function onButtonOut() {
@@ -99,8 +115,6 @@ export default class Canvas extends React.Component {
 	      var tweenW = new Tween(this, "width", 5, 30, true);
 	      tweenH.easing = Tween.outCubic;
 	      tweenW.easing = Tween.outCubic;
-
-	      document.getElementById('preview').outerHTML = "";
 	    }
 
 	    this.stage.addChild(box);

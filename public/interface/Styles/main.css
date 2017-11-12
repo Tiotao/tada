@@ -161,6 +161,17 @@ canvas {
 	right: 0;
 }
 
+.Preview {
+	position: absolute;
+	height: 300px;
+	width: 300px;
+	opacity: 0;
+	object-fit: cover;
+	-webkit-transition: opacity 1s ease-in;
+	transition: opacity 1s ease-in;
+	border-radius: 300px;
+}
+
 .Overlay {
 	opacity: 0;
 	position: absolute;
