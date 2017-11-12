@@ -142,14 +142,14 @@ export default class Canvas extends React.Component {
     return Math.floor(Math.random()*(max-min+1)+min);
   }
 
-
 	// shouldComponentUpdate(nextProps, nextState) {
 	// 	return nextProps.data !== this.props.data;
 	// }
 
-	// componentWillReceiveProps(nextProps) {
-	// 	this.updateChart(nextProps);
-	// }
+	componentWillReceiveProps(nextProps) {
+		this.stage.destroy();
+		this.stage = new PIXI.Container();
+	}
 
 	animate() {
 		Tween.runTweens();
