@@ -448,11 +448,11 @@ canvas {
 	width: 100px;
 	height: 40px;
 	border-radius: 50px;
-	background-color: #000;
+	background-color: #444;
 	color: #fff;
 	float: left;
 	cursor: pointer;
-	border: 1px solid #777;
+	border: 1px solid #222;
 }
 
 .SwitchContainerX > .Switch {
@@ -460,8 +460,8 @@ canvas {
 }
 
 .active {
-	color: #fff;
-	background-color: transparent;
+	color: #666;
+	background-color: #000;
 	cursor: default;
 	border: none;
 }
