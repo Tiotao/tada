@@ -167,11 +167,12 @@ export default class Canvas extends React.Component {
 							style: "border-radius: 100px; position: absolute; left: 125px; top: 125px;"
 						})
 
+						console.log(window.screen.width)
 						var i = document.createElement('IMG');
 						i.classList.add('Preview');
 						i.id = this.parent.index;
 						i.src = data.thumbnail;
-						i.style = "left: " + (elementPostion.x + sliderMove) + "px; top: " + elementPostion.y + "px;"
+						i.style = "left: " + (elementPostion.x + sliderMove - (2000-window.screen.width)) + "px; top: " + elementPostion.y + "px;"
 						i.addEventListener('mouseout', function(e) {
 							this.outerHTML = "";
 						});
@@ -238,7 +239,7 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidMount() {
-		this.renderer = PIXI.autoDetectRenderer(1000, 800, {
+		this.renderer = PIXI.autoDetectRenderer(2000, 800, {
 			transparent: true,
 			resolution: 1,
 			antialias: true
@@ -278,7 +279,7 @@ export default class Canvas extends React.Component {
 		var w = window.innerWidth;
 		var h = window.innerHeight / 2;
 
-		this.renderer.resize(w, h);
+		this.renderer.resize(2000, h);
 	}
 
 	updateChart(props) {
