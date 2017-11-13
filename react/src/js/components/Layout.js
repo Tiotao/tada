@@ -18,7 +18,8 @@ export default class Layout extends React.Component {
       title: "Tada Interface",
       selected: [],
       x: "byPosted",
-      y: "byViews"
+      y: "byViews",
+      time: "3600"
     };
 
     this.handleLabelData = this.handleLabelData.bind(this);
@@ -79,9 +80,14 @@ export default class Layout extends React.Component {
         x: value
       })
     }
-    else {
+    else if(axis == "y") {
       this.setState({
         y: value
+      })
+    }
+    else {
+      this.setState({
+        time: value
       })
     }
   }
@@ -93,7 +99,7 @@ export default class Layout extends React.Component {
         <Filters />
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
-        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y}/>
+        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
         <Timeline />
         <Switches handleSwitch={this.handleSwitch}/>
         <Overlay />

@@ -7,11 +7,13 @@ export default class Switches extends React.Component {
 
 		this.state = {
 			x: "byPosted",
-			y: "byViews"
+			y: "byViews",
+			time: "3600"
 		}
 
 		this.handleSwitchX = this.handleSwitchX.bind(this);
 		this.handleSwitchY = this.handleSwitchY.bind(this);
+		this.handleSwitchTime = this.handleSwitchTime.bind(this);
 	}
 
 	handleSwitchX(e) {
@@ -44,6 +46,21 @@ export default class Switches extends React.Component {
 		}
 	}
 
+	handleSwitchTime(e) {
+		e.preventDefault();
+
+		if(this.state.time == e.target.id) return;
+		else {
+			this.setState({
+				time: e.target.id
+			})
+			$(e.target).addClass('active');
+			$(e.target).siblings().removeClass('active');
+
+			this.props.handleSwitch("time", e.target.id);
+		}
+	}
+
 	render() {
 		return (
 			<div>
@@ -56,6 +73,11 @@ export default class Switches extends React.Component {
 					<h1 class="SwitchTitleY" data="byViews">Y</h1>
 					<button type="button" id="byViews" class="Switch active" onClick={this.handleSwitchY}>By views</button>
 					<button type="button" id="byLikes" class="Switch" onClick={this.handleSwitchY}>By likes</button>
+				</div>
+				<div class="SwitchTimeline">
+					<button type="button" id="3600" class="Switch active" onClick={this.handleSwitchTime}>Every 1 h</button>
+					<button type="button" id="21600" class="Switch" onClick={this.handleSwitchTime}>Every 6 h</button>
+					<button type="button" id="43200" class="Switch" onClick={this.handleSwitchTime}>Every 12 h</button>
 				</div>
 			</div>
 		);

@@ -31,7 +31,20 @@ export default class Canvas extends React.Component {
 	}
 
 	handleVideoPosition(videoID) {
-		var positions = this.props.videos.positions[videoID]['3600'];
+		let positions;
+		switch(this.props.time) {
+			case "3600":
+				positions = this.props.videos.positions[videoID]['3600'];
+				break;
+			case "21600":
+				positions = this.props.videos.positions[videoID]['21600'];
+				break;
+			case "43200":
+				positions = this.props.videos.positions[videoID]['43200'];
+				break;
+			default:
+				positions = this.props.videos.positions[videoID]['3600'];
+		}
 
 		var xState = this.props.x;
 		var yState = this.props.y;
