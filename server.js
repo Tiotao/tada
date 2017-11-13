@@ -54,7 +54,10 @@ if (configs.SCHEDULE_SCRAPE) {
     // });
 }
 
+
 console.log('Magic happens on ' + configs.PORT);
+
+// dataController.cacheLabels();
 
 // twitterScraper.scrape();
 
