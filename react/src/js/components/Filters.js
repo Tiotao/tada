@@ -18,7 +18,10 @@ export default class Filters extends React.Component {
 		window.addEventListener('mouseup', mouseUp, false);
 
 		function sliderMove(e) {
-			sliderLeft.css({right: sliderMove.mouseDown - e.clientX + sliderMove.oldX + 'px'});
+			var xPosition = sliderMove.mouseDown - e.clientX + sliderMove.oldX;
+			if(xPosition < 250 && xPosition > 0) {
+				sliderLeft.css({right: xPosition + 'px'});
+			}
 		}
 
 		function mouseUp()
@@ -36,7 +39,10 @@ export default class Filters extends React.Component {
 		window.addEventListener('mouseup', mouseUp, false);
 
 		function sliderMove(e) {
-			sliderRight.css({right: sliderMove.mouseDown - e.clientX + sliderMove.oldX + 'px'});
+			var xPosition = sliderMove.mouseDown - e.clientX + sliderMove.oldX;
+			if(xPosition < 250 && xPosition > 0) {
+				sliderRight.css({right: xPosition + 'px'});
+			}
 		}
 
 		function mouseUp()
