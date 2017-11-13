@@ -2,11 +2,13 @@ import React, {Component, PropTypes} from "react";
 import * as PIXI from "pixi.js";
 import axios from "axios";
 
+import Overlay from "./Overlay";
 import Preview from "./Preview";
 
 export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
+
 
 		this.animate = this.animate.bind(this);
 		this.updateChart = this.updateChart.bind(this);
@@ -16,6 +18,7 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidUpdate() {
+		console.log("did update")
 		
 		if(this.props.videos) {
 			var positions = this.props.videos.positions;
@@ -39,7 +42,7 @@ export default class Canvas extends React.Component {
 	}
 
 	drawDot(x, y, id) {
-		var canvasHight = 500;
+		var canvasHight = 400;
 		var dotMargin = 15;
 		
 			var box = new PIXI.Container();
@@ -98,7 +101,24 @@ export default class Canvas extends React.Component {
 						i.style = "left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
 						i.addEventListener('mouseout', function(e) {
 							this.outerHTML = "";
+						});
+						i.addEventListener('click', function(e) {
+							//parse video url
+							var href;
+							var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+					    var match = data.href.match(regExp);
+					    if (match && match[2].length == 11) {
+					        href = match[2];
+					    } else {
+					        console.log(error);
+					    }
+					    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
+
+					    console.log(href);
+					    // console.log($('Preview'))
+					    console.log(data);
 						})
+
 						setTimeout(function() {
 							document.body.appendChild(i);
 							i.classList.add('load');
@@ -195,8 +215,12 @@ export default class Canvas extends React.Component {
 	}
 
 	render() {
+
+				// <Overlay videoData={this.videoData} />
 		return (
-			<div class="Canvas" ref="canvas" id="canvas">
+			<div>
+				<div class="Canvas" ref="canvas" id="canvas">
+				</div>
 			</div>
 		);
 	}

@@ -12,10 +12,11 @@ export default class Layout extends React.Component {
     super();
     this.state = {
       title: "Tada Interface",
-      selected: ['test']
+      selected: []
     };
 
     this.handleLabelData = this.handleLabelData.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
   }
 
   componentDidMount() {
@@ -32,6 +33,7 @@ export default class Layout extends React.Component {
         })
       })
       .then(response => {
+        console.log(response.data)
         this.setState({
           videos : response.data
         })
@@ -41,12 +43,25 @@ export default class Layout extends React.Component {
       })
   }
 
-  handleLabelData(name, data) {
+  handleLabelData(name, id, data) {
     console.log(data)
     if(this.state.selected.indexOf(data.name) < 0) {
       this.setState({
-        data: data,
-        selected: [...this.state.selected, name]
+        videos: data,
+        selected: [...this.state.selected, {
+          name: name,
+          id: id
+        }]
+      })
+    }
+  }
+
+  handleRemove(index, data) {
+    console.log(data, index)
+    if(this.state.selected.indexOf(data.name) >= 0) {
+      this.setState({
+        videos: data,
+        selected: this.state.selected.splice(index, 1)
       })
     }
   }
@@ -55,8 +70,8 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header title={this.state.title} />
-        <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData}/>
-        <TopBar name={this.state.selected} />
+        <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
+        <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
         <Canvas videos={this.state.videos} />
       </div>
     );
