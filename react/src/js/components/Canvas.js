@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import * as PIXI from "pixi.js";
 import axios from "axios";
+import $ from "jquery";
 
 import Overlay from "./Overlay";
 import Preview from "./Preview";
@@ -9,6 +10,7 @@ export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
 
+		this.videoData = "";
 
 		this.animate = this.animate.bind(this);
 		this.updateChart = this.updateChart.bind(this);
@@ -73,7 +75,7 @@ export default class Canvas extends React.Component {
 	    function onButtonDown() {
 	    	console.log(this.parent.index)
 	    }
-
+	    var _this = this;
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
@@ -115,8 +117,23 @@ export default class Canvas extends React.Component {
 					    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
 
 					    console.log(href);
-					    // console.log($('Preview'))
 					    console.log(data);
+					    //yes. that's right. i'm just gonna rander the video popup here. i can't react today.
+					    $('.Overlay').removeClass('hidden').addClass('reveal');
+							$('.OverlayVideo').attr('src', href);
+							$('.Overlay').addClass('load');
+							$('.OverlayVideo').addClass('load');
+
+						  $('.VideoTitle').attr('href', href).html(data.title);
+						  $('.VideoChannel').html("Posted on " + data.channel);
+						  $('.VideoPostedTime').html("at " + data.timestamp);
+						  $('.VideoView').html("Views: " + data.stats.view_count);
+
+							for(var i = 0; i < data.labels.length; i++) {
+								$('.VideoLabels').append(
+									$('<li>').attr('class', 'VideoLabelsName').append(
+										$('<a>').append(data.labels[i].name)));
+							}
 						})
 
 						setTimeout(function() {
@@ -216,7 +233,7 @@ export default class Canvas extends React.Component {
 
 	render() {
 
-				// <Overlay videoData={this.videoData} />
+				
 		return (
 			<div>
 				<div class="Canvas" ref="canvas" id="canvas">
