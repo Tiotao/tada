@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 
 import Canvas from "./Canvas";
+import Filters from "./Filters";
 import Header from "./Header";
 import LabelStore from "../stores/LabelStore";
 import LeftBar from "./LeftBar";
@@ -73,6 +74,7 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header title={this.state.title} />
+        <Filters />
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
         <Canvas videos={this.state.videos} />
