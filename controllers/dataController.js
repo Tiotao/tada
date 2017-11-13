@@ -72,8 +72,6 @@ async function queryTwitterLabelScoresOverTime(label, type, start_time, end_time
     const post_count = await collection.find(post_count_query).count();
     let posts = await collection.aggregate(score_query).toArray();
 
-    console.log(posts);
-
     let posts_over_time = [];
     let curr_time = end_time;
 
@@ -908,7 +906,7 @@ async function deleteMetaLabel(id) {
     try {
         const db = await MongoClient.connect(configs.DB_URL);
         let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
-        console.log(typeof id);
+
         await meta_label_collection.remove({_id: ObjectId(id)});
         db.close();
         return {
@@ -1119,7 +1117,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     if (label_ids.length > 0) {
         video_ids = await cache_collection.aggregate(id_query).toArray();
-        console.log(video_ids);
         video_ids = video_ids[0].common;
     } else{
         video_ids = []
@@ -1319,19 +1316,12 @@ module.exports = {
 
     graphQuery: async(req, res)=>{
 
-        console.log(req.body)
-
         const ids = req.body.ids;
         let view_count_range = req.body.view_count_range;
         let vl_ratio_range = req.body.like_ratio_range;
-
-        console.log(view_count_range)
-
+        
         view_count_range = view_count_range.map(parseFloat);
         vl_ratio_range = vl_ratio_range.map(parseFloat);
-
-        console.log(view_count_range)
-
         const ret = await graphQuery(ids, view_count_range, vl_ratio_range);
 
         res.send(ret);
