@@ -11,6 +11,10 @@ ul {
 	padding: 0;
 }
 
+button:focus {
+	outline:0;
+}
+
 .Header {
 	position: fixed;
 	height: 70px;
@@ -42,9 +46,9 @@ ul {
 
 .LeftBar {
 	position: relative;
-	width: 100%;
-	height: 400px;
-	padding:20px;
+	width: calc(100% - 300px);
+	height: 250px;
+	padding-bottom: 0;
 }
 
 .LeftBarLabels {
@@ -56,16 +60,16 @@ ul {
 	margin: 0;
 }
 
-.LeftBarLabels::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
 	background-color: #10181d;
 }
 
-.LeftBarLabels::-webkit-scrollbar {
+::-webkit-scrollbar {
 	background-color: #10181d;
 	width: 10px;
 }
 
-.LeftBarLabels::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
 	background-color: #223c4c;
 }
 
@@ -160,6 +164,17 @@ canvas {
 	right: 0;
 }
 
+.Preview {
+	position: absolute;
+	height: 300px;
+	width: 300px;
+	opacity: 0;
+	object-fit: cover;
+	-webkit-transition: opacity 1s ease-in;
+	transition: opacity 1s ease-in;
+	border-radius: 300px;
+}
+
 .Overlay {
 	opacity: 0;
 	position: absolute;
@@ -187,6 +202,7 @@ canvas {
 	padding: 10px;
 	font-size: 14px;
 	background-color: rgba(0, 0, 0, 0.8);
+	overflow: scroll;
 }
 
 .VideoTitle {
@@ -203,19 +219,41 @@ canvas {
 	color: #ababab;
 }
 
+/* look at what you've done.*/
 .VideoChannel {
 	float: left;
 	margin: 5px 5px 5px 0;
 }
-
 .VideoView {
 	float: left;
 	margin: 5px 20px 5px 0;
 }
-
 .VideoPostedTime {
 	float: left;
 	margin: 5px 20px 5px 0;
+}
+.VideoComment {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoDislike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoLike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoFav {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoVLRatio {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoCaption {
+	font-style: italic;
 }
 
 .VideoLabels {
@@ -269,22 +307,23 @@ canvas {
 }
 
 .Timeline {
-	position: relative;
+	position: fixed;
+	bottom: 70px;
 	width: 100%;
-	background-color: #efefef;
-	height: 40px;
+	background-color: #6f6f6f;
+	height: 30px;
 }
 
 .TimelineSlider {
 	position: absolute;
 	width: 200px;
 	right: 0;
-	background-color: #6f6f6f;
+	background-color: #efefef;
 	height: 100%;
 }
 
 .TimelineSlider:hover {
-	opacity: 0.8;
+	opacity: 0.7;
 }
 
 .TimelineHandleLower {
@@ -292,7 +331,7 @@ canvas {
 	position: absolute;
 	left: 0;
 	width: 20px;
-	background-color: #ffc267;
+	background-color: #efefef;
 	height: 100%;
 }
 
@@ -301,8 +340,120 @@ canvas {
 	position: absolute;
 	right: 0;
 	width: 20px;
-	background-color: #ff6e67;
+	background-color: #efefef;
 	height: 100%;
+}
+
+.Filters {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 300px;
+	height: 250px;
+}
+
+.FilterLabel {
+	font-size: 14px;
+	color: #fff;
+	margin: 0;
+}
+
+.FilterLeft {
+	position: relative;
+	width: 100%;
+	height: 40%;
+	right: 5px;
+	margin-top: 10px;
+	background-color: #000;
+	background-image: url('../images/filter.jpg');
+	background-size: contain;
+}
+
+.FilterRight {
+	position: relative;
+	width: 100%;
+	height: 40%;
+	background-color: #efefef;
+	background-image: url('../images/filter.jpg');
+	background-size: contain;
+	margin-top: 5px;
+	right: 5px;
+}
+
+.FilterLeftSlider {
+	position: absolute;
+	width: 50px;
+	right: 0;
+	background-color: #efefef;
+	height: 100%;
+	opacity: 0.5;
+}
+
+.FilterLeftSlider:hover {
+	opacity: 0.7;
+}
+
+.FilterRightSlider {
+	position: absolute;
+	width: 50px;
+	right: 0;
+	background-color: #efefef;
+	height: 100%;
+	opacity: 0.5;
+}
+
+.FilterRightSlider:hover {
+	opacity: 0.7;
+}
+
+.SwitchContainerX {
+	position: fixed;
+	bottom: 0;
+	right: 400px;
+	margin-right: 40px;
+}
+
+.SwitchContainerY {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	margin-right: 20px;
+}
+
+.SwitchTitleX {
+	color: #fff;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+.SwitchTitleY {
+	color: #fff;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+.Switch {
+	margin-bottom: 15px;
+	margin-right: 10px;
+	width: 160px;
+	height: 40px;
+	border-radius: 50px;
+	background-color: #000;
+	color: #fff;
+	float: left;
+	cursor: pointer;
+	border: 1px solid #777;
+}
+
+.active {
+	color: #fff;
+	background-color: transparent;
+	cursor: default;
+	border: none;
 }
 
 #particles-js {

@@ -9,13 +9,13 @@ export default class LeftBar extends React.Component {
 	}
 
 	render() {
-		const labels = this.props.data;
+		const labels = this.props.labels;
 
 		let Labels 
 
 		if(labels) {
 			Labels = labels.map((label) => {
-				return <Label key={label._id} {...label} handleLabelData={this.props.handleLabelData}/>;
+				return <Label key={label._id} {...label} handleLabelData={this.props.handleLabelData} selected={this.props.selected}/>;
 			});
 		}
 

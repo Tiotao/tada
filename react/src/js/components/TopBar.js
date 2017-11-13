@@ -7,19 +7,19 @@ export default class TopBar extends React.Component {
 	}
 
 	render() {
-		const names = this.props.name;
+		const selectedLabels = this.props.selected;
 		
-		let Names
+		let SelectedLabels
 
-		if(names.length > 0) {
-			Names = names.map((name, i) => {
-				return <Selected key={name} name={name} />;
+		if(selectedLabels.length > 0) {
+			SelectedLabels = selectedLabels.map((labelObj, i) => {
+				return <Selected key={labelObj.id} name={labelObj.name} id={labelObj.id} selected={this.props.selected} handleRemove={this.props.handleRemove}/>;
 			});
 		}
 
 		return (
 			<div class="TopBarLabels">
-				<ul>{Names} </ul>
+				<ul>{SelectedLabels}</ul>
 			</div>
 		);
 	}

@@ -12,13 +12,25 @@ export default class Label extends React.Component {
 	handleClick(e) {
 		e.preventDefault();
 
-		axios.get('http://localhost:3000/api/labels/'+e.target.id)
-      .then(res => {
-        this.props.handleLabelData(res.data)
-      })
-      .catch(err => {
-        console.log(err);
-      })
+  	var name = e.target.innerHTML;
+  	var id = e.target.id;
+
+		var selectedLabels = this.props.selected.map(function(labelObj) {
+			return labelObj.id;
+		})
+		selectedLabels.push(id)
+
+    axios.post('http://localhost:3000/api/filter', {
+	      "ids": selectedLabels,
+	      "view_count_range": ["0", "Infinity"],
+	      "like_ratio_range": ["0", "1"]
+	    })
+	    .then(res => {
+	      this.props.handleLabelData(name, id, res.data)
+	    })
+	    .catch(err => {
+	      console.log(err);
+	    })
 	}
 
 	drawHeatmap() {
@@ -27,7 +39,7 @@ export default class Label extends React.Component {
 		var strokeWidth = 5;
 		for(var i = 0; i < history.length; i++){
 			let rgb = [];
-			rgb.push(history[i]*8);
+			rgb.push(parseInt(Math.log(history[i]+0.1)/5*255));
 			rgb.push(36);
 			rgb.push(52);
 
