@@ -36,7 +36,8 @@ export default class Selected extends React.Component {
 			return label.id;
 		})
 
-		// console.log(selectedLabels)
+		console.log(selectedLabels)
+		console.log(ids)
 
 		axios.post('http://localhost:3000/api/filter', {
 	      "ids": ids,
