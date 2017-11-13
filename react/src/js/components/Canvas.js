@@ -148,6 +148,16 @@ export default class Canvas extends React.Component {
 						var canvasPosition = new PIXI.Point(left, top);
 						var elementPostion = this.parent.toGlobal(canvasPosition);
 
+						// var $preview = $("<img>", {
+						// 	id: this.parent.index,
+						// 	class: "Preview",
+						// 	src: data.thumbnail,
+						// 	style: "left: " + this.parent.x + "px; top: " + this.parent.y + "px;"
+						// });
+
+						// $('.Canvas').append($preview);
+						// $preview.addClass('load');
+
 						var i = document.createElement('IMG');
 						i.classList.add('Preview');
 						i.id = this.parent.index;
@@ -206,10 +216,12 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      var tweenH = new Tween(this, "height", 5, 30, true);
-	      var tweenW = new Tween(this, "width", 5, 30, true);
+	      var tweenH = new Tween(this, "height", 5, 20, true);
+	      var tweenW = new Tween(this, "width", 5, 20, true);
 	      tweenH.easing = Tween.outCubic;
 	      tweenW.easing = Tween.outCubic;
+
+	      // $('.Preview').remove();
 	    }
 
 	    this.stage.addChild(box);
