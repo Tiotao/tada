@@ -56,6 +56,7 @@ export default class Overlay extends React.Component {
 // 		);
 // 	}
 // }
+ 
 	render() {
 		return (
 			<div class="Overlay hidden">
@@ -67,6 +68,12 @@ export default class Overlay extends React.Component {
 						<p class="VideoChannel"></p>
 						<p class="VideoPostedTime"></p>
 						<p class="VideoView"></p>
+						<p class="VideoComment"></p>
+						<p class="VideoDislike"></p>
+						<p class="VideoLike"></p>
+						<p class="VideoFav"></p>
+						<p class="VideoVLRatio"></p>
+						<p class="VideoCaption"></p>
 					</div>
 					<ul class="VideoLabels"></ul>
 				</div>

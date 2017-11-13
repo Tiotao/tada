@@ -128,6 +128,12 @@ export default class Canvas extends React.Component {
 						  $('.VideoChannel').html("Posted on " + data.channel);
 						  $('.VideoPostedTime').html("at " + data.timestamp);
 						  $('.VideoView').html("Views: " + data.stats.view_count);
+						  $('.VideoComment').html("Commnets: " + data.stats.comment_count);
+						  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
+						  $('.VideoLike').html("Likes: " + data.stats.like_count);
+						  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
+						  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
+						  $('.VideoCaption').html(data.description);
 
 							for(var i = 0; i < data.labels.length; i++) {
 								$('.VideoLabels').append(

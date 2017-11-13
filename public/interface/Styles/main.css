@@ -60,16 +60,16 @@ button:focus {
 	margin: 0;
 }
 
-.LeftBarLabels::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
 	background-color: #10181d;
 }
 
-.LeftBarLabels::-webkit-scrollbar {
+::-webkit-scrollbar {
 	background-color: #10181d;
 	width: 10px;
 }
 
-.LeftBarLabels::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
 	background-color: #223c4c;
 }
 
@@ -202,6 +202,7 @@ canvas {
 	padding: 10px;
 	font-size: 14px;
 	background-color: rgba(0, 0, 0, 0.8);
+	overflow: scroll;
 }
 
 .VideoTitle {
@@ -218,19 +219,41 @@ canvas {
 	color: #ababab;
 }
 
+/* look at what you've done.*/
 .VideoChannel {
 	float: left;
 	margin: 5px 5px 5px 0;
 }
-
 .VideoView {
 	float: left;
 	margin: 5px 20px 5px 0;
 }
-
 .VideoPostedTime {
 	float: left;
 	margin: 5px 20px 5px 0;
+}
+.VideoComment {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoDislike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoLike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoFav {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoVLRatio {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoCaption {
+	font-style: italic;
 }
 
 .VideoLabels {
