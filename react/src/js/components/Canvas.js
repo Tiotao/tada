@@ -32,19 +32,58 @@ export default class Canvas extends React.Component {
 
 	handleVideoPosition(videoID) {
 		var positions = this.props.videos.positions[videoID]['3600'];
-		
-		if(positions[0]) {
-			var x = positions[0][0];
-			var y = positions[0][1];
-			this.drawDot(x, y, videoID);
+
+		var xState = this.props.x;
+		var yState = this.props.y;
+
+		if(xState == 'byPosted') {
+			if(yState == 'byViews') {
+				if(positions[0]) {
+					var x = positions[0][0];
+					var y = positions[0][1];
+					this.drawDot(x, y, videoID);
+				}
+				else {
+					return;
+				}
+			}
+			else {
+				if(positions[1]) {
+					var x = positions[1][0];
+					var y = positions[1][1];
+					this.drawDot(x, y, videoID);
+				}
+				else {
+					return;
+				}
+			}
 		}
 		else {
-			return;
+			if(yState == 'byViews') {
+				if(positions[2]) {
+					var x = positions[2][0];
+					var y = positions[2][1];
+					this.drawDot(x, y, videoID);
+				}
+				else {
+					return;
+				}
+			}
+			else {
+				if(positions[3]) {
+					var x = positions[3][0];
+					var y = positions[3][1];
+					this.drawDot(x, y, videoID);
+				}
+				else {
+					return;
+				}
+			}
 		}
 	}
 
 	drawDot(x, y, id) {
-		var canvasHight = 400;
+		var canvasHight = 450;
 		var dotMargin = 15;
 		
 			var box = new PIXI.Container();

@@ -16,11 +16,14 @@ export default class Layout extends React.Component {
     super();
     this.state = {
       title: "Tada Interface",
-      selected: []
+      selected: [],
+      x: "byPosted",
+      y: "byViews"
     };
 
     this.handleLabelData = this.handleLabelData.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.handleSwitch = this.handleSwitch.bind(this);
   }
 
   componentDidMount() {
@@ -70,6 +73,19 @@ export default class Layout extends React.Component {
     }
   }
 
+  handleSwitch(axis, value) {
+    if(axis == "x") {
+      this.setState({
+        x: value
+      })
+    }
+    else {
+      this.setState({
+        y: value
+      })
+    }
+  }
+
   render() {
     return (
       <div>
@@ -77,9 +93,9 @@ export default class Layout extends React.Component {
         <Filters />
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
-        <Canvas videos={this.state.videos} />
+        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y}/>
         <Timeline />
-        <Switches />
+        <Switches handleSwitch={this.handleSwitch}/>
         <Overlay />
       </div>
     );
