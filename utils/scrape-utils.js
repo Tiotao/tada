@@ -35,6 +35,8 @@ function combineDuplicates(entries) {
 }
 
 function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d.timestamp}) {
+
+    // console.log(data.length);
     
     const max_count = configs.MAX_WINDOW / duration;
 
@@ -51,9 +53,9 @@ function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d
     let ret = [[]];
     let ti = 0, di = 0
     const p = 3600000;
-    let curr_time;  // move forward by 1 hr
+    let curr_time;
     if (now) {
-        curr_time = Math.round( Date.now() / p) * p / 1000 + duration;
+        curr_time = Math.round( Date.now() / p) * p / 1000
     } else{
         curr_time = configs.SCRAPE_END_TIME + duration;
     }
@@ -61,7 +63,7 @@ function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d
         start = curr_time - duration,
         window_count = 0
 
-    while (ti < max_count-1) {
+    while (ti < max_count) {
         if (di < data.length && keyFunc(data[di]) > start && keyFunc(data[di]) <= end) {
             ret[ti].push(data[di]);
             di += 1
@@ -72,6 +74,16 @@ function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d
             start = start  - duration;
         }
     }
+
+    console.log(duration, start, end, ti, di)
+
+    let acc = 0;
+
+    for (let i = 0; i < ret.length; i++) {
+        acc += ret[i].length
+    }
+
+    // console.log(">" + acc);
     return ret;
 }
 
