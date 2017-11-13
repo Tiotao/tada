@@ -22,7 +22,6 @@ export default class Switches extends React.Component {
 			this.setState({
 				x: e.target.id
 			})
-			console.log(this.state)
 			$(e.target).addClass('active');
 			$(e.target).siblings().removeClass('active');
 		}
@@ -36,7 +35,6 @@ export default class Switches extends React.Component {
 			this.setState({
 				y: e.target.id
 			})
-			console.log(this.state)
 			$(e.target).addClass('active');
 			$(e.target).siblings().removeClass('active');
 		}
