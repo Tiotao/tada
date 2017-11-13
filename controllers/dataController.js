@@ -738,6 +738,7 @@ async function getLabels() {
 }
 
 async function cacheLabels() {
+    logger.info("start cacheing")
     const db = await MongoClient.connect(configs.DB_URL);
     let label_collection = db.collection(configs.LABEL_COLLECTION);
     let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
@@ -1118,6 +1119,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     if (label_ids.length > 0) {
         video_ids = await cache_collection.aggregate(id_query).toArray();
+        console.log(video_ids);
         video_ids = video_ids[0].common;
     } else{
         video_ids = []
@@ -1149,7 +1151,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     // get videos
     
-    if (video_ids.length <= 0) {
+    if (label_ids.length === 0) {
         video_query[0].$match = {
             "stats.view_count": {
                 $gt: view_count_range[0],
