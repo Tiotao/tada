@@ -6,6 +6,8 @@ import Header from "./Header";
 import LabelStore from "../stores/LabelStore";
 import LeftBar from "./LeftBar";
 import Overlay from "./Overlay";
+import Switches from "./Switches";
+import Timeline from "./Timeline";
 import TopBar from "./TopBar";
 
 export default class Layout extends React.Component {
@@ -74,6 +76,8 @@ export default class Layout extends React.Component {
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
         <Canvas videos={this.state.videos} />
+        <Timeline />
+        <Switches />
         <Overlay />
       </div>
     );
