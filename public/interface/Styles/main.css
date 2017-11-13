@@ -11,6 +11,10 @@ ul {
 	padding: 0;
 }
 
+button:focus {
+	outline:0;
+}
+
 .Header {
 	position: fixed;
 	height: 70px;
@@ -43,7 +47,7 @@ ul {
 .LeftBar {
 	position: relative;
 	width: 100%;
-	height: 400px;
+	height: 250px;
 	padding:20px;
 	padding-bottom: 0;
 }
@@ -281,17 +285,18 @@ canvas {
 }
 
 .Timeline {
-	position: relative;
+	position: fixed;
+	bottom: 70px;
 	width: 100%;
-	background-color: #efefef;
-	height: 40px;
+	background-color: #6f6f6f;
+	height: 30px;
 }
 
 .TimelineSlider {
 	position: absolute;
 	width: 200px;
 	right: 0;
-	background-color: #6f6f6f;
+	background-color: #efefef;
 	height: 100%;
 }
 
@@ -304,7 +309,7 @@ canvas {
 	position: absolute;
 	left: 0;
 	width: 20px;
-	background-color: #ffc267;
+	background-color: #efefef;
 	height: 100%;
 }
 
@@ -313,8 +318,58 @@ canvas {
 	position: absolute;
 	right: 0;
 	width: 20px;
-	background-color: #ff6e67;
+	background-color: #efefef;
 	height: 100%;
+}
+
+.SwitchContainerX {
+	position: fixed;
+	bottom: 0;
+	right: 400px;
+	margin-right: 40px;
+}
+
+.SwitchContainerY {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	margin-right: 20px;
+}
+
+.SwitchTitleX {
+	color: #fff;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+.SwitchTitleY {
+	color: #fff;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+.Switch {
+	margin-bottom: 15px;
+	margin-right: 10px;
+	width: 160px;
+	height: 40px;
+	border-radius: 50px;
+	background-color: #000;
+	color: #fff;
+	float: left;
+	cursor: pointer;
+	border: 1px solid #777;
+}
+
+.active {
+	color: #fff;
+	background-color: transparent;
+	cursor: default;
+	border: none;
 }
 
 #particles-js {
