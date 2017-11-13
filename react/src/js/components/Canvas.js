@@ -97,18 +97,19 @@ export default class Canvas extends React.Component {
 
 	drawDot(x, y, id) {
 		var canvasHight = 450;
-		var dotMargin = 15;
+		var dotMarginX = 35;
+		var dotMarginY = 15;
 		
 			var box = new PIXI.Container();
 			var dot = new PIXI.Graphics();
-			box.x = x * dotMargin;
+			box.x = x * dotMarginX;
 			// box.y = - pos[i][1] * dotMargin + canvasHight;
 			box.y = this.random();
 			box.pivot.x = box.width / 2;
 	    box.pivot.y = box.height / 2;
 	    box.index = id;
 
-	    var tweenY = new Tween(box, "y", - y * dotMargin + canvasHight, 30, true);
+	    var tweenY = new Tween(box, "y", - y * dotMarginY + canvasHight, 30, true);
 	    tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
@@ -148,6 +149,8 @@ export default class Canvas extends React.Component {
 						var canvasPosition = new PIXI.Point(left, top);
 						var elementPostion = this.parent.toGlobal(canvasPosition);
 
+						var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
+
 						// var $preview = $("<img>", {
 						// 	id: this.parent.index,
 						// 	class: "Preview",
@@ -157,15 +160,22 @@ export default class Canvas extends React.Component {
 
 						// $('.Canvas').append($preview);
 						// $preview.addClass('load');
+						var $area = $("<map>", {
+							id: "map",
+							height: 50,
+							width: 50,
+							style: "border-radius: 100px; position: absolute; left: 125px; top: 125px;"
+						})
 
 						var i = document.createElement('IMG');
 						i.classList.add('Preview');
 						i.id = this.parent.index;
 						i.src = data.thumbnail;
-						i.style = "left: " + elementPostion.x + "px; top: " + elementPostion.y + "px;"
+						i.style = "left: " + (elementPostion.x + sliderMove) + "px; top: " + elementPostion.y + "px;"
 						i.addEventListener('mouseout', function(e) {
 							this.outerHTML = "";
 						});
+						// i.appendChild($area);
 						i.addEventListener('click', function(e) {
 							//parse video url
 							var href;
