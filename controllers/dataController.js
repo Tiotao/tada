@@ -1168,13 +1168,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     result = {}
     
-    videos.map((v)=>{
-        result[v._id.toString()] = {}
-        configs.AXIS_DURATION.map((d)=>{
-            result[v._id.toString()][d] = [];
-        })
-    })
-
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
         (v)=>{return v.timestamp}
@@ -1182,6 +1175,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     function calcDotsPosition(keyFunc) {
         configs.AXIS_DURATION.map((duration)=>{
+
             let groups = utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, duration, (v)=>{return v.timestamp});
 
             let view_count_groups = groups.map((window)=>{
@@ -1191,7 +1185,14 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
             for (let i = 0; i < view_count_groups.length; i++) {
                 for(let j = 0; j < view_count_groups[i].length; j++) {
                     let v = view_count_groups[i][j]
-                    result[v._id.toString()][duration].push([view_count_groups.length-i, j])
+                    const vid = v._id.toString();
+                    if (!(vid in result)) {
+                        result[vid] = {}
+                        configs.AXIS_DURATION.map((d)=>{
+                            result[vid][d] = [];
+                        })
+                    }
+                    result[vid][duration].push([view_count_groups.length-i, j])
                 }
             }
 
@@ -1202,8 +1203,15 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
             
             for (let i = 0; i < vl_ratio_groups.length; i++) {
                 for(let j = 0; j < vl_ratio_groups[i].length; j++) {
-                    let v = vl_ratio_groups[i][j]
-                    result[v._id.toString()][duration].push([vl_ratio_groups.length-i, j])
+                    let v = vl_ratio_groups[i][j];
+                    const vid = v._id.toString();
+                    if (!(vid in result)) {
+                        result[vid] = {}
+                        configs.AXIS_DURATION.map((d)=>{
+                            result[vid][d] = [];
+                        })
+                    }
+                    result[vid][duration].push([vl_ratio_groups.length-i, j])
                 }
             }
         })
