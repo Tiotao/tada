@@ -75,8 +75,6 @@ function groupByDuration(data, now=true, duration=3600, keyFunc = (d)=>{return d
         }
     }
 
-    console.log(duration, start, end, ti, di)
-
     let acc = 0;
 
     for (let i = 0; i < ret.length; i++) {

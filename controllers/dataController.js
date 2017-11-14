@@ -1168,17 +1168,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     result = {}
     
-    
-
-    // videos.map((v)=>{
-    //     result[v._id.toString()] = {}
-    //     configs.AXIS_DURATION.map((d)=>{
-    //         result[v._id.toString()][d] = [];
-    //     })
-    // })
-
-    console.log(videos.length);
-
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
         (v)=>{return v.timestamp}
