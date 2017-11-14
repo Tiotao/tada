@@ -16,6 +16,14 @@ node server.js
 
 # Frontend
 
+under /react
+
+### Dev
+
+```
+webpack --watch
+```
+
 ### Build
 
 ```
