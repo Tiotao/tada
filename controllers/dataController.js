@@ -1186,7 +1186,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     function calcDotsPosition(keyFunc) {
         configs.AXIS_DURATION.map((duration)=>{
-            
+
             let groups = utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, duration, (v)=>{return v.timestamp});
 
             let view_count_groups = groups.map((window)=>{
@@ -1203,7 +1203,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
                             result[vid][d] = [];
                         })
                     }
-                    acc += 1
                     result[vid][duration].push([view_count_groups.length-i, j])
                 }
             }
