@@ -95,7 +95,6 @@ export default class Layout extends React.Component {
   render() {
     return (
       <div>
-        <Header title={this.state.title} />
         <Filters />
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
