@@ -13,3 +13,11 @@ npm install
 ```
 node server.js
 ```
+
+# Frontend
+
+### Build
+
+```
+npm run-script build
+```
