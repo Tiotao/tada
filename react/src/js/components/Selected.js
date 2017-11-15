@@ -15,30 +15,10 @@ export default class Selected extends React.Component {
 
 		//e.currentTarget.parentNode.parentNode.removeChild(e.currentTarget.parentNode);
 		var id = e.target.id;
-		console.log(this.props.id);
-		console.log(id)
+		var id = this.props.id;
 
 		var selectedLabels = this.props.selected;
-		console.log("selected labels: ", selectedLabels);
-		
-		let findToRemove = (id, labels) => {
-			let selectedLabelIds = labels.map((label) => {
-				return label.id;
-			})
-			console.log(selectedLabelIds.indexOf(id));
-			return selectedLabelIds.indexOf(id);
-		};
-		
-		var i = findToRemove(id, selectedLabels);
-		console.log("deleted index id", i);
-
-		selectedLabels.splice(i, 1);
-		var ids = selectedLabels.map(function(label) {
-			return label.id;
-		});
-
-		//console.log(selectedLabels)
-		//console.log(ids)
+		var ids = this.props.removeSelectedLabel(id);
 
 		axios.post('http://localhost:3000/api/filter', {
 	      "ids": ids,
@@ -46,7 +26,8 @@ export default class Selected extends React.Component {
 	      "like_ratio_range": ["0", "1"]
 	    })
 	    .then(res => {
-	    	this.props.handleRemove(i, res.data);
+	    	this.props.setVideos(res.data);
+	    	//this.props.handleRemove(i, res.data);
 	    })
 	    .catch(err => {
 	    	console.log(err);

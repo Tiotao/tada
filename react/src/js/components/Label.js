@@ -16,14 +16,17 @@ export default class Label extends React.Component {
 	  	let name = this.props.name;
 	  	let id = this.props._id;
 
+      	let selectedLabelIds = this.props.addSelectedLabels(id, name);
+      	/*
 	  	console.log("lol", this.props.selected);
 		var selectedLabelIds = this.props.selected.map(function(labelObj) {
 			return labelObj.id;
 		});
 
-		console.log("pushed id into selected: ", id);
 		selectedLabelIds.push(id);
-
+		console.log("pushed id into selected: ", selectedLabelIds);
+		
+		*/
 	    axios.post('http://localhost:3000/api/filter', {
 		      "ids": selectedLabelIds,
 		      "view_count_range": ["0", "Infinity"],
@@ -31,7 +34,8 @@ export default class Label extends React.Component {
 	    })
 	    .then(res => {
 	    	console.log("handling label data:", id);
-	      this.props.handleLabelData(name, id, res.data);
+	      this.props.setVideos(res.data);
+	      //this.props.handleLabelData(name, id, res.data);
 	    })
 	    .catch(err => {
 	      console.log(err);
