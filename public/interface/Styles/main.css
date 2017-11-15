@@ -77,19 +77,20 @@ button:focus {
 	position: relative;
 	display: inline-block;
 	width: 150px;
-	height: 150px;
+	height: 50px;
 	cursor: pointer;
-	padding: 20px 30px;
+	padding: 30px 30px;
 }
 
 .LeftBarLabelHeatmap {
-	height: 100px;
+	height: 40px;
 	background-color: #404040;
-	margin: 0 auto;
+	margin: 0 auto 10px;
 }
 
 .LeftBarLabelHeatmapSVG {
-	padding-left: 2.5px;
+	/* padding-left: 2.5px; */
+	height: 40px;
 	width: 100%;
 }
 
@@ -98,20 +99,38 @@ button:focus {
 }
 
 .LeftBarLabelName {
+	max-width: 100px;
+	display: -webkit-box;
+	height: 36px;
+	text-overflow: ellipsis;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	word-break: break-all;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: #efefef;
+	margin: 0px 0px;
+	float: left;
+
+	/* white-space: nowrap; */
+}
+
+/* .LeftBarLabelName {
 	position: relative;
 	left: 0;
-	float: left;
+	
 	text-transform: uppercase;
 	font-weight: 900;
 	color: #efefef;
 	margin: 10px 0;
-}
+} */
 
 .LeftBarLabelCount {
 	position: absolute;
 	right:30px;
 	color: #ababab;
-	margin: 10px 0;
+	margin: 0px 0px 0px;
 }
 
 .TopBarLabels {

@@ -39,7 +39,7 @@ export default class Selected extends React.Component {
 		console.log(selectedLabels)
 		console.log(ids)
 
-		axios.post('http://localhost:3000/api/filter', {
+		axios.post('/api/filter', {
 	      "ids": ids,
 	      "view_count_range": ["0", "Infinity"],
 	      "like_ratio_range": ["0", "1"]

@@ -20,7 +20,7 @@ export default class Label extends React.Component {
 		})
 		selectedLabels.push(id)
 
-    axios.post('http://localhost:3000/api/filter', {
+    axios.post('/api/filter', {
 	      "ids": selectedLabels,
 	      "view_count_range": ["0", "Infinity"],
 	      "like_ratio_range": ["0", "1"]
@@ -50,7 +50,7 @@ export default class Label extends React.Component {
 
 			days.push(
 				<line key={i}
-					x1={i*strokeWidth} x2={i*strokeWidth} y1="0" y2="100" 
+					x1={i*strokeWidth} x2={i*strokeWidth} y1="0" y2="40" 
 					style={styles} 
 				/>)
 		}
