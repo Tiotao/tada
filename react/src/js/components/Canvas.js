@@ -96,7 +96,7 @@ export default class Canvas extends React.Component {
 	}
 
 	drawDot(x, y, id) {
-		var canvasHight = 550;
+		var canvasHight = 500;
 		var dotMarginX = 45;
 		var dotMarginY = 20;
 		
