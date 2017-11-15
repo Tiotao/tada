@@ -11,9 +11,9 @@ export default class Canvas extends React.Component {
 		super(props);
 
 		this.videoData = "";
+		this.previewData = "";
 
 		this.animate = this.animate.bind(this);
-		this.updateChart = this.updateChart.bind(this);
 		this.resize = this.resize.bind(this);
 		this.handleVideoPosition = this.handleVideoPosition.bind(this);
 		this.drawDot = this.drawDot.bind(this);
@@ -96,9 +96,9 @@ export default class Canvas extends React.Component {
 	}
 
 	drawDot(x, y, id) {
-		var canvasHight = 450;
-		var dotMarginX = 35;
-		var dotMarginY = 15;
+		var canvasHight = 550;
+		var dotMarginX = 45;
+		var dotMarginY = 20;
 		
 			var box = new PIXI.Container();
 			var dot = new PIXI.Graphics();
@@ -132,19 +132,31 @@ export default class Canvas extends React.Component {
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
-	  		var tweenH = new Tween(this, "height", 300, 10, true);
-	      var tweenW = new Tween(this, "width", 300, 10, true);
-	      tweenH.easing = Tween.outCubic;
-	      tweenW.easing = Tween.outCubic;
+	  		// var tweenH = new Tween(this, "height", 100, 5, true);
+	    //   var tweenW = new Tween(this, "width", 100, 5, true);
+	    //   tweenH.easing = Tween.outCubic;
+	    //   tweenW.easing = Tween.outCubic;
+	    	// this.height = 200;
+	    	// this.width = 200;
 
 	      axios.get('http://localhost:3000/api/videos/'+this.parent.index)
 	      	.then(res => {
 			    	var data = res.data;
 
+			    	var previewData = {
+			    		id: data.id,
+			    		href: data.thumbnail,
+			    		title: data.title,
+			    		views: data.stats.view_count,
+			    		likes: data.stats.like_count
+			    	}
+			    	_this.previewData = previewData;
+			    	// _this.props.updatePreview(previewData);
+
 			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
-						var top = viewportOffset.top - 150;
-						var left = viewportOffset.left - 150;
+						var top = viewportOffset.top - 100;
+						var left = viewportOffset.left - 100;
 
 						var canvasPosition = new PIXI.Point(left, top);
 						var elementPostion = this.parent.toGlobal(canvasPosition);
@@ -160,65 +172,23 @@ export default class Canvas extends React.Component {
 
 						// $('.Canvas').append($preview);
 						// $preview.addClass('load');
-						var $area = $("<map>", {
-							id: "map",
-							height: 50,
-							width: 50,
-							style: "border-radius: 100px; position: absolute; left: 125px; top: 125px;"
-						})
 
-						console.log(window.screen.width)
-						var i = document.createElement('IMG');
-						i.classList.add('Preview');
-						i.id = this.parent.index;
-						i.src = data.thumbnail;
-						i.style = "left: " + (elementPostion.x + sliderMove - (2000-window.screen.width)) + "px; top: " + elementPostion.y + "px;"
-						i.addEventListener('mouseout', function(e) {
-							this.outerHTML = "";
-						});
+						// var i = document.createElement('IMG');
+						// i.classList.add('Preview');
+						// i.id = this.parent.index;
+						// i.src = data.thumbnail;
+						// i.style = "left: " + (elementPostion.x + sliderMove - (2000-window.screen.width)) + "px; top: " + elementPostion.y + "px;"
+						
+						// i.addEventListener('mouseout', function(e) {
+						// 	this.outerHTML = "";
+						// });
 						// i.appendChild($area);
-						i.addEventListener('click', function(e) {
-							//parse video url
-							var href;
-							var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-					    var match = data.href.match(regExp);
-					    if (match && match[2].length == 11) {
-					        href = match[2];
-					    } else {
-					        console.log(error);
-					    }
-					    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
+						
 
-					    console.log(href);
-					    console.log(data);
-					    //yes. that's right. i'm just gonna rander the video popup here. i can't react today.
-					    $('.Overlay').removeClass('hidden').addClass('reveal');
-							$('.OverlayVideo').attr('src', href);
-							$('.Overlay').addClass('load');
-							$('.OverlayVideo').addClass('load');
-
-						  $('.VideoTitle').attr('href', href).html(data.title);
-						  $('.VideoChannel').html("Posted on " + data.channel);
-						  $('.VideoPostedTime').html("at " + data.timestamp);
-						  $('.VideoView').html("Views: " + data.stats.view_count);
-						  $('.VideoComment').html("Commnets: " + data.stats.comment_count);
-						  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
-						  $('.VideoLike').html("Likes: " + data.stats.like_count);
-						  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
-						  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
-						  $('.VideoCaption').html(data.description);
-
-							for(var i = 0; i < data.labels.length; i++) {
-								$('.VideoLabels').append(
-									$('<li>').attr('class', 'VideoLabelsName').append(
-										$('<a>').append(data.labels[i].name)));
-							}
-						})
-
-						setTimeout(function() {
-							document.body.appendChild(i);
-							i.classList.add('load');
-						}, 150)
+						// setTimeout(function() {
+						// 	document.body.appendChild(i);
+						// 	i.classList.add('load');
+						// }, 50)
 						
 	      	})
 	      	.catch(err => {
@@ -227,11 +197,12 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      var tweenH = new Tween(this, "height", 5, 20, true);
-	      var tweenW = new Tween(this, "width", 5, 20, true);
-	      tweenH.easing = Tween.outCubic;
-	      tweenW.easing = Tween.outCubic;
-
+	      // var tweenH = new Tween(this, "height", 5, 20, true);
+	      // var tweenW = new Tween(this, "width", 5, 20, true);
+	      // tweenH.easing = Tween.outCubic;
+	      // tweenW.easing = Tween.outCubic;
+	      this.height = 5;
+	      this.width = 5;
 	      // $('.Preview').remove();
 	    }
 
@@ -260,10 +231,6 @@ export default class Canvas extends React.Component {
     return Math.floor(Math.random()*(max-min+1)+min);
   }
 
-	// shouldComponentUpdate(nextProps, nextState) {
-	// 	return nextProps.data !== this.props.data;
-	// }
-
 	componentWillReceiveProps(nextProps) {
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
@@ -276,40 +243,10 @@ export default class Canvas extends React.Component {
 	}
 
 	resize() {
-		var w = window.innerWidth;
-		var h = window.innerHeight / 2;
+		// var w = window.innerWidth;
+		// var h = window.innerHeight / 2;
 
-		this.renderer.resize(2000, h);
-	}
-
-	updateChart(props) {
-		var data = props.labelData;
-		var width = 2500
-			, height =800;
-		if(data.history) {
-			for(var j = 0; j < data.history.videos.length; j++) {
-				for(var k = 0; k < data.history.videos[j].length; k++) {
-					console.log(j, k)
-					var dot = new PIXI.Graphics();
-					dot.beginFill(16777215);
-					dot.drawRoundedRect(0, 0, 15, 15, 8);
-					dot.x = width - 20*(j+1);
-					dot.y = height - 20*(k+1);
-					dot.interactive = true;
-					dot.buttonMode = true;
-					dot.index = [j,k];
-
-					// dot.on('mousedown', (e) => {
-		   //      var videoId = data.history.videos[e.target.index[0]][e.target.index[1]].id;
-
-		   //      $.get('http://localhost:3000/api/videos/'+videoId, function(data, status){
-		   //        showVideo(data);
-		   //      })
-					// })
-					this.stage.addChild(dot); 
-				}
-			}
-		}
+		// this.renderer.resize(2000, h);
 	}
 
 	render() {
@@ -319,6 +256,7 @@ export default class Canvas extends React.Component {
 			<div>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
+				<Preview previewData={this.previewData} />
 			</div>
 		);
 	}

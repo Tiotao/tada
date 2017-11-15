@@ -7,24 +7,29 @@ import Header from "./Header";
 import LabelStore from "../stores/LabelStore";
 import LeftBar from "./LeftBar";
 import Overlay from "./Overlay";
+import Preview from "./Preview";
 import Switches from "./Switches";
 import Timeline from "./Timeline";
 import TopBar from "./TopBar";
 
 export default class Layout extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       title: "Tada Interface",
       selected: [],
       x: "byPosted",
       y: "byViews",
-      time: "3600"
+      time: "3600",
+      previewData: ""
     };
+
+    this.previewData = "";
 
     this.handleLabelData = this.handleLabelData.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleSwitch = this.handleSwitch.bind(this);
+    this.handlePreviewUpdate = this.handlePreviewUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -92,15 +97,29 @@ export default class Layout extends React.Component {
     }
   }
 
+  handlePreviewUpdate(data) {
+    this.previewData = data;
+    console.log(data)
+    // return data;
+    this.setState({
+      previewData: data
+    })
+  }
+
   render() {
     return (
       <div>
         <Filters />
         <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
         <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
-        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
+        <Canvas 
+          videos={this.state.videos} 
+          x={this.state.x} 
+          y={this.state.y} 
+          time={this.state.time} 
+          updatePreview={this.handlePreviewUpdate} />
         <Timeline />
-        <Switches handleSwitch={this.handleSwitch}/>
+        <Switches handleSwitch={this.handleSwitch} />
         <Overlay />
       </div>
     );
