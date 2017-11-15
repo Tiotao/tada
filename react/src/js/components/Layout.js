@@ -24,8 +24,6 @@ export default class Layout extends React.Component {
       previewData: ""
     };
 
-    this.previewData = "";
-
     this.handleLabelData = this.handleLabelData.bind(this);
     this.setVideos = this.setVideos.bind(this);
     this.addSelectedLabels = this.addSelectedLabels.bind(this);
@@ -144,12 +142,21 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Filters />
-        <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
-            handleLabelData={this.handleLabelData} selected={this.state.selected}/>
-        <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos} handleRemove={this.handleRemove}/>
-        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
+        <LeftBar 
+          labels={this.state.labels} 
+          addSelectedLabels={this.addSelectedLabels} 
+          setVideos={this.setVideos}
+          handleLabelData={this.handleLabelData} 
+          selected={this.state.selected}/>
+        <TopBar 
+          selected={this.state.selected} 
+          removeSelectedLabel={this.removeSelectedLabel} 
+          setVideos={this.setVideos} 
+          handleRemove={this.handleRemove}/>
+        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
         <Timeline />
         <Switches handleSwitch={this.handleSwitch} />
+        <Preview />
         <Overlay />
       </div>
     );

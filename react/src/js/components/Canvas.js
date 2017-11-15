@@ -139,7 +139,7 @@ export default class Canvas extends React.Component {
 	    	// this.height = 200;
 	    	// this.width = 200;
 
-	      axios.get('http://localhost:3000/api/videos/'+this.parent.index)
+	      axios.get('/api/videos/'+this.parent.index)
 	      	.then(res => {
 			    	var data = res.data;
 
@@ -150,8 +150,6 @@ export default class Canvas extends React.Component {
 			    		views: data.stats.view_count,
 			    		likes: data.stats.like_count
 			    	}
-			    	_this.previewData = previewData;
-			    	// _this.props.updatePreview(previewData);
 
 			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
@@ -163,33 +161,50 @@ export default class Canvas extends React.Component {
 
 						var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
 
-						// var $preview = $("<img>", {
-						// 	id: this.parent.index,
-						// 	class: "Preview",
-						// 	src: data.thumbnail,
-						// 	style: "left: " + this.parent.x + "px; top: " + this.parent.y + "px;"
-						// });
+						$('.Preview').css("left", elementPostion.x + sliderMove - (2000-window.screen.width));
+						$('.Preview').css("top", elementPostion.y);
+						$('.PreviewImg').attr("src", previewData.href);
+						$('.PreviewTitle').html(previewData.title);
+						$('.Preview').addClass("load");
+						$('.PreviewViews').html("Views: " + previewData.views);
+						$('.PreviewLikes').html("Likes: " + previewData.likes);
 
-						// $('.Canvas').append($preview);
-						// $preview.addClass('load');
+						console.log($('.Preview').css("left"))
 
-						// var i = document.createElement('IMG');
-						// i.classList.add('Preview');
-						// i.id = this.parent.index;
-						// i.src = data.thumbnail;
-						// i.style = "left: " + (elementPostion.x + sliderMove - (2000-window.screen.width)) + "px; top: " + elementPostion.y + "px;"
-						
-						// i.addEventListener('mouseout', function(e) {
-						// 	this.outerHTML = "";
-						// });
-						// i.appendChild($area);
-						
+						$('.Preview').click(function(){
+							var href;
+							var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+					    var match = data.href.match(regExp);
+					    if (match && match[2].length == 11) {
+					        href = match[2];
+					    } else {
+					        console.log(error);
+					    }
+					    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
 
-						// setTimeout(function() {
-						// 	document.body.appendChild(i);
-						// 	i.classList.add('load');
-						// }, 50)
-						
+					    //yes. that's right. i'm just gonna rander the video popup here. i can't react today.
+					    $('.Overlay').removeClass('hidden').addClass('reveal');
+							$('.OverlayVideo').attr('src', href);
+							$('.Overlay').addClass('load');
+							$('.OverlayVideo').addClass('load');
+
+						  $('.VideoTitle').attr('href', href).html(data.title);
+						  $('.VideoChannel').html("Posted on " + data.channel);
+						  $('.VideoPostedTime').html("at " + data.timestamp);
+						  $('.VideoView').html("Views: " + data.stats.view_count);
+						  $('.VideoComment').html("Commnets: " + data.stats.comment_count);
+						  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
+						  $('.VideoLike').html("Likes: " + data.stats.like_count);
+						  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
+						  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
+						  $('.VideoCaption').html(data.description);
+
+							for(var i = 0; i < data.labels.length; i++) {
+								$('.VideoLabels').append(
+									$('<li>').attr('class', 'VideoLabelsName').append(
+										$('<a>').append(data.labels[i].name)));
+							}
+						})	
 	      	})
 	      	.catch(err => {
 	      		console.log(err);
@@ -201,9 +216,8 @@ export default class Canvas extends React.Component {
 	      // var tweenW = new Tween(this, "width", 5, 20, true);
 	      // tweenH.easing = Tween.outCubic;
 	      // tweenW.easing = Tween.outCubic;
-	      this.height = 5;
-	      this.width = 5;
-	      // $('.Preview').remove();
+	      this.height = 8;
+	      this.width = 8;
 	    }
 
 	    this.stage.addChild(box);
@@ -256,7 +270,6 @@ export default class Canvas extends React.Component {
 			<div>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
-				<Preview previewData={this.previewData} />
 			</div>
 		);
 	}
