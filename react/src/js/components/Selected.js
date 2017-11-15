@@ -20,7 +20,7 @@ export default class Selected extends React.Component {
 		var selectedLabels = this.props.selected;
 		var ids = this.props.removeSelectedLabel(id);
 
-		axios.post('http://localhost:3000/api/filter', {
+		axios.post('/api/filter', {
 	      "ids": ids,
 	      "view_count_range": ["0", "Infinity"],
 	      "like_ratio_range": ["0", "1"]
