@@ -65,13 +65,13 @@ export default class Layout extends React.Component {
   }
 
   handleRemove(index, data) {
-    console.log(data, index)
-    if(this.state.selected.indexOf(data.name) >= 0) {
+    console.log(this.state.selected, data.name, data);
+    //if(this.state.selected.indexOf(data.name) >= 0) {
       this.setState({
         videos: data,
         selected: this.state.selected.splice(index, 1)
-      })
-    }
+      });
+    //}
   }
 
   handleSwitch(axis, value) {
