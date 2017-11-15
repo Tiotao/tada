@@ -27,9 +27,10 @@ export default class Label extends React.Component {
 	    axios.post('http://localhost:3000/api/filter', {
 		      "ids": selectedLabelIds,
 		      "view_count_range": ["0", "Infinity"],
-		      "like_ratio_range": ["0", "1"]
+		      "like_ratio_range": ["0", "1"] 
 	    })
 	    .then(res => {
+	    	console.log("handling label data:", id);
 	      this.props.handleLabelData(name, id, res.data);
 	    })
 	    .catch(err => {

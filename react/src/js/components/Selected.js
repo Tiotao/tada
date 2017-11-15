@@ -13,7 +13,7 @@ export default class Selected extends React.Component {
 	handleRemove(e) {
 		e.preventDefault();
 
-		e.currentTarget.parentNode.parentNode.removeChild(e.currentTarget.parentNode);
+		//e.currentTarget.parentNode.parentNode.removeChild(e.currentTarget.parentNode);
 		var id = e.target.id;
 		console.log(this.props.id);
 		console.log(id)
@@ -37,8 +37,8 @@ export default class Selected extends React.Component {
 			return label.id;
 		});
 
-		console.log(selectedLabels)
-		console.log(ids)
+		//console.log(selectedLabels)
+		//console.log(ids)
 
 		axios.post('http://localhost:3000/api/filter', {
 	      "ids": ids,
@@ -46,10 +46,10 @@ export default class Selected extends React.Component {
 	      "like_ratio_range": ["0", "1"]
 	    })
 	    .then(res => {
-	      this.props.handleRemove(i, res.data)
+	    	this.props.handleRemove(i, res.data);
 	    })
 	    .catch(err => {
-	      console.log(err);
+	    	console.log(err);
 	    });
 	}
 
