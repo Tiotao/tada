@@ -10,27 +10,30 @@ export default class Label extends React.Component {
 	}
 
 	handleClick(e) {
-		e.preventDefault();
+		event.stopPropagation();
 
-  	var name = e.target.innerHTML;
-  	var id = e.target.id;
+		var id = e.target.dataset.id;
+		var name = e.target.dataset.name;
 
 		var selectedLabels = this.props.selected.map(function(labelObj) {
 			return labelObj.id;
 		})
+
 		selectedLabels.push(id)
 
-    axios.post('/api/filter', {
-	      "ids": selectedLabels,
-	      "view_count_range": ["0", "Infinity"],
-	      "like_ratio_range": ["0", "1"]
-	    })
-	    .then(res => {
-	      this.props.handleLabelData(name, id, res.data)
-	    })
-	    .catch(err => {
-	      console.log(err);
-	    })
+		console.log(selectedLabels);
+
+		axios.post('/api/filter', {
+			"ids": selectedLabels,
+			"view_count_range": ["0", "Infinity"],
+			"like_ratio_range": ["0", "1"]
+			})
+			.then(res => {
+			this.props.handleLabelData(name, id, res.data)
+			})
+			.catch(err => {
+			console.log(err);
+			})
 	}
 
 	drawHeatmap() {
@@ -61,12 +64,10 @@ export default class Label extends React.Component {
 		const { id, name, is_meta, score, count } = this.props;
 
 		return (
-			<li class="LeftBarLabel">
-				<a>
-					<div class="LeftBarLabelHeatmap">{this.drawHeatmap()}</div>
-					<p class="LeftBarLabelName" id={this.props._id} onClick={this.handleClick}>{name}</p>
-					<p class="LeftBarLabelCount">{count}</p>
-				</a>
+			<li class="LeftBarLabel" onClick={this.handleClick} data-name={name} data-id={this.props._id}>
+				<div class="LeftBarLabelHeatmap">{this.drawHeatmap()}</div>
+				<p class="LeftBarLabelName" id={this.props._id}>{name}</p>
+				<p class="LeftBarLabelCount">{count}</p>
 			</li>
 		);
 	}

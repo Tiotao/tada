@@ -82,6 +82,10 @@ button:focus {
 	padding: 30px 30px;
 }
 
+.LeftBarLabel * {
+	pointer-events:none;
+}
+
 .LeftBarLabelHeatmap {
 	height: 40px;
 	background-color: #404040;
@@ -95,7 +99,10 @@ button:focus {
 }
 
 .LeftBarLabel:hover {
-	opacity: 0.5;
+	-ms-transform: scale(1.05, 1.05); /* IE 9 */
+    -webkit-transform: scale(1.05, 1.05); /* Safari */
+	transform: scale(1.05, 1.05);
+	transition: all 0.2s;
 }
 
 .LeftBarLabelName {
@@ -112,19 +119,8 @@ button:focus {
 	color: #efefef;
 	margin: 0px 0px;
 	float: left;
-
 	/* white-space: nowrap; */
 }
-
-/* .LeftBarLabelName {
-	position: relative;
-	left: 0;
-	
-	text-transform: uppercase;
-	font-weight: 900;
-	color: #efefef;
-	margin: 10px 0;
-} */
 
 .LeftBarLabelCount {
 	position: absolute;
