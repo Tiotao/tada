@@ -27,6 +27,10 @@ export default class Layout extends React.Component {
     this.previewData = "";
 
     this.handleLabelData = this.handleLabelData.bind(this);
+    this.setVideos = this.setVideos.bind(this);
+    this.addSelectedLabels = this.addSelectedLabels.bind(this);
+    this.getSelectedLabelIds = this.getSelectedLabelIds.bind(this);
+    this.removeSelectedLabel = this.removeSelectedLabel.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleSwitch = this.handleSwitch.bind(this);
     this.handlePreviewUpdate = this.handlePreviewUpdate.bind(this);
@@ -56,27 +60,57 @@ export default class Layout extends React.Component {
       })
   }
 
+  getSelectedLabelIds(){
+      return this.state.selected.map(label =>
+        label.id
+    );
+  }
+
+  addSelectedLabels(id, name) {    
+    let currSelectedLabels = this.getSelectedLabelIds();
+    if(currSelectedLabels.indexOf(id) > -1){
+      console.log("already selected");
+    }
+    else {
+      this.state.selected.push({name: name, id: id});
+      this.setState({selected: this.state.selected});
+    }
+    return this.getSelectedLabelIds();
+  }
+
+  removeSelectedLabel(id) {
+    let currSelectedLabels = this.getSelectedLabelIds();
+    let removeIndex = currSelectedLabels.indexOf(id);
+    this.state.selected.splice(removeIndex, 1);
+    this.setState({selected: this.state.selected});
+    return this.getSelectedLabelIds();
+  }
+
+  setVideos(data) {
+    this.setState({
+      videos:data
+    });
+  }
+
   handleLabelData(name, id, data) {
     console.log(data)
     if(this.state.selected.indexOf(data.name) < 0) {
       this.setState({
-        videos: data,
-        selected: [...this.state.selected, {
-          name: name,
-          id: id
-        }]
-      })
+        videos: data
+      });
     }
   }
 
   handleRemove(index, data) {
-    console.log(data, index)
-    if(this.state.selected.indexOf(data.name) >= 0) {
+    console.log(this.state.selected, data.name, data);
+    //if(this.state.selected.indexOf(data.name) >= 0) {
       this.setState({
         videos: data,
-        selected: this.state.selected.splice(index, 1)
-      })
-    }
+        //selected: this.state.selected.splice(index, 1)
+      });
+
+    console.log(this.state.selected, data.name, data);
+    //}
   }
 
   handleSwitch(axis, value) {
@@ -110,14 +144,10 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Filters />
-        <LeftBar labels={this.state.labels} handleLabelData={this.handleLabelData} selected={this.state.selected}/>
-        <TopBar selected={this.state.selected} handleRemove={this.handleRemove}/>
-        <Canvas 
-          videos={this.state.videos} 
-          x={this.state.x} 
-          y={this.state.y} 
-          time={this.state.time} 
-          updatePreview={this.handlePreviewUpdate} />
+        <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
+            handleLabelData={this.handleLabelData} selected={this.state.selected}/>
+        <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos} handleRemove={this.handleRemove}/>
+        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
         <Timeline />
         <Switches handleSwitch={this.handleSwitch} />
         <Overlay />

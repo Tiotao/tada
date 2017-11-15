@@ -11,26 +11,31 @@ export default class Label extends React.Component {
 
 	handleClick(e) {
 		e.preventDefault();
+
+		//event.stopPropagation();
 	  	//var name = e.target.innerHTML;
 	  	//var id = e.target.id;
 	  	let name = this.props.name;
 	  	let id = this.props._id;
 
+      	let selectedLabelIds = this.props.addSelectedLabels(id, name);
+      	/*
 	  	console.log("lol", this.props.selected);
 		var selectedLabelIds = this.props.selected.map(function(labelObj) {
 			return labelObj.id;
 		});
 
-		console.log("pushed id into selected: ", id);
 		selectedLabelIds.push(id);
-
-	    axios.post('http://localhost:3000/api/filter', {
+		console.log("pushed id into selected: ", selectedLabelIds);
+		
+		*/
+	    axios.post('/api/filter', {
 		      "ids": selectedLabelIds,
 		      "view_count_range": ["0", "Infinity"],
-		      "like_ratio_range": ["0", "1"]
+		      "like_ratio_range": ["0", "1"] 
 	    })
 	    .then(res => {
-	      this.props.handleLabelData(name, id, res.data);
+	      this.props.setVideos(res.data);
 	    })
 	    .catch(err => {
 	      console.log(err);
@@ -54,7 +59,7 @@ export default class Label extends React.Component {
 
 			days.push(
 				<line key={i}
-					x1={i*strokeWidth} x2={i*strokeWidth} y1="0" y2="100" 
+                    x1={i*strokeWidth} x2={i*strokeWidth} y1="0" y2="40" 
 					style={styles} 
 				/>)
 		}
@@ -65,13 +70,11 @@ export default class Label extends React.Component {
 		const { id, name, is_meta, score, count } = this.props;
 
 		return (
-			<li class="LeftBarLabel">
-				<a>
-					<div class="LeftBarLabelHeatmap" id={this.props._id} onClick={this.handleClick}>{this.drawHeatmap()}</div>
-					<p class="LeftBarLabelName" id={this.props._id} onClick={this.handleClick}>{name}</p>
-					<p class="LeftBarLabelCount">{count}</p>
-				</a>
-			</li>
+			<li class="LeftBarLabel" onClick={this.handleClick} data-name={name} data-id={this.props._id}>
+                <div class="LeftBarLabelHeatmap">{this.drawHeatmap()}</div>
+                <p class="LeftBarLabelName" id={this.props._id}>{name}</p>
+                <p class="LeftBarLabelCount">{count}</p>
+            </li>
 		);
 	}
 }
