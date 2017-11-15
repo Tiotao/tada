@@ -35,13 +35,13 @@ export default class Layout extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3000/api/labels')
+    axios.get('/api/labels')
       .then(res => {
         this.setState({
           labels : res.data.data.slice(0,50)
         })
 
-        return axios.post('http://localhost:3000/api/filter', {
+        return axios.post('/api/filter', {
           "ids": [],
           "view_count_range": ["0", "Infinity"],
           "like_ratio_range": ["0", "1"]
