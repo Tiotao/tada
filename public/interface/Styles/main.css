@@ -132,7 +132,7 @@ button:focus {
 .LeftBarLabelName {
 	max-width: 100px;
 	display: -webkit-box;
-	height: 36px;
+	height: 42px;
 	text-overflow: ellipsis;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
@@ -148,7 +148,7 @@ button:focus {
 
 .LeftBarLabelCount {
 	position: absolute;
-	right:30px;
+	right: 0;
 	color: #ababab;
 	margin: 0px 0px 0px;
 }
