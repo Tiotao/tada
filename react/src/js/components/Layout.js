@@ -142,14 +142,22 @@ export default class Layout extends React.Component {
 
   render() {
     return (
-      <div>
-        <Filters />
-        <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
-            handleLabelData={this.handleLabelData} selected={this.state.selected}/>
-        <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos} handleRemove={this.handleRemove}/>
-        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
-        <Timeline />
-        <Switches handleSwitch={this.handleSwitch} />
+      <div class="Layout">
+        <div class="TopbarContainer">
+          <Filters />
+          <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
+              handleLabelData={this.handleLabelData} selected={this.state.selected}/>
+          <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos} handleRemove={this.handleRemove}/>
+        </div>
+        <div class="CenterContainer">
+          <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
+        </div>
+        <div class="FooterContainer">
+          <Timeline />
+          <div class="FooterSwitch">
+            <Switches handleSwitch={this.handleSwitch} />
+          </div>
+        </div>
         <Overlay />
       </div>
     );

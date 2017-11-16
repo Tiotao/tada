@@ -49,12 +49,14 @@ export default class Canvas extends React.Component {
 		var xState = this.props.x;
 		var yState = this.props.y;
 
+		var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+
 		if(xState == 'byPosted') {
 			if(yState == 'byViews') {
 				if(positions[0]) {
 					var x = positions[0][0];
 					var y = positions[0][1];
-					this.drawDot(x, y, videoID);
+					this.drawDot(x, y, videoID, canvasHeight);
 				}
 				else {
 					return;
@@ -64,7 +66,7 @@ export default class Canvas extends React.Component {
 				if(positions[1]) {
 					var x = positions[1][0];
 					var y = positions[1][1];
-					this.drawDot(x, y, videoID);
+					this.drawDot(x, y, videoID, canvasHeight);
 				}
 				else {
 					return;
@@ -76,7 +78,7 @@ export default class Canvas extends React.Component {
 				if(positions[2]) {
 					var x = positions[2][0];
 					var y = positions[2][1];
-					this.drawDot(x, y, videoID);
+					this.drawDot(x, y, videoID, canvasHeight);
 				}
 				else {
 					return;
@@ -86,7 +88,7 @@ export default class Canvas extends React.Component {
 				if(positions[3]) {
 					var x = positions[3][0];
 					var y = positions[3][1];
-					this.drawDot(x, y, videoID);
+					this.drawDot(x, y, videoID, canvasHeight);
 				}
 				else {
 					return;
@@ -95,22 +97,23 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	drawDot(x, y, id) {
-		var canvasHight = 550;
+	drawDot(x, y, id, canvasHeight) {
+		
 		var dotMarginX = 45;
 		var dotMarginY = 20;
 		
-			var box = new PIXI.Container();
-			var dot = new PIXI.Graphics();
-			box.x = x * dotMarginX;
-			// box.y = - pos[i][1] * dotMargin + canvasHight;
-			box.y = this.random();
-			box.pivot.x = box.width / 2;
+		var box = new PIXI.Container();
+		var dot = new PIXI.Graphics();
+		box.x = x * dotMarginX;
+		// box.y = - pos[i][1] * dotMargin + canvasHeight;
+		box.y = this.random();
+		box.pivot.x = box.width / 2;
 	    box.pivot.y = box.height / 2;
 	    box.index = id;
 
-	    var tweenY = new Tween(box, "y", - y * dotMarginY + canvasHight, 30, true);
-	    tweenY.easing = Tween.outCubic;
+	    var tweenY = new Tween(box, "y", - y * dotMarginY + canvasHeight, 30, true);
+		
+		tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
 	    // dot.beginFill(3093046);
@@ -139,7 +142,7 @@ export default class Canvas extends React.Component {
 	    	// this.height = 200;
 	    	// this.width = 200;
 
-	      axios.get('http://localhost:3000/api/videos/'+this.parent.index)
+	      axios.get('/api/videos/'+this.parent.index)
 	      	.then(res => {
 			    	var data = res.data;
 
@@ -210,7 +213,10 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidMount() {
-		this.renderer = PIXI.autoDetectRenderer(2000, 800, {
+
+		var canvasHeight = document.getElementById("canvas").clientHeight - 30;
+
+		this.renderer = PIXI.autoDetectRenderer(2000, canvasHeight, {
 			transparent: true,
 			resolution: 1,
 			antialias: true
