@@ -11,6 +11,10 @@ ul {
 	padding: 0;
 }
 
+li {
+	list-style: none;
+}
+
 button:focus {
 	outline:0;
 }
@@ -342,6 +346,27 @@ canvas {
 }
 .VideoLabelsName:hover {
 	opacity: 0.5;
+}
+
+.VideoActions {
+	position: absolute;
+	right: 20px;
+	top: 570px;
+}
+
+.ActionButton {
+	float: right;
+	margin: 10px;
+}
+
+.ActionButtonIcon {
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+}
+
+.ActionButtonIcon:hover {
+	opacity: 0.8;
 }
 
 .OverlayClose {

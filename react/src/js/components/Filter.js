@@ -49,7 +49,6 @@ export default class Filter extends React.Component {
 
 	render() {
 		return (
-
 				<div>
 					<canvas id={this.props.id} class="FilterCanvas" onMouseDown={this.select}></canvas>
 				</div>
