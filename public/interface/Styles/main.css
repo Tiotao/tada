@@ -77,9 +77,8 @@ button:focus {
 	position: relative;
 	display: inline-block;
 	width: 150px;
-	height: 50px;
 	cursor: pointer;
-	padding: 30px 30px;
+	padding: 30px 30px 10px;
 }
 
 .LeftBarLabel * {
