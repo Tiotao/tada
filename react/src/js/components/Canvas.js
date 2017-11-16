@@ -263,10 +263,10 @@ export default class Canvas extends React.Component {
 	}
 
 	resize() {
-		// var w = window.innerWidth;
-		// var h = window.innerHeight / 2;
+		var w = window.innerWidth;
+		var h = window.innerHeight / 2;
 
-		// this.renderer.resize(2000, h);
+		this.renderer.resize(2000, h);
 	}
 
 	render() {
