@@ -8,7 +8,7 @@ export default class Preview extends React.Component {
  
 	render() {
 		return (
-			<div class="Preview">
+			<div class="Preview hidden">
 				<img class="PreviewImg" />
 				<div class="PreviewMeta">
 					<p class="PreviewTitle" />

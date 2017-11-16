@@ -20,8 +20,6 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidUpdate() {
-		console.log("did update")
-		
 		if(this.props.videos) {
 			var positions = this.props.videos.positions;
 			var videoIDs = Object.keys(positions);
@@ -157,6 +155,7 @@ export default class Canvas extends React.Component {
 
 						var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
 
+						$('.Preview').removeClass("hidden");
 						$('.Preview').css("left", elementPostion.x + sliderMove - (2000-window.screen.width));
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
@@ -165,7 +164,9 @@ export default class Canvas extends React.Component {
 						$('.PreviewViews').html("Views: " + previewData.views);
 						$('.PreviewLikes').html("Likes: " + previewData.likes);
 
-						console.log($('.Preview').css("left"))
+						$('.Preview').mouseout(function() {
+							$('.Preview').addClass("hidden");
+						})
 
 						$('.Preview').click(function(){
 							var href;
