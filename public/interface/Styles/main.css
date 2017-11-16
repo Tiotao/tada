@@ -563,8 +563,15 @@ canvas {
 
 .Layout .TopbarContainer {
 	flex: 0 1 auto;
-	position: relative;
 	z-index: 99;
+	position: fixed;
+	top: -250px;
+	-webkit-transition: top 0.2s; /* Safari */
+    transition: top 0.2s;
+}
+
+.TopbarContainer:hover {
+	top: 0;
 }
 
 .Layout .CenterContainer {
