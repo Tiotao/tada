@@ -135,13 +135,6 @@ export default class Canvas extends React.Component {
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
-	  		// var tweenH = new Tween(this, "height", 100, 5, true);
-	    //   var tweenW = new Tween(this, "width", 100, 5, true);
-	    //   tweenH.easing = Tween.outCubic;
-	    //   tweenW.easing = Tween.outCubic;
-	    	// this.height = 200;
-	    	// this.width = 200;
-
 	      axios.get('/api/videos/'+this.parent.index)
 	      	.then(res => {
 			    	var data = res.data;
@@ -215,10 +208,6 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      // var tweenH = new Tween(this, "height", 5, 20, true);
-	      // var tweenW = new Tween(this, "width", 5, 20, true);
-	      // tweenH.easing = Tween.outCubic;
-	      // tweenW.easing = Tween.outCubic;
 	      this.height = 8;
 	      this.width = 8;
 	    }
