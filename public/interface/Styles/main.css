@@ -1,10 +1,22 @@
 
 body {
-	font-family: 'Raleway', sans-serif;
+	font-family: 'Open Sans', sans-serif;
 	background-color: #10181d;
 	margin: 0;
 	height: 100%;
 	overflow: hidden;
+}
+
+h1 {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	font-weight: 100;
+	color: #fff;
+	opacity: 0.6;
+}
+
+p{
+	font-family: 'Open Sans', sans-serif;
 }
 
 ul {
@@ -50,9 +62,14 @@ button:focus {
 
 .LeftBar {
 	position: relative;
-	width: calc(100% - 300px);
+	width: calc(100% - 500px);
 	height: 250px;
 	padding-bottom: 0;
+}
+
+.LeftBarHeader {
+	color: #aaa;
+	padding: 10px 20px;
 }
 
 .LeftBarLabels {
@@ -82,7 +99,7 @@ button:focus {
 	display: inline-block;
 	width: 150px;
 	cursor: pointer;
-	padding: 30px 30px 10px;
+	margin: 20px;
 }
 
 .LeftBarLabel * {
@@ -137,13 +154,13 @@ button:focus {
 }
 
 .TopBarLabels {
+	height: 60px;
 	text-transform: uppercase;
 	background-color: #323f4c;
 	padding: 10px 50px;
 	list-style: none;
 	overflow: auto;
-	position: absolute;
-    width: 100%;
+  width: 100%;
 }
 
 .TopBarLabels>ul {
@@ -183,6 +200,13 @@ button:focus {
 	overflow: hidden;
 	display: flex;
     align-items: flex-end;
+}
+
+.CanvasHeaderTitle {
+	position: absolute;
+	top: 400px;
+	left: 20px;
+	z-index: 200;
 }
 
 canvas {
@@ -441,8 +465,13 @@ canvas {
 	position: absolute;
 	top: 0;
 	right: 0;
-	width: 300px;
-	height: 250px;
+	width: 500px;
+	height: 300px;
+}
+
+.FiltersHeaderTitle {
+	margin: 10px 20px;
+	display: inline-block;
 }
 
 .FilterCanvas {
@@ -458,23 +487,25 @@ canvas {
 
 .FilterLeft {
 	position: relative;
-	width: 100%;
+	width: 300px;
 	height: 48%;
 	right: 5px;
 	background-image: url('../images/filter.jpg');
 	background-size: contain;
 	margin: 5px 0;
+	float: right;
 }
 
 .FilterRight {
 	position: relative;
-	width: 100%;
+	width: 300px;
 	height: 48%;
 	background-color: #efefef;
 	background-image: url('../images/filter.jpg');
 	background-size: contain;
 	right: 5px;
 	margin: 5px 0;
+	float: right;
 }
 
 .FilterLabel {
@@ -565,14 +596,15 @@ canvas {
 	flex: 0 1 auto;
 	z-index: 99;
 	position: fixed;
-	top: -250px;
+	top: 0;
 	-webkit-transition: top 0.2s; /* Safari */
-    transition: top 0.2s;
+  transition: top 0.2s;
+  background-color: #10181d;
 }
-
+/*
 .TopbarContainer:hover {
 	top: 0;
-}
+}*/
 
 .Layout .CenterContainer {
 	flex: 1 1 auto;

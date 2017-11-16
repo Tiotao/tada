@@ -264,6 +264,7 @@ export default class Canvas extends React.Component {
 				
 		return (
 			<div>
+				<h1 class="CanvasHeaderTitle">Videos</h1>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
 			</div>

@@ -11,6 +11,7 @@ export default class Filters extends React.Component {
 	render() {
 		return (
 			<div class="Filters">
+				<h1 class="FiltersHeaderTitle">Filters</h1>
 				<div class="FilterLeft">
 					<Filter id="FilterLeftCanvas" />
 					<p class="FilterLabel">View count</p>
