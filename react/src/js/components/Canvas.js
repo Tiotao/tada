@@ -229,7 +229,6 @@ export default class Canvas extends React.Component {
 	componentDidMount() {
 
 		var canvasHeight = document.getElementById("canvas").clientHeight - 30;
-
 		this.renderer = PIXI.autoDetectRenderer(2000, canvasHeight, {
 			transparent: true,
 			resolution: 1,
@@ -263,10 +262,11 @@ export default class Canvas extends React.Component {
 	}
 
 	resize() {
-		var w = window.innerWidth;
-		var h = window.innerHeight / 2;
-
-		this.renderer.resize(2000, h);
+		var canvasHeight = document.getElementById("canvas").clientHeight - 30;
+		if (this.renderer.height < canvasHeight) {
+			this.renderer.resize(2000, canvasHeight);
+			// this.componentDidUpdate();
+		}
 	}
 
 	render() {
