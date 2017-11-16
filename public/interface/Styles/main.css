@@ -135,6 +135,8 @@ button:focus {
 	padding: 10px 50px;
 	list-style: none;
 	overflow: auto;
+	position: absolute;
+    width: 100%;
 }
 
 .TopBarLabels>ul {
@@ -367,15 +369,15 @@ canvas {
 }
 
 .Timeline {
-	position: fixed;
-	bottom: 70px;
+	/* position: fixed; */
+	/* bottom: 70px; */
 	width: 100%;
 	background-color: #6f6f6f;
 	height: 30px;
 }
 
 .TimelineSlider {
-	position: absolute;
+	position: relative;
 	width: 200px;
 	right: 0;
 	background-color: #efefef;
@@ -467,24 +469,27 @@ canvas {
 }
 
 .SwitchContainerX {
-	position: fixed;
-	bottom: 0;
-	left:; 0;
+	/* position: fixed; */
+	/* bottom: 0;
+	left:; 0; */
 	margin-right: 40px;
 	margin-left: 20px;
+	flex: 0 1 auto;
 }
 
 .SwitchContainerY {
-	position: fixed;
-	bottom: 0;
-	left: 400px;
+	/* position: fixed; */
+	/* bottom: 0; */
+	/* left: 400px; */
+	flex: 1;
 }
 
 .SwitchTimeline {
-	position: fixed;
-	right: 0;
-	bottom: 0;
+	/* position: fixed; */
+	/* right: 0;
+	bottom: 0; */
 }
+
 .SwitchTitleX {
 	color: #aaa;
 	float: left;
@@ -503,7 +508,7 @@ canvas {
 }
 
 .Switch {
-	margin-bottom: 15px;
+	/* margin-bottom: 15px; */
 	margin-right: 10px;
 	width: 100px;
 	height: 40px;
@@ -535,4 +540,48 @@ canvas {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 50% 50%;
+}
+
+.Layout {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+
+.Layout .TopbarContainer {
+	flex: 0 1 auto;
+	position: relative;
+	z-index: 99;
+}
+
+.Layout .CenterContainer {
+	padding-top: 20px;
+	flex: 1 1 auto;
+	position: relative;
+}
+
+.Layout .FooterContainer {
+	flex: 0 1 100px;
+	position: relative;
+	max-height: 100px;
+}
+
+.FooterSwitch {
+	height: 70px;
+}
+
+.FooterSwitch > div {
+	width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+html {
+	height: 100%;
+}
+
+#app {
+	height: 100%;
 }
