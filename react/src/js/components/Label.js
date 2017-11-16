@@ -4,31 +4,20 @@ import axios from "axios";
 export default class Label extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {selected: false };
 
 		this.handleClick = this.handleClick.bind(this);
 		this.drawHeatmap = this.drawHeatmap.bind(this);
+		this.createLabelElement = this.createLabelElement.bind(this);
 	}
 
 	handleClick(e) {
-		e.preventDefault();
+		event.stopPropagation();
 
-		//event.stopPropagation();
-	  	//var name = e.target.innerHTML;
-	  	//var id = e.target.id;
 	  	let name = this.props.name;
 	  	let id = this.props._id;
+      	let selectedLabelIds = this.props.addSelectedLabels(id, name, this);
 
-      	let selectedLabelIds = this.props.addSelectedLabels(id, name);
-      	/*
-	  	console.log("lol", this.props.selected);
-		var selectedLabelIds = this.props.selected.map(function(labelObj) {
-			return labelObj.id;
-		});
-
-		selectedLabelIds.push(id);
-		console.log("pushed id into selected: ", selectedLabelIds);
-		
-		*/
 	    axios.post('/api/filter', {
 		      "ids": selectedLabelIds,
 		      "view_count_range": ["0", "Infinity"],
@@ -40,6 +29,40 @@ export default class Label extends React.Component {
 	    .catch(err => {
 	      console.log(err);
 	    });
+	}
+	
+	createLabelElement(isSelected) {
+		let heatmapElement, labelNameElement, labelCountElement, labelContainerElement;
+		heatmapElement = React.createElement(
+			'div',
+			{ className: 'LeftBarLabelHeatmap'},
+			this.drawHeatmap()
+		);
+		labelNameElement = React.createElement(
+			'p',
+			{ className: 'LeftBarLabelName', id: this.props._id},
+			this.props.name
+		);
+		labelCountElement = React.createElement(
+			'p',
+			{ className: 'LeftBarLabelCount'},
+			this.props.count
+		);
+		labelContainerElement = React.createElement(
+			'div',
+			{ className: this.getSelectedLabelClassName(isSelected), onClick: this.handleClick, 'data-name': name, 'data-id': this.props._id},
+			heatmapElement,
+			labelNameElement,
+			labelCountElement
+		)
+		return labelContainerElement;
+	}
+	
+	getSelectedLabelClassName(isSelected) {
+		if(isSelected)
+			return 'LeftBarLabel Selected';
+		else
+			return 'LeftBarLabel';
 	}
 
 	drawHeatmap() {
@@ -67,14 +90,13 @@ export default class Label extends React.Component {
 	}
 
 	render() {
-		const { id, name, is_meta, score, count } = this.props;
-
-		return (
+		let element = this.createLabelElement(this.state.selected);
+		return element;/*(
 			<li class="LeftBarLabel" onClick={this.handleClick} data-name={name} data-id={this.props._id}>
                 <div class="LeftBarLabelHeatmap">{this.drawHeatmap()}</div>
                 <p class="LeftBarLabelName" id={this.props._id}>{name}</p>
                 <p class="LeftBarLabelCount">{count}</p>
             </li>
-		);
+		);*/
 	}
 }

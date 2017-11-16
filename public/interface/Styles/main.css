@@ -98,6 +98,10 @@ button:focus {
 	width: 100%;
 }
 
+.Selected {
+	background-color: #3d7263;
+}
+
 .LeftBarLabel:hover {
 	-ms-transform: scale(1.05, 1.05); /* IE 9 */
     -webkit-transform: scale(1.05, 1.05); /* Safari */

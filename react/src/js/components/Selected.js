@@ -13,10 +13,7 @@ export default class Selected extends React.Component {
 	handleRemove(e) {
 		e.preventDefault();
 
-		//e.currentTarget.parentNode.parentNode.removeChild(e.currentTarget.parentNode);
-		var id = e.target.id;
 		var id = this.props.id;
-
 		var selectedLabels = this.props.selected;
 		var ids = this.props.removeSelectedLabel(id);
 
@@ -27,7 +24,6 @@ export default class Selected extends React.Component {
 	    })
 	    .then(res => {
 	    	this.props.setVideos(res.data);
-	    	//this.props.handleRemove(i, res.data);
 	    })
 	    .catch(err => {
 	    	console.log(err);

@@ -16,7 +16,7 @@ export default class LeftBar extends React.Component {
 		if(labels) {
 			Labels = labels.map((label) => {
 				return <Label key={label._id} {...label} addSelectedLabels={this.props.addSelectedLabels} setVideos={this.props.setVideos}
-				handleLabelData={this.props.handleLabelData} selected={this.props.selected}/>;
+				selected={this.props.selected}/>;
 			});
 		}
 

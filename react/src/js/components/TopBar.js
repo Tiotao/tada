@@ -8,7 +8,6 @@ export default class TopBar extends React.Component {
 
 	render() {
 		const selectedLabels = this.props.selected;
-		console.log("Selected labels ", selectedLabels);
 		let selectedLabelElements;
 
 		if(selectedLabels.length > 0) {
