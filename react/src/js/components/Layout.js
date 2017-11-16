@@ -25,7 +25,6 @@ export default class Layout extends React.Component {
     };
 
     this.previewData = "";
-
     this.setVideos = this.setVideos.bind(this);
     this.addSelectedLabels = this.addSelectedLabels.bind(this);
     this.getSelectedLabelIds = this.getSelectedLabelIds.bind(this);
@@ -35,13 +34,13 @@ export default class Layout extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3000/api/labels')
+    axios.get('/api/labels')
       .then(res => {
         this.setState({
           labels : res.data.data.slice(0,50)
         })
 
-        return axios.post('http://localhost:3000/api/filter', {
+        return axios.post('/api/filter', {
           "ids": [],
           "view_count_range": ["0", "Infinity"],
           "like_ratio_range": ["0", "1"]
@@ -137,14 +136,31 @@ export default class Layout extends React.Component {
 
   render() {
     return (
-      <div>
-        <Filters />
-        <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
+      <div class="Layout">
+        <div class="TopbarContainer">
+          <Filters />
+          <LeftBar 
+            labels={this.state.labels} 
+            addSelectedLabels={this.addSelectedLabels} 
+            setVideos={this.setVideos}
+            handleLabelData={this.handleLabelData} 
             selected={this.state.selected}/>
-        <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos}/>
-        <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
-        <Timeline />
-        <Switches handleSwitch={this.handleSwitch} />
+          <TopBar 
+            selected={this.state.selected} 
+            removeSelectedLabel={this.removeSelectedLabel} 
+            setVideos={this.setVideos} 
+            handleRemove={this.handleRemove}/>
+        </div>
+        <div class="CenterContainer">
+          <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
+        </div>
+        <div class="FooterContainer">
+          <Timeline />
+          <div class="FooterSwitch">
+            <Switches handleSwitch={this.handleSwitch} />
+          </div>
+        </div>
+        <Preview />
         <Overlay />
       </div>
     );
