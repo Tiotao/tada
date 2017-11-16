@@ -190,6 +190,7 @@ canvas {
 	-webkit-transition: width 1s, height 1s;
 	transition: width 1s, height 1s;
 	border-radius: 200px;
+	cursor: pointer;
 }
 
 .PreviewImg {
@@ -197,6 +198,7 @@ canvas {
 	width: 200px;
 	object-fit: cover;
 	border-radius: 200px;
+	border: 10px solid #10181d;
 }
 
 .PreviewMeta {
@@ -205,13 +207,14 @@ canvas {
 	background-color: #333;
 	color: #fff;
 	padding: 10px;
-	border-radius: 10px;
 	font-size: 12px;
-	padding-bottom: 20px;
+	padding-bottom: 25px;
+	border: 10px solid #10181d;
 }
 
 .PreviewTitle {
 	margin: 0;
+	margin-bottom: 5px;
 }
 
 
