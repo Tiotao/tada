@@ -183,13 +183,55 @@ canvas {
 
 .Preview {
 	position: absolute;
-	height: 300px;
-	width: 300px;
+	height: 0;
+	width: 0;
 	opacity: 0;
 	object-fit: cover;
 	-webkit-transition: opacity 1s ease-in;
 	transition: opacity 1s ease-in;
-	border-radius: 300px;
+	-webkit-transition: width 1s, height 1s;
+	transition: width 1s, height 1s;
+	border-radius: 200px;
+}
+
+.PreviewImg {
+	height: 200px;
+	width: 200px;
+	object-fit: cover;
+	border-radius: 200px;
+}
+
+.PreviewMeta {
+	width: 200px;
+	height: auto;
+	background-color: #333;
+	color: #fff;
+	padding: 10px;
+	border-radius: 10px;
+	font-size: 12px;
+	padding-bottom: 20px;
+}
+
+.PreviewTitle {
+	margin: 0;
+}
+
+
+.PreviewViews {
+	float: left;
+	margin: 0;
+	margin-right: 10px;
+}
+
+.PreviewLikes {
+	float: left;
+	margin: 0;
+}
+
+.loadPreview {
+	opacity: 1;
+	height: 200px;
+	width: 200px;
 }
 
 .Overlay {
@@ -480,7 +522,7 @@ canvas {
 }
 
 .active {
-	color: #666;
+	color: #258632;
 	background-color: #000;
 	cursor: default;
 	border: none;

@@ -24,8 +24,6 @@ export default class Layout extends React.Component {
       previewData: ""
     };
 
-    this.previewData = "";
-
     this.handleLabelData = this.handleLabelData.bind(this);
     this.setVideos = this.setVideos.bind(this);
     this.addSelectedLabels = this.addSelectedLabels.bind(this);
@@ -145,12 +143,20 @@ export default class Layout extends React.Component {
       <div class="Layout">
         <div class="TopbarContainer">
           <Filters />
-          <LeftBar labels={this.state.labels} addSelectedLabels={this.addSelectedLabels} setVideos={this.setVideos}
-              handleLabelData={this.handleLabelData} selected={this.state.selected}/>
-          <TopBar selected={this.state.selected} removeSelectedLabel={this.removeSelectedLabel} setVideos={this.setVideos} handleRemove={this.handleRemove}/>
+          <LeftBar 
+            labels={this.state.labels} 
+            addSelectedLabels={this.addSelectedLabels} 
+            setVideos={this.setVideos}
+            handleLabelData={this.handleLabelData} 
+            selected={this.state.selected}/>
+          <TopBar 
+            selected={this.state.selected} 
+            removeSelectedLabel={this.removeSelectedLabel} 
+            setVideos={this.setVideos} 
+            handleRemove={this.handleRemove}/>
         </div>
         <div class="CenterContainer">
-          <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time}/>
+          <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
         </div>
         <div class="FooterContainer">
           <Timeline />
@@ -158,6 +164,7 @@ export default class Layout extends React.Component {
             <Switches handleSwitch={this.handleSwitch} />
           </div>
         </div>
+        <Preview />
         <Overlay />
       </div>
     );
