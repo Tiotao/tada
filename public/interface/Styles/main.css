@@ -154,6 +154,7 @@ button:focus {
 }
 
 .TopBarLabels {
+	position: relative;
 	height: 60px;
 	text-transform: uppercase;
 	background-color: #323f4c;
@@ -192,6 +193,31 @@ button:focus {
 	cursor: pointer;
 }
 
+.HideTopBar {
+	position: absolute;
+	right: 130px;
+	top: 20px;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	text-transform: none;
+	color: #fff;
+	display: inline-block;
+	padding: 10px 30px;
+	cursor: pointer;
+}
+
+.HideTopBarText {
+	display: inline-block;
+	margin: 0;
+	margin-right: 20px;
+}
+
+.HideTopBarIcon {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+}
+
 .Canvas {
 	position: relative;
 	float: right;
@@ -207,6 +233,8 @@ button:focus {
 	top: 400px;
 	left: 20px;
 	z-index: 200;
+	-webkit-transition: top 0.2s; /* Safari */
+  transition: top 0.2s;
 }
 
 canvas {
@@ -601,10 +629,6 @@ canvas {
   transition: top 0.2s;
   background-color: #10181d;
 }
-/*
-.TopbarContainer:hover {
-	top: 0;
-}*/
 
 .Layout .CenterContainer {
 	flex: 1 1 auto;
