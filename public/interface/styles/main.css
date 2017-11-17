@@ -1,0 +1,721 @@
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	background-color: #10181d;
+	margin: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+h1 {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	font-weight: 100;
+	color: #fff;
+	opacity: 0.6;
+}
+
+p{
+	font-family: 'Open Sans', sans-serif;
+}
+
+ul {
+	padding: 0;
+}
+
+li {
+	list-style: none;
+}
+
+button:focus {
+	outline:0;
+}
+
+.Tips {
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	z-index: 3000;
+	text-align: center;
+	position: relative;
+}
+
+.mini {
+	height: 20px;
+	width: 20px;
+	background-color: #f4c741;
+	top: 0;
+	left: 0;
+	cursor: pointer;
+	background-image: url(../images/info.png);
+	background-size: 15px 15px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.TipsClose {
+	height: 40px;
+	width: 40px;
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	background-image: url('http://area.in/images/closeIcon.png');
+	background-size: 40px 40px;
+	cursor: pointer;
+}
+
+.TipsTable {
+	position: relative;
+	top:40px;
+	width: 40%;
+	margin: 0 auto;
+	text-align: left;
+}
+
+.TipsImage {
+	width: 50px;
+	padding: 20px;
+	opacity: 1;
+}
+
+.TipsText {
+	color: #fff;
+	padding: 20px;
+}
+
+.Header {
+	position: fixed;
+	height: 70px;
+	top: -60px;
+	width: 100%;
+	background-color: rgba(255, 255, 255, 0.3);
+	z-index: 100;
+	-webkit-transition: top 0.2s; /* Safari */
+    transition: top 0.2s;
+}
+
+.Header:hover {
+	top: 0;
+}
+
+.Logo {
+	height: 30px;
+	float: right;
+	margin: 20px;
+}
+
+.Title {
+	font-size: 22px;
+	text-transform: uppercase;
+	float: right;
+	color: #fff;
+	font-weight: 900;
+}
+
+.LeftBar {
+	position: relative;
+	width: calc(100% - 500px);
+	height: 250px;
+	padding-bottom: 0;
+}
+
+.LeftBarHeader {
+	color: #aaa;
+	padding: 10px 20px;
+	padding-bottom: 0;
+}
+
+.LeftBarLabels {
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	list-style: none;
+	float: left;
+	margin: 0;
+}
+
+::-webkit-scrollbar-track {
+	background-color: #10181d;
+}
+
+::-webkit-scrollbar {
+	background-color: #10181d;
+	width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #223c4c;
+}
+
+.LeftBarLabel {
+	position: relative;
+	display: inline-block;
+	width: 150px;
+	cursor: pointer;
+	margin: 20px;
+}
+
+.LeftBarLabel * {
+	pointer-events:none;
+}
+
+.LeftBarLabelHeatmap {
+	height: 40px;
+	background-color: #404040;
+	margin: 0 auto 10px;
+}
+
+.LeftBarLabelHeatmapSVG {
+	/* padding-left: 2.5px; */
+	height: 40px;
+	width: 100%;
+}
+
+.Selected {
+	background-color: #3d7263;
+}
+
+.LeftBarLabel:hover {
+	-ms-transform: scale(1.05, 1.05); /* IE 9 */
+    -webkit-transform: scale(1.05, 1.05); /* Safari */
+	transform: scale(1.05, 1.05);
+	transition: all 0.2s;
+}
+
+.LeftBarLabelName {
+	max-width: 100px;
+	display: -webkit-box;
+	height: 42px;
+	text-overflow: ellipsis;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	word-break: break-all;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: #efefef;
+	margin: 0px 0px;
+	float: left;
+	/* white-space: nowrap; */
+}
+
+.LeftBarLabelCount {
+	position: absolute;
+	right: 0;
+	color: #ababab;
+	margin: 0px 0px 0px;
+}
+
+.TopBarLabels {
+	position: relative;
+	height: 60px;
+	text-transform: uppercase;
+	background-color: #323f4c;
+	padding: 10px 50px;
+	list-style: none;
+	overflow: auto;
+  width: 100%;
+}
+
+.TopBarLabels>ul {
+	margin: 0;
+}
+
+.TopBarLabel {
+	float: left;
+	list-style: none;
+	margin-right: 30px;
+	transition: 300ms ease;
+}
+
+.TopBarLabelName {
+	display: inline-block;
+	font-weight: 900;
+	color: #fff;
+}
+
+.TopBarLabelRemove {
+	display: inline-block;
+	position: relative;
+	left: 2px;
+	top: 3px;
+	height: 20px;
+	width: 20px;
+	background-image: url('http://area.in/images/closeIcon.png');
+	background-size: 20px 20px;
+	cursor: pointer;
+}
+
+.HideTopBar {
+	position: absolute;
+	right: 130px;
+	top: 20px;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	text-transform: none;
+	color: #fff;
+	display: inline-block;
+	padding: 10px 30px;
+	cursor: pointer;
+}
+
+.HideTopBarText {
+	display: inline-block;
+	margin: 0;
+	margin-right: 20px;
+}
+
+.HideTopBarIcon {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+}
+
+.Canvas {
+	position: relative;
+	float: right;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: flex;
+    align-items: flex-end;
+}
+
+.CanvasHeaderTitle {
+	position: absolute;
+	top: 400px;
+	left: 20px;
+	z-index: 200;
+	-webkit-transition: top 0.2s; /* Safari */
+  transition: top 0.2s;
+}
+
+canvas {
+	position: absolute;
+	right: 0;
+	padding-top:10px;
+}
+
+.Preview {
+	position: absolute;
+	height: 0;
+	width: 0;
+	opacity: 0;
+	object-fit: cover;
+	-webkit-transition: opacity 1s ease-in;
+	transition: opacity 1s ease-in;
+	-webkit-transition: width 1s, height 1s;
+	transition: width 1s, height 1s;
+	border-radius: 200px;
+	cursor: pointer;
+}
+
+.PreviewImg {
+	height: 200px;
+	width: 200px;
+	object-fit: cover;
+	border-radius: 200px;
+	border: 10px solid #10181d;
+}
+
+.PreviewMeta {
+	width: 200px;
+	height: auto;
+	background-color: #333;
+	color: #fff;
+	padding: 10px;
+	font-size: 12px;
+	padding-bottom: 25px;
+	border: 10px solid #10181d;
+}
+
+.PreviewTitle {
+	margin: 0;
+	margin-bottom: 5px;
+}
+
+
+.PreviewViews {
+	float: left;
+	margin: 0;
+	margin-right: 10px;
+}
+
+.PreviewLikes {
+	float: left;
+	margin: 0;
+}
+
+.loadPreview {
+	opacity: 1;
+	height: 200px;
+	width: 200px;
+}
+
+.Overlay {
+	opacity: 0;
+	position: absolute;
+	height: 700px;
+	width: 1120px;
+	margin: auto;
+	top: 100px;
+	left: 200px;
+	-webkit-transition: opacity 0.5s ease-in;
+	transition: opacity 0.5s ease-in;
+}
+
+.OverlayVideo {
+	width: 100%;
+	height: 80%;
+	border: none;
+	opacity: 0;
+	-webkit-transition: opacity 1s ease-in;
+	transition: opacity 1s ease-in;
+}
+
+.OverlayInfo {
+	height: 20%;
+	color: #fff;
+	padding: 10px;
+	font-size: 14px;
+	background-color: rgba(0, 0, 0, 0.8);
+	overflow: scroll;
+}
+
+.VideoTitle {
+	font-size: 24px;
+	text-decoration: none;
+	color: #70abaf;
+}
+
+.VideoTitle:hover {
+	opacity: 0.5;
+}
+
+.VideoDescription {
+	color: #ababab;
+}
+
+/* look at what you've done.*/
+.VideoChannel {
+	float: left;
+	margin: 5px 5px 5px 0;
+}
+.VideoView {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoPostedTime {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoComment {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoDislike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoLike {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoFav {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoVLRatio {
+	float: left;
+	margin: 5px 20px 5px 0;
+}
+.VideoCaption {
+	font-style: italic;
+}
+
+.VideoLabels {
+	float: left;
+	padding: 0;
+	margin: 5px 0;
+	display: inline-block;
+	width: 100%;
+}
+
+.VideoLabelsName {
+	float: left;
+	list-style: none;
+	margin-right: 20px;
+	font-weight: 900;
+	cursor: pointer;
+	text-transform: uppercase;
+}
+.VideoLabelsName:hover {
+	opacity: 0.5;
+}
+
+.VideoActions {
+	position: absolute;
+	right: 20px;
+	top: 570px;
+}
+
+.ActionButton {
+	float: right;
+	margin: 10px;
+}
+
+.ActionButtonIcon {
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+}
+
+.ActionButtonIcon:hover {
+	opacity: 0.8;
+}
+
+.OverlayClose {
+	height: 40px;
+	width: 40px;
+	position: absolute;
+	right: -20px;
+	top: -20px;
+	background-image: url('http://area.in/images/closeIcon.png');
+	background-size: 40px 40px;
+	cursor: pointer;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.reveal {
+	z-index: 100;
+}
+
+.load {
+	opacity: 1;
+}
+
+#Footer {
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	right: 0;
+}
+
+.Timeline {
+	/* position: fixed; */
+	/* bottom: 70px; */
+	width: 100%;
+	background-color: #6f6f6f;
+	height: 30px;
+}
+
+.TimelineSlider {
+	position: relative;
+	width: 200px;
+	right: 0;
+	background-color: #efefef;
+	height: 100%;
+}
+
+.TimelineSlider:hover {
+	opacity: 0.7;
+}
+
+.TimelineHandleLower {
+	display: inline-block;
+	position: absolute;
+	left: 0;
+	width: 20px;
+	background-color: #efefef;
+	height: 100%;
+}
+
+.TimelineHandleUpper {
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	width: 20px;
+	background-color: #efefef;
+	height: 100%;
+}
+
+.Filters {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 500px;
+	height: 300px;
+}
+
+.FiltersHeaderTitle {
+	margin: 10px 20px;
+	display: inline-block;
+}
+
+.FilterCanvas {
+	width: 100%;
+	height: 125px;
+}
+
+.FilterLabel {
+	font-size: 14px;
+	color: #fff;
+	margin: 0;
+}
+
+.FilterLeft {
+	position: relative;
+	width: 300px;
+	height: 48%;
+	right: 5px;
+	background-image: url('../images/filter.jpg');
+	background-size: contain;
+	margin: 5px 0;
+	float: right;
+}
+
+.FilterRight {
+	position: relative;
+	width: 300px;
+	height: 48%;
+	background-color: #efefef;
+	background-image: url('../images/filter.jpg');
+	background-size: contain;
+	right: 5px;
+	margin: 5px 0;
+	float: right;
+}
+
+.FilterLabel {
+	margin-left: 10px;
+}
+
+.SwitchContainerX {
+	/* position: fixed; */
+	/* bottom: 0;
+	left:; 0; */
+	margin-right: 40px;
+	margin-left: 20px;
+	flex: 0 1 auto;
+}
+
+.SwitchContainerY {
+	/* position: fixed; */
+	/* bottom: 0; */
+	/* left: 400px; */
+	flex: 1;
+}
+
+.SwitchTimeline {
+	/* position: fixed; */
+	/* right: 0;
+	bottom: 0; */
+}
+
+.SwitchTitleX {
+	color: #aaa;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-right: 10px;
+}
+
+.SwitchTitleY {
+	color: #aaa;
+	float: left;
+	font-size: 16px;
+	text-transform: uppercase;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.Switch {
+	/* margin-bottom: 15px; */
+	margin-right: 10px;
+	width: 100px;
+	height: 40px;
+	border-radius: 50px;
+	background-color: #444;
+	color: #fff;
+	float: left;
+	cursor: pointer;
+	border: 1px solid #222;
+}
+
+.SwitchContainerX > .Switch {
+	width: 160px;
+}
+
+.active {
+	color: #258632;
+	background-color: #000;
+	cursor: default;
+	border: none;
+}
+
+#particles-js {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #10181d;
+  background-image: url("");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.Layout {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+
+.Layout .TopbarContainer {
+	flex: 0 1 auto;
+	z-index: 99;
+	position: fixed;
+	top: 0;
+	-webkit-transition: top 0.2s; /* Safari */
+  transition: top 0.2s;
+  background-color: #10181d;
+}
+
+.Layout .CenterContainer {
+	flex: 1 1 auto;
+	position: relative;
+}
+
+.CenterContainer > div {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+}
+
+.Layout .FooterContainer {
+	flex: 0 1 100px;
+	position: relative;
+	max-height: 100px;
+}
+
+.FooterSwitch {
+	height: 70px;
+}
+
+.FooterSwitch > div {
+	width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+html {
+	height: 100%;
+}
+
+#app {
+	height: 100%;
+}
