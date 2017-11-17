@@ -20,8 +20,6 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidUpdate() {
-		console.log("did update")
-		
 		if(this.props.videos) {
 			var positions = this.props.videos.positions;
 			var videoIDs = Object.keys(positions);
@@ -135,13 +133,6 @@ export default class Canvas extends React.Component {
 	  	function onButtonOver() {
 	  		var stage = this.parent.parent;
 
-	  		// var tweenH = new Tween(this, "height", 100, 5, true);
-	    //   var tweenW = new Tween(this, "width", 100, 5, true);
-	    //   tweenH.easing = Tween.outCubic;
-	    //   tweenW.easing = Tween.outCubic;
-	    	// this.height = 200;
-	    	// this.width = 200;
-
 	      axios.get('/api/videos/'+this.parent.index)
 	      	.then(res => {
 			    	var data = res.data;
@@ -164,6 +155,7 @@ export default class Canvas extends React.Component {
 
 						var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
 
+						$('.Preview').removeClass("hidden");
 						$('.Preview').css("left", elementPostion.x + sliderMove - (2000-window.screen.width));
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
@@ -172,7 +164,9 @@ export default class Canvas extends React.Component {
 						$('.PreviewViews').html("Views: " + previewData.views);
 						$('.PreviewLikes').html("Likes: " + previewData.likes);
 
-						console.log($('.Preview').css("left"))
+						$('.Preview').mouseout(function() {
+							$('.Preview').addClass("hidden");
+						})
 
 						$('.Preview').click(function(){
 							var href;
@@ -215,10 +209,6 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      // var tweenH = new Tween(this, "height", 5, 20, true);
-	      // var tweenW = new Tween(this, "width", 5, 20, true);
-	      // tweenH.easing = Tween.outCubic;
-	      // tweenW.easing = Tween.outCubic;
 	      this.height = 8;
 	      this.width = 8;
 	    }
@@ -274,6 +264,7 @@ export default class Canvas extends React.Component {
 				
 		return (
 			<div>
+				<h1 class="CanvasHeaderTitle">Videos</h1>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
 			</div>

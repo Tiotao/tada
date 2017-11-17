@@ -1,9 +1,38 @@
 import React from "react";
+import $ from "jquery";
+
 import Selected from "./Selected";
 
 export default class TopBar extends React.Component {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			hidden: false
+		}
+
+		this.hideTopBar = this.hideTopBar.bind(this);
+	}
+
+	hideTopBar() {
+		if(this.state.hidden == false) {
+			$('.TopbarContainer').css("top", -310);
+			$('.HideTopBarText').html("Show");
+			$('.HideTopBarIcon').attr("src", "./interface/images/down.png");
+			$('.CanvasHeaderTitle').css("top", 90);
+			this.setState({
+				hidden: true
+			})
+		}
+		else {
+			$('.TopbarContainer').css("top", 0);
+			$('.HideTopBarText').html("Hide");
+			$('.HideTopBarIcon').attr("src", "./interface/images/up.png");
+			$('.CanvasHeaderTitle').css("top", 400);
+			this.setState({
+				hidden: false
+			})
+		}
 	}
 
 	render() {
@@ -19,6 +48,10 @@ export default class TopBar extends React.Component {
 		return (
 			<div class="TopBarLabels">
 				<ul>{selectedLabelElements}</ul>
+				<div class="HideTopBar" onMouseDown={this.hideTopBar}>
+					<p class="HideTopBarText">Hide</p>
+					<img class="HideTopBarIcon" src="./interface/images/up.png" />
+				</div>
 			</div>
 		);
 	}

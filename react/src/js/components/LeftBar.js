@@ -22,6 +22,9 @@ export default class LeftBar extends React.Component {
 
 		return (
 			<div class="LeftBar">
+				<div class="LeftBarHeader">
+					<h1 class="LeftBarHeaderTitle">Labels</h1>
+				</div>
 				<ul class="LeftBarLabels">{Labels} </ul>
 			</div>
 		);
