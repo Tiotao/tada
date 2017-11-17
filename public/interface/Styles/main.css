@@ -446,11 +446,7 @@ canvas {
 	list-style: none;
 	margin-right: 20px;
 	font-weight: 900;
-	cursor: pointer;
 	text-transform: uppercase;
-}
-.VideoLabelsName:hover {
-	opacity: 0.5;
 }
 
 .VideoActions {

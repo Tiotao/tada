@@ -38,7 +38,7 @@ export default class Layout extends React.Component {
     axios.get('/api/labels')
       .then(res => {
         this.setState({
-          labels : res.data.data.slice(0,50)
+          labels : res.data.data.slice(0,80)
         })
 
         return axios.post('/api/filter', {
