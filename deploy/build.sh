@@ -9,7 +9,7 @@ echo pulling the latest version...
 git pull origin master
 npm install
 
-echo building front end
+echo building front end...
 cd react
 npm install
 npm run-script build
