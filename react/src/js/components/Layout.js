@@ -10,6 +10,7 @@ import Overlay from "./Overlay";
 import Preview from "./Preview";
 import Switches from "./Switches";
 import Timeline from "./Timeline";
+import Tips from "./Tips";
 import TopBar from "./TopBar";
 
 export default class Layout extends React.Component {
@@ -47,7 +48,6 @@ export default class Layout extends React.Component {
         })
       })
       .then(response => {
-        console.log(response.data)
         this.setState({
           videos : response.data
         })
@@ -137,6 +137,7 @@ export default class Layout extends React.Component {
   render() {
     return (
       <div class="Layout">
+        <Tips />
         <div class="TopbarContainer">
           <Filters />
           <LeftBar 

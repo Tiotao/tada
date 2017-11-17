@@ -31,6 +31,58 @@ button:focus {
 	outline:0;
 }
 
+.Tips {
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	z-index: 3000;
+	text-align: center;
+	position: relative;
+}
+
+.mini {
+	height: 20px;
+	width: 20px;
+	background-color: #f4c741;
+	top: 0;
+	left: 0;
+	cursor: pointer;
+	background-image: url(../images/info.png);
+	background-size: 15px 15px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.TipsClose {
+	height: 40px;
+	width: 40px;
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	background-image: url('http://area.in/images/closeIcon.png');
+	background-size: 40px 40px;
+	cursor: pointer;
+}
+
+.TipsTable {
+	position: relative;
+	top:40px;
+	width: 40%;
+	margin: 0 auto;
+	text-align: left;
+}
+
+.TipsImage {
+	width: 50px;
+	padding: 20px;
+	opacity: 1;
+}
+
+.TipsText {
+	color: #fff;
+	padding: 20px;
+}
+
 .Header {
 	position: fixed;
 	height: 70px;
@@ -70,6 +122,7 @@ button:focus {
 .LeftBarHeader {
 	color: #aaa;
 	padding: 10px 20px;
+	padding-bottom: 0;
 }
 
 .LeftBarLabels {
