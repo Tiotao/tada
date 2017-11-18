@@ -586,7 +586,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "day",
-                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
+                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, (3600*24, configs.MAX_WINDOW)).map((d)=>{return d.length})
             }
         }
     } else {
@@ -741,7 +741,8 @@ async function cacheLabels() {
     let label_collection = db.collection(configs.LABEL_COLLECTION);
     let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
 
-    const labels = await label_collection.aggregate([
+
+    let labels = await label_collection.aggregate([
         {
             $graphLookup: {
                 from: 'video',
@@ -749,7 +750,7 @@ async function cacheLabels() {
                 connectFromField: 'content.labels.id',
                 connectToField: 'content.labels.id',
                 as: 'videos',
-                maxDepth: 0,
+                maxDepth: 0
             }
         },
         {
@@ -848,8 +849,19 @@ async function cacheLabels() {
 
     ]).toArray()
 
+    // labels = [labels[0]];
+
     labels.map((label)=>{
-        let counts = utils.groupByDuration(label.videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
+        let counts;
+        if (configs.SCHEDULE_SCRAPE) {
+            const now = utils.normalizeDay(Date.now()/1000)+86400;
+            counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+        } else {
+            counts = utils.groupByDay(label.videos, configs.SCRAPE_END_TIME, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+        }
+
+        
+
         label.history = counts.reverse();
         return label
     })
@@ -865,6 +877,8 @@ async function cacheLabels() {
     }
     await cache_collection.insertMany(labels);
     db.close();
+
+    logger.info("finish caching")
 }
 
 
@@ -1170,55 +1184,103 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
-        (v)=>{return v.timestamp}
+        (v)=>{ if (v.stats && v.stats.last_mention) {
+            return v.stats.last_mention.timestamp;
+        } else {
+            return -1;
+        }}
     ]
 
-    function calcDotsPosition(keyFunc) {
-        configs.AXIS_DURATION.map((duration)=>{
+    function calcDotsPosition(keyFunc, y_id) {
 
-            let groups = utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, duration, (v)=>{return v.timestamp});
+        const day = 86400;
 
-            let view_count_groups = groups.map((window)=>{
-                return window.sort((a, b)=>{return a.stats.view_count > b.stats.view_count})
-            })
+        if (configs.SCHEDULE_SCRAPE) {
+            end_time = new Date() / 1000;
+        }
 
-            for (let i = 0; i < view_count_groups.length; i++) {
-                for(let j = 0; j < view_count_groups[i].length; j++) {
-                    let v = view_count_groups[i][j]
-                    const vid = v._id.toString();
-                    if (!(vid in result)) {
-                        result[vid] = {}
-                        configs.AXIS_DURATION.map((d)=>{
-                            result[vid][d] = [];
-                        })
-                    }
-                    result[vid][duration].push([view_count_groups.length-i, j])
-                }
-            }
+        end_time = utils.normalizeDay(end_time) + day;
 
-            let vl_ratio_groups = groups.map((window)=>{
-                return window.sort((a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio})
-            })
+        let groups = utils.groupByDay(videos, end_time, 30, keyFunc);
 
-            
-            for (let i = 0; i < vl_ratio_groups.length; i++) {
-                for(let j = 0; j < vl_ratio_groups[i].length; j++) {
-                    let v = vl_ratio_groups[i][j];
-                    const vid = v._id.toString();
-                    if (!(vid in result)) {
-                        result[vid] = {}
-                        configs.AXIS_DURATION.map((d)=>{
-                            result[vid][d] = [];
-                        })
-                    }
-                    result[vid][duration].push([vl_ratio_groups.length-i, j])
-                }
-            }
+        // acc = 0
+        // for (let i = 0; i < groups.length; i++) {
+        //     acc += groups[i].length
+        //     console.log(groups[i].length);
+        // }
+        // console.log("acc", acc);
+
+        groups = groups.map((by_day, index)=>{
+            let combine = [by_day]
+            let by_hour = utils.groupByHour(by_day, end_time - index*day, 24, keyFunc)
+            combine.push(by_hour);
+            // console.log(acc, by_day);
+            return combine;
         })
+
+        function findIndex(sorted_groups, x_id) {
+            for (let i = 0; i < sorted_groups.length; i++) {
+                // every video
+                for (let j = 0; j < sorted_groups[i][0].length; j++) {
+                    let v = sorted_groups[i][0][j];
+                    const vid = v._id.toString();
+                    if (!(vid in result)) {
+                        result[vid] = {
+                            "3600": [null, null, null, null],
+                            "86400": [null, null, null, null]
+                        }
+                    }
+
+                    // reverse the graph
+                    result[vid]["86400"][x_id] = [sorted_groups.length-i-1, j];
+                    
+                }
+                // every hour
+                for (let k = 0; k < sorted_groups[i][1].length; k++) {
+                    // every video
+                    for (let p = 0; p < sorted_groups[i][1][k].length; p++) {
+                        let v = sorted_groups[i][1][k][p];
+                        const vid = v._id.toString();
+                        // reverse graph
+                        result[vid]["3600"][x_id] = [sorted_groups[i][1].length-k-1, p];
+                    }
+                }
+            }
+        }
+
+        // sort by view count
+        
+        const groups_by_views = groups.map((g)=>{
+            const byViewCount = (a, b)=>{return a.stats.view_count > b.stats.view_count};
+            r = []
+            r.push(g[0].sort(byViewCount));
+            r.push(g[1].map((h)=>{
+                h.sort(byViewCount)
+                return h;
+            }))
+            return r;
+        })
+
+        findIndex(groups_by_views, y_id * 2 + 0);
+
+        const groups_by_vlr = groups.map((g)=>{
+            const byViewLikeRatio = (a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio};
+            r = []
+            r.push(g[0].sort(byViewLikeRatio));
+            r.push(g[1].map((h)=>{
+                h.sort(byViewLikeRatio)
+                return h;
+            }))
+            return r;
+        })
+
+        findIndex(groups_by_vlr, y_id * 2 + 1);
+        
+        
+
     }
 
     x_axis_key_functions.map(calcDotsPosition);
-    // console.log(JSON.stringify(result))
     
     const ret = {
         total: videos.length,
