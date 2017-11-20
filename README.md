@@ -2,11 +2,11 @@
 
 ## Setup
 
-Follow the following steps to setup TADA server. Alternatively, you can run `sh deploy/build.sh` if you already have all the dependency installed and database created and running.
+Follow the following steps to setup TADA server. Alternatively, you can run `$ sh deploy/build.sh` if you already have all the dependency installed and database created and running.
 
 ### Step 1: Clone Repo
 ```
-git clone https://github.com/Tiotao/tada.git
+$ git clone https://github.com/Tiotao/tada.git
 ```
 
 ### Step 2: Install MongoDB and Node

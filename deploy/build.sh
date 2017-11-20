@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Deploying Tada Server...
+echo Deploying TADA Server...
 read -r -p 'server environment: ' env 
 echo "$env"
 
