@@ -1,420 +1,16 @@
 const _ = require('underscore');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
-const configs = require('../configs');
+const config = require('config');
 const logger  = require('logger').createLogger();
 const utils = require('../utils/scrape-utils');
-logger.setLevel(configs.LOGGER_LEVEL);
-
-function calculateLabelSentiment(entries) {
-    if (entries.length == 0) {
-        return 0
-    }
-    let sentiment = 0;
-    entries.map(function(entry) {
-        sentiment += (entry.sentiment.score * entry.sentiment.magnitude);
-    })
-    return sentiment / entries.length;
-}
-
-function calculateLabelScore(entries, count) {
-    if (entries.length == 0) {
-        return 0
-    }
-    let score = 0;
-    entries.map(function(entry) {
-        score += entry.score;
-    })
-    return score / count;
-}
-
-async function queryTwitterLabelScoresOverTime(label, type, start_time, end_time, duration) {
-    logger.info('connecting to database...');
-    const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection(configs.TEST_DB_COLLECTION);
-    
-     const score_query = [
-            {
-                $match: {
-                    timestamp: {$gt: start_time, $lt: end_time},
-                    source: "twitter",
-                    "content.entities.name": label,
-                    "content.entities.type": type,
-                }
-            },
-            {   $unwind: "$content.entities"    },
-            {
-                $match: {
-                    "content.entities.name": label,
-                    "content.entities.type": type,
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    name: { $first: "$content.entities.name" },
-                    type:  { $first: "$content.entities.type" },
-                    sentiment: { $first:"$content.entities.sentiment" },
-                    score: { $first: "$content.entities.salience"},
-                    timestamp: { $first: "$timestamp" },
-                    local_id: {$first: "$local_id"}
-                }
-            },
-        ];
-    
-    
-    
-    const post_count_query = {
-        timestamp: {$gt: start_time, $lt: end_time},
-        source: "twitter"
-    }
-
-    const post_count = await collection.find(post_count_query).count();
-    let posts = await collection.aggregate(score_query).toArray();
-
-    let posts_over_time = [];
-    let curr_time = end_time;
-
-    async function calculateDurationScore(collection, posts, curr_time, duration) {
-        const start_bound = curr_time - duration * 0.5;
-        const end_bound = curr_time + duration * 0.5;
-
-        // const start_bound = curr_time
-        // const end_bound = curr_time + duration
-        const posts_in_time = posts.filter((p)=>{
-            return p.timestamp > start_bound && p.timestamp < end_bound;
-        })
-
-        const totol_post_count = await collection.find({
-            timestamp: {$gt: start_bound, $lt: end_bound}, 
-            source:"twitter"})
-            .count();
-        
-        let sentiment = calculateLabelSentiment(posts_in_time);
-        let score = calculateLabelScore(posts_in_time, totol_post_count);
-
-        if (totol_post_count <= 0) {
-            score = 0
-        } 
-        return {
-            sentiment: sentiment,
-            score: score * configs.NLP_SCORE_FACTOR
-        };
-    }
-
-    let score_promise = []
-    
-    
-
-    while (curr_time > start_time) {
-        const score = calculateDurationScore(collection, posts, curr_time, duration);
-        score_promise.push(score); 
-        curr_time -= duration;
-    }
-
-    let score_over_time = await Promise.all(score_promise);
-
-    db.close();
-
-    return {
-        description: {
-            name: label,
-            type: type,
-        },
-        start_time: start_time,
-        end_time: end_time,
-        duration: duration,
-        scores: score_over_time,
-        // images: images_over_time.slice(0, 10)
-    }
-     
-}
-
-function getEntityKey(entity) {
-    const type = entity.type
-    const name = entity.name;
-
-    const entity_key = {
-        name: name,
-        type: type,
-    };
-
-    return entity_key;
-}
-
-function getEntityValue(entity) {
-    
-    const mag = entity.sentiment.magnitude; 
-    const score = entity.sentiment.score;
-    const salience = entity.salience;
-
-    const entity_value = {
-        sentiment: score * mag,
-        salience: salience,
-    };
-    return entity_value
-}
-
-async function queryTopTwitterLabel(start_time, end_time) {
-    let result_score = [];
-    
-    if (start_time > end_time) {
-        return result_score;
-    }
-
-    logger.info('connecting to database...');
-    const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection(configs.TEST_DB_COLLECTION);
-
-    const query = {
-        timestamp: {$gt: start_time, $lt: end_time},
-        source: "twitter"
-    }
-
-    const post_count = await collection.find(query).count();
-
-    function collectEntities() {
-        for (let i = 0; i < this.content.entities.length; i++) {
-            const entity = this.content.entities[i];
-
-            const mag = entity.sentiment.magnitude; 
-            const score = entity.sentiment.score;
-            const salience = entity.salience;
-
-            const entity_value = {
-                sentiment: score * mag,
-                salience: salience,
-            };
-
-            const type = entity.type
-            const name = entity.name;
-
-            const entity_key = {
-                name: name,
-                type: type,
-            };
-            emit(entity_key, entity_value);
-        }
-    }
-
-    function calculateScores(entity_key, entity_values) {
-        let reduced_val = {
-            sentiment: 0,
-            salience: 0
-        }
-        for (let i = 0; i < entity_values.length; i++) {
-            reduced_val.sentiment += entity_values[i].sentiment / entity_values.length;
-            reduced_val.salience += entity_values[i].salience;
-        }
-
-        return reduced_val;
-    }
-
-    function normalizeScores(val) {
-        val.score = val.value.salience / post_count * configs.NLP_SCORE_FACTOR;
-        val.sentiment = val.value.sentiment;
-        val.description = val._id;
-        delete val._id;
-        delete val.value;
-        return val
-    }
-
-    let posts = await collection
-    .mapReduce(
-        collectEntities,
-        calculateScores,
-        {
-            query: query,
-            out: {inline: 1}
-        }
-    )
-    posts = JSON.parse(JSON.stringify(posts)).map(normalizeScores).sort((a, b)=>{
-        if (a.score < b.score) return 1;
-        if (a.score > b.score) return -1;
-        return 0
-    });
-    db.close();
-    return posts
-}
-
-
-
-async function queryTopTumblrLabel(start_time, end_time) {
-
-    let result_score = [];
-    
-    if (start_time > end_time) {
-        return result_score;
-    }
-
-    logger.info('connecting to database...');
-    const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection(configs.DB_COLLECTION);
-    let posts = await collection.find({timestamp: {$gt: start_time, $lt: end_time}, source: "tumblr"}).toArray();
-    const count = posts.length;
-    
-    if (!posts) {
-        return result_score;
-    }
-
-    try {
-        const posts_label_scores = posts.map(post => {
-            const num_images = post.content.images.length;
-            let labels = _.flatten(post.content.images.map(img=>{return img.labels}))
-            labels = labels.reduce((memo, obj) => {
-                    if (!memo[obj.description]) { memo[obj.description] = 0; }
-                    memo[obj.description] += obj.score;
-                    return memo; 
-                }, {});
-            return _.mapObject(labels, (val, key) => {
-                return val / num_images;
-            })
-        })
-        let scores = posts_label_scores.reduce((memo, obj) => {
-            _.mapObject(obj, (val, key) => {
-                if (!memo[key]) { memo[key] = 0; }
-                memo[key] += val;
-            })
-            return memo;
-        })
-        
-        for (var k in scores) {
-            if (scores.hasOwnProperty(k)) {
-                result_score.push({
-                    description: k,
-                    score: scores[k] / count
-                })
-            }
-        }
-
-        result_score.sort((a, b)=>{return b.score - a.score;})
-        
-    } catch (error) {
-        logger.error(error);
-        result_score = [];
-    }
-    db.close();
-    return result_score;
-
-}
-
-async function queryTumblrLabelScoresOverTime(label, start_time, end_time, duration) {
-    logger.info('connecting to database...');
-    const db = await MongoClient.connect(configs.DB_URL);
-    let collection = db.collection(configs.DB_COLLECTION);
-    // query to get score
-    const score_query = [
-            {
-                $match: {
-                    timestamp: {$gt: start_time, $lt: end_time},
-                    source: "tumblr",
-                    "content.images.labels.description": label 
-                }
-            },
-            {   $unwind: "$content.images"    },
-            {   $unwind: "$content.images.labels"    },
-            {
-                $match: {
-                    "content.images.labels.description": label 
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id",
-                    description: { $first: "$content.images.labels.description" },
-                    images: {$push: "$content.images.high_res"},
-                    score: { $sum: "$content.images.labels.score"},
-                    timestamp: { $first: "$timestamp" },
-                    local_id: {$first: "$local_id"}
-                }
-            },
-        ]
-
-    // query to get image count
-    const image_count_query = [
-        {
-            $match: {
-                timestamp: {$gt: start_time, $lt: end_time},
-                source: "tumblr",
-                "content.images.labels.description": label 
-            }
-        },
-        {   $unwind: "$content.images"    },
-        {
-            $group: {
-                _id: "$_id",
-                image_count: { $sum: 1},
-            }
-        },
-    ]
-
-    let posts = await collection.aggregate(score_query).toArray();
-    let image_counts = await collection.aggregate(image_count_query).toArray();
-
-    for (let i = 0; i < posts.length; i++) {
-        const count = image_counts[i].image_count;
-        if (count <= 0) {
-            posts[i].score = 0
-        } else {
-            posts[i].score = posts[i].score / count;
-        }
-    }
-    
-    // calculate score in different time ranges
-    
-    let images_over_time = [];
-    let curr_time = end_time;
-
-    async function calculateDurationScore(collection, posts, curr_time, duration) {
-        const start_bound = curr_time - duration * 0.5;
-        const end_bound = curr_time + duration * 0.5;
-        const posts_in_time = posts.filter((p)=>{
-            return p.timestamp > start_bound && p.timestamp < end_bound;
-        })
-
-        const totol_post_count = await collection.find({
-            timestamp: {$gt: start_bound, $lt: end_bound}, 
-            source:"tumblr"})
-            .count();
-        
-        let score = calculateLabelScore(posts_in_time, totol_post_count);
-        if (totol_post_count <= 0) {
-            score = 0
-        } 
-        return score;
-    }
-
-    let score_promise = []
-    
-    while (curr_time > start_time) {
-        const score = calculateDurationScore(collection, posts, curr_time, duration);
-        score_promise.push(score); 
-        curr_time -= duration;
-    }
-
-    let score_over_time = await Promise.all(score_promise);
-
-    db.close();
-
-    images_over_time = posts.reduce((memo, post) => {
-        return memo.concat(post.images)
-    }, [])
-
-    return {
-        description: label,
-        start_time: start_time,
-        end_time: end_time,
-        duration: duration,
-        scores: score_over_time,
-        images: images_over_time.slice(0, 10)
-    }
-}
+logger.setLevel(config.get('Logger.level'));
 
 async function getOneLabel(id) {
-    const db = await MongoClient.connect(configs.DB_URL);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
-    let label_collection = db.collection(configs.LABEL_COLLECTION);
-    let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
+    let label_collection = db.collection(config.get("Database.label_collection"));
+    let meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
 
     const query_oid =  new ObjectId(id)
 
@@ -586,7 +182,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "day",
-                videos: utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
+                videos: utils.groupByDuration(videos, config.get("Scraper.schedule_scraping"), (3600*24, config.get("Scraper.max_time_range"))).map((d)=>{return d.length})
             }
         }
     } else {
@@ -597,9 +193,9 @@ async function getOneLabel(id) {
 }
 
 async function getOneVideo(id) {
-    const db = await MongoClient.connect(configs.DB_URL);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
-    let label_collection = db.collection(configs.LABEL_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
+    let label_collection = db.collection(config.get("Database.label_collection"));
 
     const oId =  new ObjectId(id)
 
@@ -715,8 +311,8 @@ async function getOneVideo(id) {
 }
 
 async function getLabels() {
-    const db = await MongoClient.connect(configs.DB_URL);
-    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let cache_collection = db.collection(config.get("Database.cache_collection"));
 
     const labels = await cache_collection.find({
         $query: {},
@@ -737,11 +333,12 @@ async function getLabels() {
 
 async function cacheLabels() {
     logger.info("start cacheing")
-    const db = await MongoClient.connect(configs.DB_URL);
-    let label_collection = db.collection(configs.LABEL_COLLECTION);
-    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let label_collection = db.collection(config.get("Database.label_collection"));
+    let cache_collection = db.collection(config.get("Database.cache_collection"));
 
-    const labels = await label_collection.aggregate([
+
+    let labels = await label_collection.aggregate([
         {
             $graphLookup: {
                 from: 'video',
@@ -749,7 +346,7 @@ async function cacheLabels() {
                 connectFromField: 'content.labels.id',
                 connectToField: 'content.labels.id',
                 as: 'videos',
-                maxDepth: 0,
+                maxDepth: 0
             }
         },
         {
@@ -848,8 +445,19 @@ async function cacheLabels() {
 
     ]).toArray()
 
+    // labels = [labels[0]];
+
     labels.map((label)=>{
-        let counts = utils.groupByDuration(label.videos, configs.SCHEDULE_SCRAPE, 3600*24).map((d)=>{return d.length})
+        let counts;
+        if (config.get("Scraper.schedule_scraping")) {
+            const now = utils.normalizeDay(Date.now()/1000)+86400;
+            counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+        } else {
+            counts = utils.groupByDay(label.videos, config.get("Scraper.end_time"), 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+        }
+
+        
+
         label.history = counts.reverse();
         return label
     })
@@ -865,12 +473,13 @@ async function cacheLabels() {
     }
     await cache_collection.insertMany(labels);
     db.close();
+
+    logger.info("finish caching")
 }
 
-
 async function createMetaLabel(name) {
-    const db = await MongoClient.connect(configs.DB_URL);
-    let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
     const label = await meta_label_collection.findOne({name: name, labels:[]});
 
     try {
@@ -904,8 +513,8 @@ async function createMetaLabel(name) {
 
 async function deleteMetaLabel(id) {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        let meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        let meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
 
         await meta_label_collection.remove({_id: ObjectId(id)});
         db.close();
@@ -924,8 +533,8 @@ async function deleteMetaLabel(id) {
 
 async function assignLabel(meta_label_id, id) {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        const meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
         await meta_label_collection.update(
             { _id: ObjectId(meta_label_id) },
             { $push: { 'labels': ObjectId(id) } }
@@ -944,8 +553,8 @@ async function assignLabel(meta_label_id, id) {
 
 async function unassignLabel(meta_label_id, id) {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        const meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
         await meta_label_collection.update(
             { _id: ObjectId(meta_label_id) },
             { $pull: { 'labels': ObjectId(id) } }
@@ -964,9 +573,9 @@ async function unassignLabel(meta_label_id, id) {
 
 async function getAssignedLabel(meta_label_id) {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        const label_collection = db.collection(configs.LABEL_COLLECTION);
-        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        const label_collection = db.collection(config.get("Database.label_collection"));
+        const meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
 
         const labels = await meta_label_collection.aggregate([
             {
@@ -1009,9 +618,9 @@ async function getAssignedLabel(meta_label_id) {
 
 async function getUnassignedLabels() {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        const label_collection = db.collection(configs.LABEL_COLLECTION);
-        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        const label_collection = db.collection(config.get("Database.label_collection"));
+        const meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
         const labels = await label_collection.aggregate([
             {
                 $lookup: {
@@ -1052,11 +661,10 @@ async function getUnassignedLabels() {
     
 }
 
-
 async function getMetaLabels() {
     try {
-        const db = await MongoClient.connect(configs.DB_URL);
-        const meta_label_collection = db.collection(configs.META_LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        const meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
         const meta_labels = await meta_label_collection.find({}).toArray();
         db.close();
         return {
@@ -1073,9 +681,9 @@ async function getMetaLabels() {
 
 async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
-    const db = await MongoClient.connect(configs.DB_URL);
-    let cache_collection = db.collection(configs.LABEL_CACHE_COLLECTION);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let cache_collection = db.collection(config.get("Database.cache_collection"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
 
     if (!view_count_range) {
         view_count_range = [0, Infinity];
@@ -1170,55 +778,103 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
-        (v)=>{return v.timestamp}
+        (v)=>{ if (v.stats && v.stats.last_mention) {
+            return v.stats.last_mention.timestamp;
+        } else {
+            return -1;
+        }}
     ]
 
-    function calcDotsPosition(keyFunc) {
-        configs.AXIS_DURATION.map((duration)=>{
+    function calcDotsPosition(keyFunc, y_id) {
 
-            let groups = utils.groupByDuration(videos, configs.SCHEDULE_SCRAPE, duration, (v)=>{return v.timestamp});
+        const day = 86400;
 
-            let view_count_groups = groups.map((window)=>{
-                return window.sort((a, b)=>{return a.stats.view_count > b.stats.view_count})
-            })
+        if (config.get("Scraper.schedule_scraping")) {
+            end_time = new Date() / 1000;
+        }
 
-            for (let i = 0; i < view_count_groups.length; i++) {
-                for(let j = 0; j < view_count_groups[i].length; j++) {
-                    let v = view_count_groups[i][j]
-                    const vid = v._id.toString();
-                    if (!(vid in result)) {
-                        result[vid] = {}
-                        configs.AXIS_DURATION.map((d)=>{
-                            result[vid][d] = [];
-                        })
-                    }
-                    result[vid][duration].push([view_count_groups.length-i, j])
-                }
-            }
+        end_time = utils.normalizeDay(end_time) + day;
 
-            let vl_ratio_groups = groups.map((window)=>{
-                return window.sort((a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio})
-            })
+        let groups = utils.groupByDay(videos, end_time, 30, keyFunc);
 
-            
-            for (let i = 0; i < vl_ratio_groups.length; i++) {
-                for(let j = 0; j < vl_ratio_groups[i].length; j++) {
-                    let v = vl_ratio_groups[i][j];
-                    const vid = v._id.toString();
-                    if (!(vid in result)) {
-                        result[vid] = {}
-                        configs.AXIS_DURATION.map((d)=>{
-                            result[vid][d] = [];
-                        })
-                    }
-                    result[vid][duration].push([vl_ratio_groups.length-i, j])
-                }
-            }
+        // acc = 0
+        // for (let i = 0; i < groups.length; i++) {
+        //     acc += groups[i].length
+        //     console.log(groups[i].length);
+        // }
+        // console.log("acc", acc);
+
+        groups = groups.map((by_day, index)=>{
+            let combine = [by_day]
+            let by_hour = utils.groupByHour(by_day, end_time - index*day, 24, keyFunc)
+            combine.push(by_hour);
+            // console.log(acc, by_day);
+            return combine;
         })
+
+        function findIndex(sorted_groups, x_id) {
+            for (let i = 0; i < sorted_groups.length; i++) {
+                // every video
+                for (let j = 0; j < sorted_groups[i][0].length; j++) {
+                    let v = sorted_groups[i][0][j];
+                    const vid = v._id.toString();
+                    if (!(vid in result)) {
+                        result[vid] = {
+                            "3600": [null, null, null, null],
+                            "86400": [null, null, null, null]
+                        }
+                    }
+
+                    // reverse the graph
+                    result[vid]["86400"][x_id] = [sorted_groups.length-i-1, j];
+                    
+                }
+                // every hour
+                for (let k = 0; k < sorted_groups[i][1].length; k++) {
+                    // every video
+                    for (let p = 0; p < sorted_groups[i][1][k].length; p++) {
+                        let v = sorted_groups[i][1][k][p];
+                        const vid = v._id.toString();
+                        // reverse graph
+                        result[vid]["3600"][x_id] = [sorted_groups[i][1].length-k-1, p];
+                    }
+                }
+            }
+        }
+
+        // sort by view count
+        
+        const groups_by_views = groups.map((g)=>{
+            const byViewCount = (a, b)=>{return a.stats.view_count > b.stats.view_count};
+            r = []
+            r.push(g[0].sort(byViewCount));
+            r.push(g[1].map((h)=>{
+                h.sort(byViewCount)
+                return h;
+            }))
+            return r;
+        })
+
+        findIndex(groups_by_views, y_id * 2 + 0);
+
+        const groups_by_vlr = groups.map((g)=>{
+            const byViewLikeRatio = (a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio};
+            r = []
+            r.push(g[0].sort(byViewLikeRatio));
+            r.push(g[1].map((h)=>{
+                h.sort(byViewLikeRatio)
+                return h;
+            }))
+            return r;
+        })
+
+        findIndex(groups_by_vlr, y_id * 2 + 1);
+        
+        
+
     }
 
     x_axis_key_functions.map(calcDotsPosition);
-    // console.log(JSON.stringify(result))
     
     const ret = {
         total: videos.length,
@@ -1229,40 +885,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 }
 
 module.exports = {
-    getTopTwitterLabels: async (req, res) => {
-        const start_time = parseInt(req.body.start_time);
-        const end_time = parseInt(req.body.end_time);
-        // get label score for each post
-        const ret = await queryTopTwitterLabel(start_time, end_time);
-        res.send(ret);
-    },
-
-    getTopTumblrLabels: async (req, res) => {
-        const start_time = parseInt(req.body.start_time);
-        const end_time = parseInt(req.body.end_time);
-        // get label score for each post
-        const ret = await queryTopTumblrLabel(start_time, end_time);
-        res.send(ret);
-    },
-    
-    getTwitterLabelScoreOverTime: async(req, res) => {
-        const start_time = parseInt(req.body.start_time);
-        const end_time = parseInt(req.body.end_time);
-        const label = req.body.label.toString();
-        const type = req.body.type.toString();
-        const duration = parseInt(req.body.duration);
-        const ret = await queryTwitterLabelScoresOverTime(label, type, start_time, end_time, duration);
-        res.send(ret);
-    },
-
-    getTumblrLabelScoreOverTime: async (req, res) => {
-        const start_time = parseInt(req.body.start_time);
-        const end_time = parseInt(req.body.end_time);
-        const label = req.body.label.toString();
-        const duration = parseInt(req.body.duration);
-        const ret = await queryTumblrLabelScoresOverTime(label, start_time, end_time, duration);
-        res.send(ret);
-    },
 
     getOneLabel: async (req, res) => {
         const ret = await getOneLabel(req.params.id)

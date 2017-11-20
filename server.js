@@ -1,3 +1,12 @@
+
+const argv = require('optimist')
+    .usage('Usage: $0 --env [name of environment]')
+    .demand(['env'])
+    .argv
+
+process.env.NODE_ENV = argv.env;
+
+const config = require('config');
 const express = require('express');
 const morgan  = require('morgan')
 const logger  = require('logger').createLogger();
@@ -5,15 +14,13 @@ const cors = require('cors')
 const schedule = require('node-schedule');
 const app = express();
 const routes = require('./routes/routes');
-const configs = require('./configs');
 const bodyParser = require('body-parser')
 const router = express.Router();
-const tumblrScraper = require('./controllers/tumblrScraper');
 const twitterScraper = require('./controllers/twitterScraper');
 const youtubeScraper = require('./controllers/youtubeScraper');
 const dataController = require('./controllers/dataController');
 
-logger.setLevel(configs.LOGGER_LEVEL);
+logger.setLevel(config.get("Logger.level"));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -27,15 +34,17 @@ app.use(cors());
 app.use('/api', routes.api);
 app.use('/', routes.view);
 app.use('/manage', routes.dashboard);
-app.listen(configs.PORT);
 
-logger.debug(JSON.stringify(configs, null, 2));
+const port = config.get("Server.port")
 
+app.listen(port);
+
+logger.debug(JSON.stringify(config, null, 2));
 
 // run schedule job
-if (configs.SCHEDULE_SCRAPE) {
+if (config.get("Scraper.schedule_scraping")) {
     logger.debug("schedule jobs");
-    schedule.scheduleJob(configs.SCRAPE_TIME, async () => {
+    schedule.scheduleJob(config.get("Scraper.content_freq"), async () => {
         logger.log("Scraping New Videos...");
         await youtubeScraper.scheduleScraping();
         logger.log("Monitering Twitter Mentions...");
@@ -46,21 +55,9 @@ if (configs.SCHEDULE_SCRAPE) {
         await youtubeScraper.scrapeStats();
         logger.log("Stats Update Completed.");
     });
-
-    // schedule.scheduleJob(configs.STATS_TIME, async () => {
-    //     logger.log("Updating Video Stats...");
-    //     await youtubeScraper.scrapeStats();
-    //     logger.log("Stats Update Completed.");
-    // });
 }
 
 
-console.log('Magic happens on ' + configs.PORT);
-
-// dataController.cacheLabels();
-
-// twitterScraper.scrape();
-
-
+console.log('Magic happens on ' + port);
 
 exports = module.exports = app;

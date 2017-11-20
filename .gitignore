@@ -65,3 +65,5 @@ configs.js
 
 # Mac
 .DS_Store
+test.js
+config/
