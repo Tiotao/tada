@@ -24,6 +24,10 @@ export default class LeftBar extends React.Component {
 			<div class="LeftBar">
 				<div class="LeftBarHeader">
 					<h1 class="LeftBarHeaderTitle">Labels</h1>
+					<form class="SearchContainer">
+						<input class="SearchField" type="text" name="search" />
+						<button class="SearchButton" type="submit" />
+					</form>
 				</div>
 				<ul class="LeftBarLabels">{Labels} </ul>
 			</div>
