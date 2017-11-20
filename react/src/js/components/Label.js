@@ -46,7 +46,7 @@ export default class Label extends React.Component {
 		labelCountElement = React.createElement(
 			'p',
 			{ className: 'LeftBarLabelCount'},
-			this.props.count
+			this.props.count + " vids"
 		);
 		labelContainerElement = React.createElement(
 			'div',

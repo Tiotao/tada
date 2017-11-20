@@ -147,8 +147,8 @@ export default class Canvas extends React.Component {
 
 			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
-						var top = viewportOffset.top - 100;
-						var left = viewportOffset.left - 100;
+						var top = viewportOffset.top;
+						var left = viewportOffset.left + 80;
 
 						var canvasPosition = new PIXI.Point(left, top);
 						var elementPostion = this.parent.toGlobal(canvasPosition);
@@ -259,9 +259,7 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	render() {
-
-				
+	render() {				
 		return (
 			<div>
 				<h1 class="CanvasHeaderTitle">Videos</h1>

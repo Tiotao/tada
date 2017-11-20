@@ -204,6 +204,7 @@ button:focus {
 	right: 0;
 	color: #ababab;
 	margin: 0px 0px 0px;
+	font-size: 12px;
 }
 
 .SearchContainer {
@@ -317,6 +318,7 @@ canvas {
 
 .Preview {
 	position: absolute;
+	width: 360px;
 	height: 0;
 	width: 0;
 	opacity: 0;
@@ -327,30 +329,34 @@ canvas {
 	transition: width 1s, height 1s;
 	border-radius: 200px;
 	cursor: pointer;
+	display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .PreviewImg {
-	height: 200px;
-	width: 200px;
+	height: 100px;
+	width: 100px;
 	object-fit: cover;
-	border-radius: 200px;
+	border-radius: 100px;
 	border: 10px solid #10181d;
+	float: left;
 }
 
 .PreviewMeta {
-	width: 200px;
+	display: inline-block;
 	height: auto;
 	background-color: #333;
 	color: #fff;
 	padding: 10px;
 	font-size: 12px;
-	padding-bottom: 25px;
 	border: 10px solid #10181d;
 }
 
 .PreviewTitle {
 	margin: 0;
 	margin-bottom: 5px;
+	width: 200px;
 }
 
 
