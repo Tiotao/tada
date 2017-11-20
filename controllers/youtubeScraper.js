@@ -157,7 +157,7 @@ async function scrapeKeyword(video_collection, keyword) {
 async function scrape(mentions) {
     
     logger.info('start scarpping youtube recent posts...');
-    const keywords = config.get("Scrapper.youtube.keywords");
+    const keywords = config.get("Scraper.youtube.keywords");
     try {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(config.get("Database.url"));

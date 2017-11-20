@@ -1,11 +1,12 @@
 
-// set config first
-if (process.argv.length >= 3) {
-    const config_env = process.argv[2];
-    process.env.NODE_ENV = config_env;
-}
-const config = require('config');
+const argv = require('optimist')
+    .usage('Usage: $0 --env [name of environment]')
+    .demand(['env'])
+    .argv
 
+process.env.NODE_ENV = argv.env;
+
+const config = require('config');
 const express = require('express');
 const morgan  = require('morgan')
 const logger  = require('logger').createLogger();

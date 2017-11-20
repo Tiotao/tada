@@ -27,6 +27,7 @@
     "morgan": "^1.8.2",
     "natural": "^0.5.4",
     "node-schedule": "^1.2.4",
+    "optimist": "^0.6.1",
     "pug": "^2.0.0-rc.4",
     "puppeteer": "^0.10.2",
     "react-tutorials": "file:react",
