@@ -1,18 +1,14 @@
-const configs = require('../configs');
+const config = require('config');
 const MongoClient = require('mongodb').MongoClient;
 const logger  = require('logger').createLogger();
-logger.setLevel(configs.LOGGER_LEVEL);
+logger.setLevel(config.get("Logger.level"));
 
 const nodeUtil = require('util');
 
 const youtubeScraper = require('./youtubeScraper');
 
 const Twitter = require('twitter');
-const TwitterClient = new Twitter({
-    consumer_key: configs.TWITTER_CONSUMER_KEY,
-    consumer_secret: configs.TWITTER_CONSUMER_SECRET,
-    bearer_token: configs.TWITTER_BEARER_TOKEN
-});
+const TwitterClient = new Twitter(config.get("Credentials.twitter"));
 
 
 const TwitterGet = nodeUtil.promisify(TwitterClient.get.bind(TwitterClient));
@@ -30,7 +26,7 @@ async function grabLatestTweets() {
             source: "twitter",
             media_type: "text",
             search_ref: [{
-                keyword: configs.YOUTUBE_SEARCH_KEYWORDS[0],
+                keyword: config.get("Scraper.youtube.keywords")[0],
                 type: 'recent',
             }],
             entities: {
@@ -62,7 +58,7 @@ async function grabLatestTweets() {
 
     try {
         ret = await TwitterGet('search/tweets', {
-            q: configs.YOUTUBE_SEARCH_KEYWORDS[0],
+            q: config.get("Scraper.youtube.keywords")[0],
             result_type: 'recent',
             count: 100,
             // since_id: since_id,
@@ -78,8 +74,8 @@ async function grabLatestTweets() {
 
 async function updateYouTubeLatestMention(tweets) {
 
-    const db = await MongoClient.connect(configs.DB_URL);
-    let video_collection = db.collection(configs.VIDEO_COLLECTION);
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
 
     function tweetWithVideos(tweet) {
         return tweet.entities.videos.length > 0;

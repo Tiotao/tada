@@ -1,10 +1,11 @@
+const config = require('config');
 const Language = require('@google-cloud/language');
 const language = Language.v1beta2({
-    projectId: 'tada-vision',
-    keyFilename: 'Tada-vision-a064f29f06e1.json'
+    projectId: config.get("Credentials.google_cloud.project_id"),
+    keyFilename: config.get("Credentials.google_cloud.keyfile_name"),
 });
 const logger  = require('logger').createLogger();
-logger.setLevel(configs.LOGGER_LEVEL);
+logger.setLevel(config.get("Logger.level"));
 
 async function labelPosts(posts, sentiment=true) {
 

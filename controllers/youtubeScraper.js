@@ -1,23 +1,23 @@
 const MongoClient = require('mongodb').MongoClient;
-const configs = require('../configs');
+const config = require('config');
 const _ = require('underscore');
 const nodeUtil = require('util');
-const visionCtrl = require('./visionController');
 const languageCtrl = require('./languageController');
 const google = require('googleapis');
 const YouTubeClient = google.youtube({
     version: 'v3',
-    auth: configs.YOUTUBE_API_KEY
+    auth: config.get("Credentials.youtube.api_key")
  });
 
 const YouTubeGetStats = nodeUtil.promisify(YouTubeClient.videos.list.bind(YouTubeClient.videos))
 const YouTubeGetRecent = nodeUtil.promisify(YouTubeClient.search.list.bind(YouTubeClient.search))
 
 const logger  = require('logger').createLogger();
+logger.setLevel(config.get("Logger.level"));
 const utils = require('../utils/scrape-utils');
 const natural = require('natural');
 const parallel = require('async-await-parallel');
-logger.setLevel(configs.LOGGER_LEVEL);
+
 
 async function getListOfVideos(query, method) {
     logger.info('labelling', 'recent', 'posts from:', query);
@@ -157,12 +157,12 @@ async function scrapeKeyword(video_collection, keyword) {
 async function scrape(mentions) {
     
     logger.info('start scarpping youtube recent posts...');
-    const keywords = configs.YOUTUBE_SEARCH_KEYWORDS;
+    const keywords = config.get("Scrapper.youtube.keywords");
     try {
         logger.info('connecting to database...');
-        const db = await MongoClient.connect(configs.DB_URL);
-        let video_collection = db.collection(configs.VIDEO_COLLECTION);
-        let label_collection = db.collection(configs.LABEL_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        let video_collection = db.collection(config.get("Database.video_collection"));
+        let label_collection = db.collection(config.get("Database.label_collection"));
         let promises;
 
         if (mentions) {
@@ -241,8 +241,8 @@ async function scrapeStats(query_videos) {
         console.time("SCRAPE_STATS");
         logger.info('scrapping stats of youtube video...')
         logger.info('connecting to database...');
-        const db = await MongoClient.connect(configs.DB_URL);
-        let video_collection = db.collection(configs.VIDEO_COLLECTION);
+        const db = await MongoClient.connect(config.get("Database.url"));
+        let video_collection = db.collection(config.get("Database.video_collection"));
         let videos;
 
         if (!query_videos) {

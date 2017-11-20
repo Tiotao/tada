@@ -1,7 +1,7 @@
 const _ = require('underscore');
-const configs = require('../configs');
+const config = require('config');
 const logger  = require('logger').createLogger();
-logger.setLevel(configs.LOGGER_LEVEL);
+logger.setLevel(config.get("Logger.level"));
 
 
 function combine(dict, entry) {
@@ -47,11 +47,7 @@ function sortBy(data, keyFunc) {
 }
 
 function groupBy(data, start_time, end_time, duration, max_count, keyFunc) {
-    // console.log("group by start")
-    // console.log(data.length);
     data = sortBy(data, keyFunc);
-    // console.log(data)
-    // console.log(data)
     let ret = [[]];
     let group_index = 0, data_index = 0;
     let window_start = end_time - duration;
@@ -73,12 +69,6 @@ function groupBy(data, start_time, end_time, duration, max_count, keyFunc) {
             }
         }
     }
-
-    // console.log(end_time, window_start, data_index);
-
-    // console.log("group by end")
-
-    // console.log(acc, group_index, data_index);
     return ret;
 }
 
@@ -137,7 +127,7 @@ function groupByDuration(data, now=true, duration=[3600, 86400], curr, keyFunc =
         if (curr) { 
             curr_time_row = curr
         } else {
-            curr_time_raw = new Date(configs.SCRAPE_END_TIME*1000);
+            curr_time_raw = new Date(config.get("Scraper.end_time")*1000);
         }
     }
 
