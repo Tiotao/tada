@@ -21,7 +21,7 @@ export default class Layout extends React.Component {
       selected: [],
       x: "byPosted",
       y: "byViews",
-      time: "3600",
+      time: "86400",
       previewData: ""
     };
 
@@ -66,8 +66,6 @@ export default class Layout extends React.Component {
   addSelectedLabels(id, name, label) {    
     let currSelectedLabels = this.getSelectedLabelIds();
     let isLabelSelected = !label.state.selected;
-
-
 
     if(isLabelSelected) { 
       //If currently selected label report that the label is ALREADY in selection
