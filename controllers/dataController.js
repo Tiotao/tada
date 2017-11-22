@@ -333,7 +333,13 @@ async function getLabels() {
 
 async function cacheLabels() {
     logger.info("start caching")
-    const db = await MongoClient.connect(config.get("Database.url"));
+    console.time("CACHING");
+    const db = await MongoClient.connect(config.get("Database.url"), {
+        connectTimeoutMS: 1000000,
+        socketTimeoutMS: 1000000,
+    });
+    
+    logger.debug("db connected.")
     let label_collection = db.collection(config.get("Database.label_collection"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
     const curr_day = utils.normalizeDay(Math.round((new Date()).getTime() / 1000));
@@ -453,6 +459,8 @@ async function cacheLabels() {
 
     ]).toArray();
 
+    logger.debug("label queried")
+
     labels.map((label)=>{
         let counts;
         if (config.get("Scraper.schedule_scraping")) {
@@ -476,7 +484,7 @@ async function cacheLabels() {
     }
     await cache_collection.insertMany(labels);
     db.close();
-
+    console.timeEnd("CACHING");
     logger.info("finish caching")
 }
 
