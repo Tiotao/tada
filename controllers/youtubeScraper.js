@@ -195,9 +195,7 @@ async function scrape(mentions) {
         }
 
         let videos = await Promise.all(promises);
-
         
-
         videos = utils.combineDuplicates(videos);
 
         // label title

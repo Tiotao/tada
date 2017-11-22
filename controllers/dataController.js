@@ -332,11 +332,12 @@ async function getLabels() {
 }
 
 async function cacheLabels() {
-    logger.info("start cacheing")
+    logger.info("start caching")
     const db = await MongoClient.connect(config.get("Database.url"));
     let label_collection = db.collection(config.get("Database.label_collection"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
-
+    const curr_day = utils.normalizeDay(Math.round((new Date()).getTime() / 1000));
+    const cache_start_time = curr_day - 2592000;
 
     let labels = await label_collection.aggregate([
         {
@@ -351,6 +352,13 @@ async function cacheLabels() {
         },
         {
             $unwind: '$videos'
+        },
+        {
+            $match: {
+                "videos.timestamp": {
+                    $gt: cache_start_time
+                }
+            }
         },
         {
             $unwind: '$videos.content'
@@ -441,11 +449,9 @@ async function cacheLabels() {
                 videos: { $push: "$videos" },
             }
         },
-        { $sort: { 'score': -1 } }
+        { $sort: { 'count': -1 } }
 
-    ]).toArray()
-
-    // labels = [labels[0]];
+    ]).toArray();
 
     labels.map((label)=>{
         let counts;
@@ -455,9 +461,6 @@ async function cacheLabels() {
         } else {
             counts = utils.groupByDay(label.videos, config.get("Scraper.end_time"), 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
         }
-
-        
-
         label.history = counts.reverse();
         return label
     })
