@@ -797,13 +797,6 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
         let groups = utils.groupByDay(videos, end_time, 30, keyFunc);
 
-        // acc = 0
-        // for (let i = 0; i < groups.length; i++) {
-        //     acc += groups[i].length
-        //     console.log(groups[i].length);
-        // }
-        // console.log("acc", acc);
-
         groups = groups.map((by_day, index)=>{
             let combine = [by_day]
             let by_hour = utils.groupByHour(by_day, end_time - index*day, 24, keyFunc)
@@ -820,6 +813,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
                     const vid = v._id.toString();
                     if (!(vid in result)) {
                         result[vid] = {
+                            "heatmap": [v.stats.heatmap.view, v.stats.heatmap.vl_ratio],
                             "3600": [null, null, null, null],
                             "86400": [null, null, null, null]
                         }
