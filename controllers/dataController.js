@@ -463,7 +463,7 @@ async function cacheLabels() {
 
     labels.map((label)=>{
         let counts;
-        if (config.get("Scraper.schedule_scraping")) {
+        if (config.get("Scraper.schedule_scraping") || ! config.has("Scraper.end_time")) {
             const now = utils.normalizeDay(Date.now()/1000)+86400;
             counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
         } else {
@@ -800,7 +800,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
         const day = 86400;
 
-        if (config.get("Scraper.schedule_scraping")) {
+        if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
             end_time = new Date() / 1000;
         }
 
