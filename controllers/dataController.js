@@ -332,11 +332,18 @@ async function getLabels() {
 }
 
 async function cacheLabels() {
-    logger.info("start cacheing")
-    const db = await MongoClient.connect(config.get("Database.url"));
+    logger.info("start caching")
+    console.time("CACHING");
+    const db = await MongoClient.connect(config.get("Database.url"), {
+        connectTimeoutMS: 1000000,
+        socketTimeoutMS: 1000000,
+    });
+    
+    logger.debug("db connected.")
     let label_collection = db.collection(config.get("Database.label_collection"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
-
+    const curr_day = utils.normalizeDay(Math.round((new Date()).getTime() / 1000));
+    const cache_start_time = curr_day - 2592000;
 
     let labels = await label_collection.aggregate([
         {
@@ -351,6 +358,13 @@ async function cacheLabels() {
         },
         {
             $unwind: '$videos'
+        },
+        {
+            $match: {
+                "videos.timestamp": {
+                    $gt: cache_start_time
+                }
+            }
         },
         {
             $unwind: '$videos.content'
@@ -441,23 +455,20 @@ async function cacheLabels() {
                 videos: { $push: "$videos" },
             }
         },
-        { $sort: { 'score': -1 } }
+        { $sort: { 'count': -1 } }
 
-    ]).toArray()
+    ]).toArray();
 
-    // labels = [labels[0]];
+    logger.debug("label queried")
 
     labels.map((label)=>{
         let counts;
-        if (config.get("Scraper.schedule_scraping")) {
+        if (config.get("Scraper.schedule_scraping") || ! config.has("Scraper.end_time")) {
             const now = utils.normalizeDay(Date.now()/1000)+86400;
             counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
         } else {
             counts = utils.groupByDay(label.videos, config.get("Scraper.end_time"), 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
         }
-
-        
-
         label.history = counts.reverse();
         return label
     })
@@ -473,7 +484,7 @@ async function cacheLabels() {
     }
     await cache_collection.insertMany(labels);
     db.close();
-
+    console.timeEnd("CACHING");
     logger.info("finish caching")
 }
 
@@ -789,20 +800,13 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
         const day = 86400;
 
-        if (config.get("Scraper.schedule_scraping")) {
+        if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
             end_time = new Date() / 1000;
         }
 
         end_time = utils.normalizeDay(end_time) + day;
 
         let groups = utils.groupByDay(videos, end_time, 30, keyFunc);
-
-        // acc = 0
-        // for (let i = 0; i < groups.length; i++) {
-        //     acc += groups[i].length
-        //     console.log(groups[i].length);
-        // }
-        // console.log("acc", acc);
 
         groups = groups.map((by_day, index)=>{
             let combine = [by_day]
@@ -820,6 +824,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
                     const vid = v._id.toString();
                     if (!(vid in result)) {
                         result[vid] = {
+                            "heatmap": [v.stats.heatmap.view, v.stats.heatmap.vl_ratio],
                             "3600": [null, null, null, null],
                             "86400": [null, null, null, null]
                         }

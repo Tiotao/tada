@@ -130,9 +130,8 @@ async function updateYouTubeLatestMention(tweets) {
     await youtubeScraper.scheduleScraping({mentions: mentions_dict, ids: new_video_ids})
 
     // console.log(new_video_ids)
-
+    db.close();
     logger.log(`${updated_entry.length} video entries updated, ${new_video_ids.length} not found. Created`);
-
 }
 
 async function scrape() {

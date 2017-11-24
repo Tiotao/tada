@@ -45,17 +45,31 @@ logger.debug(JSON.stringify(config, null, 2));
 if (config.get("Scraper.schedule_scraping")) {
     logger.debug("schedule jobs");
     schedule.scheduleJob(config.get("Scraper.content_freq"), async () => {
-        logger.log("Scraping New Videos...");
+        logger.info("Scraping New Videos...");
         await youtubeScraper.scheduleScraping();
-        logger.log("Monitering Twitter Mentions...");
+        logger.info("Monitering Twitter Mentions...");
         await twitterScraper.scrape();
-        logger.log("Scrapping Completed. Caching...");
+        logger.info("Scrapping Completed. Caching...");
         await dataController.cacheLabels();
-        logger.log("Caching Completed.");
+        logger.info("Caching Completed.");
         await youtubeScraper.scrapeStats();
-        logger.log("Stats Update Completed.");
+        logger.info("Stats Update Completed.");
     });
 }
+
+async function once() {
+    // logger.info("Scraping New Videos...");
+    // await youtubeScraper.scheduleScraping();
+    // logger.info("Monitering Twitter Mentions...");
+    // await twitterScraper.scrape();
+    // logger.info("Scrapping Completed. Caching...");
+    // await dataController.cacheLabels();
+    // logger.info("Caching Completed.");
+    // await youtubeScraper.scrapeStats();
+    // logger.info("Stats Update Completed.");
+}
+
+once();
 
 
 console.log('Magic happens on ' + port);
