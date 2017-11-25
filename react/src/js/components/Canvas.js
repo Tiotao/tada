@@ -195,9 +195,44 @@ export default class Canvas extends React.Component {
 		  	})
 			}
 		}
+
+		var box = new PIXI.Container();
+		var dot = new PIXI.Graphics();
+		box.x = document.getElementById("canvas").childNodes[0].clientWidth / 2;
+		box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+		box.pivot.x = box.width / 2;
+    box.pivot.y = box.height / 2 + 40; //margin bottom
+    box.index = index;
+
+    box.addChild(dot);
+    dot.beginFill(12369084);
+    dot.drawCircle(0, 0, 20);
+
+    dot.interactive = true;
+    dot.buttonMode = true;
+
+    var meta = new PIXI.Text((30-index-1) + " days ago");
+    meta.style = {fontSize: "16px", fill: "white"};
+    meta.x = 30;
+    meta.y = -5;
+    box.addChild(meta);
+
+    dot
+      .on('pointerdown', onButtonDown)
+
+    var _this = this;
+    function onButtonDown() {
+  		_this.timeScale = '86400';
+  		_this.currentDay = null;
+  		_this.handleVideoPosition();
+	  }
+
+    this.stage.addChild(box);
   }
 
 	handleVideoPosition() {
+		this.stage.destroy();
+		this.stage = new PIXI.Container();
 
 		var xState = this.props.x;
 		var yState = this.props.y;
