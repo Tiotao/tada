@@ -37,6 +37,7 @@ export default class Layout extends React.Component {
   componentDidMount() {
     axios.get('/api/labels')
       .then(res => {
+        console.log(res.data)
         this.setState({
           labels : res.data.data.slice(0,80)
         })
@@ -48,6 +49,7 @@ export default class Layout extends React.Component {
         })
       })
       .then(response => {
+        console.log(response.data);
         this.setState({
           videos : response.data
         })

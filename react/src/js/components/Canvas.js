@@ -34,31 +34,38 @@ export default class Canvas extends React.Component {
 	}
 
 	parseData(data) {
-    console.log(data);
+		console.log(data);
 
-    let buckets = new Array(30);
-    for(var i = 0; i < 30; i++) {
-      buckets[i] = new Array();
-    }
+		let buckets = new Array(30);
+		for(var i = 0; i < 30; i++) {
+			buckets[i] = new Array();
+		}
 
-    console.log(buckets)
-    let positions = data.positions;
+		console.log(buckets)
+		let positions = data.positions;
 
-    for(var video in positions) {
-      let x;
-      if(positions[video]['86400'][0]) {
-        x = positions[video]['86400'][0][0];
-        buckets[x].push(video);
-      }
-    }
-    var _this = this;
+		for(var video in positions) {
+			let x, y;
+			if(positions[video]['86400'][0]) {
+				x = positions[video]['86400'][0][0];
+				buckets[x].push(video);
+			}
+		}
+		var _this = this;
 
-    buckets.forEach(function(bucket, index) {
-      if(bucket.length > 10) {
-      	_this.drawBigDot(index)
-      }
-    })
-  }
+		buckets.forEach(function(bucket, index) {
+			if(bucket.length > 10) {
+				_this.drawBigDot(index)
+				var showCount = bucket.length%10;
+				var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
+				console.log(show)
+				for(var i=0; i<showCount; i++) {
+					var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+					_this.drawDot(index, i+1, show[i], canvasHeight);
+				}
+			}
+		})
+	}
 
   drawBigDot(x) {
   	var dotMarginX = window.screen.width / 30;
@@ -148,7 +155,7 @@ export default class Canvas extends React.Component {
 	drawDot(x, y, id, canvasHeight) {
 		
 		var dotMarginX = window.screen.width / 30;
-		var dotMarginY = 20;
+		var dotMarginY = 40;
 		
 		var box = new PIXI.Container();
 		var dot = new PIXI.Graphics();
@@ -166,7 +173,7 @@ export default class Canvas extends React.Component {
     box.addChild(dot);
     // dot.beginFill(3093046);
     dot.beginFill(12369084);
-    dot.drawCircle(0, 0, 5);
+    dot.drawCircle(0, 0, 10);
 
     dot.interactive = true;
     dot.buttonMode = true;
