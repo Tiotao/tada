@@ -934,8 +934,8 @@ async function getFilterGraph() {
     logger.info("finish caching")
 
     const ret = {
-        view: view_count_group,
-        vl_ratio: view_like_group
+        view: view_count_group.reverse(),
+        vl_ratio: view_like_group.reverse(),
     }
 
     return ret
