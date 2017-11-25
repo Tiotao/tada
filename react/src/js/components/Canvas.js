@@ -19,6 +19,7 @@ export default class Canvas extends React.Component {
 		this.drawDot = this.drawDot.bind(this);
 		this.parseData = this.parseData.bind(this);
 		this.drawBigDot = this.drawBigDot.bind(this);
+		this.drawXLabel = this.drawXLabel.bind(this);
 	}
 
 	componentDidUpdate() {
@@ -54,17 +55,40 @@ export default class Canvas extends React.Component {
 		var _this = this;
 
 		buckets.forEach(function(bucket, index) {
+			var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+
+			_this.drawXLabel(index, canvasHeight);
 			if(bucket.length > 10) {
 				_this.drawBigDot(index)
 				var showCount = bucket.length%10;
 				var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-				console.log(show)
 				for(var i=0; i<showCount; i++) {
-					var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
-					_this.drawDot(index, i+1, show[i], canvasHeight);
+					_this.drawDot(index, i+2, show[i], canvasHeight);
 				}
 			}
 		})
+	}
+
+	drawXLabel(x, canvasHeight) {
+		var dotMarginX = window.screen.width / 30;
+		var labelText = new PIXI.Text();
+		if(x == 29) {
+			labelText.text = "Today";
+		}
+		else if(x == 22) {
+			labelText.text = "1 week ago";
+		}
+		else if(x == 0) {
+			labelText.text = "1 month ago";
+		}
+		else {
+			labelText.text = (30-x-1)+" d";
+		}
+		labelText.style = {fontSize:"15px", fill:"white"};
+		labelText.x = x * dotMarginX + 100;
+		labelText.y = canvasHeight - 20;
+		labelText.rotation = 0.5;
+		this.stage.addChild(labelText);
 	}
 
   drawBigDot(x) {
@@ -72,10 +96,10 @@ export default class Canvas extends React.Component {
 		
 		var box = new PIXI.Container();
 		var dot = new PIXI.Graphics();
-		box.x = x * dotMarginX + 150;
+		box.x = x * dotMarginX + 100;
 		box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
 		box.pivot.x = box.width / 2;
-    box.pivot.y = box.height / 2;
+    box.pivot.y = box.height / 2 + 40; //margin bottom
     box.index = x;
 
     box.addChild(dot);
@@ -159,7 +183,7 @@ export default class Canvas extends React.Component {
 		
 		var box = new PIXI.Container();
 		var dot = new PIXI.Graphics();
-		box.x = x * dotMarginX + 150;
+		box.x = x * dotMarginX + 100;
 		// box.y = - pos[i][1] * dotMargin + canvasHeight;
 		box.y = this.random();
 		box.pivot.x = box.width / 2;
