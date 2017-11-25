@@ -182,7 +182,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "day",
-                videos: utils.groupByDuration(videos, config.get("Scraper.schedule_scraping"), (3600*24, config.get("Scraper.max_time_range"))).map((d)=>{return d.length})
+                videos: utils.groupByDuration(videos, !config.has("Scraper.end_time"), (3600*24, config.get("Scraper.max_time_range"))).map((d)=>{return d.length})
             }
         }
     } else {
@@ -342,7 +342,12 @@ async function cacheLabels() {
     logger.debug("db connected.")
     let label_collection = db.collection(config.get("Database.label_collection"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
-    const curr_day = utils.normalizeDay(Math.round((new Date()).getTime() / 1000));
+    let curr_day;
+    if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
+        curr_day = utils.normalizeDay(Date.now()/1000)+86400;
+    } else {
+        curr_day = utils.normalizeDay(config.get("Scraper.end_time"));
+    }
     const cache_start_time = curr_day - 2592000;
 
     let labels = await label_collection.aggregate([
@@ -462,13 +467,13 @@ async function cacheLabels() {
     logger.debug("label queried")
 
     labels.map((label)=>{
-        let counts;
+        let now;
         if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
-            const now = utils.normalizeDay(Date.now()/1000)+86400;
-            counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+            now = utils.normalizeDay(Date.now()/1000)+86400;
         } else {
-            counts = utils.groupByDay(label.videos, config.get("Scraper.end_time"), 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
+            now = config.get("Scraper.end_time")
         }
+        const counts = utils.groupByDay(label.videos, now, 30, (d)=>{return d.timestamp}).map((d)=>{return d.length});
         label.history = counts.reverse();
         return label
     })
@@ -889,6 +894,54 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     return ret
 }
 
+async function getFilterGraph() {
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
+    
+    logger.debug("db connected.")
+
+    let curr_day;
+    if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
+        curr_day = utils.normalizeDay(Date.now()/1000)+86400;
+    } else {
+        curr_day = utils.normalizeDay(config.get("Scraper.end_time"));
+    }
+
+    const cache_start_time = curr_day - 2592000;
+    // console.log(cache_start_time);
+    
+    let videos = await video_collection.aggregate([
+        {
+            $match: {
+                "timestamp": {
+                    $gt: cache_start_time
+                }
+            }
+        }, 
+        {
+            $project: {
+                "stats.view_count": 1,
+                "stats.vl_ratio": 1
+            }
+        }
+    ]).toArray();
+
+    let view_like_group = utils.groupByViewLikeRatio(videos).map((group)=>{ return group.length;});
+
+    let view_count_group = utils.groupByViewCount(videos).map((group)=>{ return group.length;});
+
+    db.close();
+    logger.info("finish caching")
+
+    const ret = {
+        view: view_count_group,
+        vl_ratio: view_like_group
+    }
+
+    return ret
+
+}
+
 module.exports = {
 
     getOneLabel: async (req, res) => {
@@ -903,6 +956,11 @@ module.exports = {
 
     getLabels: async (req, res) => {
         const ret = await getLabels()
+        res.send(ret);
+    },
+
+    getFilterGraph: async(req, res) => {
+        const ret = await getFilterGraph()
         res.send(ret);
     },
 

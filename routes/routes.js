@@ -18,6 +18,7 @@ api.route('/filter').post(dataCtrl.graphQuery);
 
 api.route('/scrape_stats').get(youtubeScraper.scrapeStatsAPI);
 
+api.route('/graph').get(dataCtrl.getFilterGraph);
 
 var view = express.Router();
 

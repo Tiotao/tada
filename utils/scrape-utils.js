@@ -46,6 +46,8 @@ function sortBy(data, keyFunc) {
     return data;
 }
 
+
+
 function groupBy(data, start_time, end_time, duration, max_count, keyFunc) {
     data = sortBy(data, keyFunc);
     let ret = [[]];
@@ -79,6 +81,18 @@ function normalizeDay(time) {
     normalized_time.setUTCSeconds(0);
     normalized_time.setUTCMilliseconds(0);
     return normalized_time / 1000
+}
+
+function groupByViewLikeRatio(data) {
+    return groupBy(data, 0, 1, 0.01, 100, (d)=>{
+        return d.stats.vl_ratio
+    })
+}
+
+function groupByViewCount(data) {
+    return groupBy(data, 0, 1, 0.01, 100, (d)=>{
+        // console.log(Math.log10(Math.max(1, d.stats.view_count))/10)
+        return Math.min(1, Math.log10(Math.max(1, d.stats.view_count))/10);})
 }
 
 function groupByDay(data, end_time, max_count, keyFunc = (d)=>{return d.timestamp}) {
@@ -162,6 +176,13 @@ function groupByDuration(data, now=true, duration=[3600, 86400], curr, keyFunc =
     return ret;
 }
 
+function calculateHeatmapLevel(view_count, vl_ratio) {
+    const view_level = Math.min(5, Math.floor(Math.log10(Math.max(1, view_count))));
+    const vlr_level = Math.min(5, Math.floor(1/(Math.log(vl_ratio)/Math.log(0.3))*5));
+    return [view_level, vlr_level]
+}
+
+
 
 module.exports = {
     combineDuplicates: combineDuplicates,
@@ -169,6 +190,9 @@ module.exports = {
     groupByDuration: groupByDuration,
     groupByDay: groupByDay,
     groupByHour: groupByHour,
-    normalizeDay: normalizeDay
+    groupByViewLikeRatio: groupByViewLikeRatio,
+    groupByViewCount: groupByViewCount,
+    normalizeDay: normalizeDay,
+    calculateHeatmapLevel: calculateHeatmapLevel
 }
 

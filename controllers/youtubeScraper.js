@@ -18,13 +18,6 @@ const utils = require('../utils/scrape-utils');
 const natural = require('natural');
 const parallel = require('async-await-parallel');
 
-function calculateHeatmapLevel(view_count, vl_ratio) {
-    const view_level = Math.min(5, Math.floor(Math.log10(Math.max(1, view_count))));
-    const vlr_level = Math.min(5, Math.floor(1/(Math.log(vl_ratio)/Math.log(0.3))*5));
-    return [view_level, vlr_level]
-}
-
-
 async function getListOfVideos(query, method) {
     logger.info('labelling', 'recent', 'posts from:', query);
 
@@ -53,7 +46,7 @@ async function getListOfVideos(query, method) {
                 vl_ratio = 0;
             }
 
-            const heatmap_level = calculateHeatmapLevel(video.statistics.viewCount, vl_ratio);
+            const heatmap_level = utils.calculateHeatmapLevel(video.statistics.viewCount, vl_ratio);
 
             formatted_video.stats = {
                 "view_count": parseInt(video.statistics.viewCount),
@@ -91,7 +84,7 @@ async function getListOfVideos(query, method) {
             vl_ratio = 0;
         }
 
-        const heatmap_level = calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
+        const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
 
         dict[vs.id].stats =  {
             "view_count": parseInt(vs.statistics.viewCount),
@@ -323,7 +316,7 @@ async function scrapeStats(query_videos) {
         let update_promises = video_stats.map((vs) => {
             return async() => {
                 let vl_ratio = vs.statistics.likeCount / vs.statistics.viewCount;
-                const heatmap_level = calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
+                const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
                 if (!vl_ratio) {
                     vl_ratio = 0;
                 }
