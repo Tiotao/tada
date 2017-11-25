@@ -21,7 +21,7 @@ export default class Layout extends React.Component {
       selected: [],
       x: "byPosted",
       y: "byViews",
-      time: "3600",
+      time: "86400",
       previewData: ""
     };
 
@@ -37,6 +37,7 @@ export default class Layout extends React.Component {
   componentDidMount() {
     axios.get('/api/labels')
       .then(res => {
+        console.log(res.data)
         this.setState({
           labels : res.data.data.slice(0,80)
         })
@@ -48,6 +49,7 @@ export default class Layout extends React.Component {
         })
       })
       .then(response => {
+        console.log(response.data);
         this.setState({
           videos : response.data
         })
@@ -66,8 +68,6 @@ export default class Layout extends React.Component {
   addSelectedLabels(id, name, label) {    
     let currSelectedLabels = this.getSelectedLabelIds();
     let isLabelSelected = !label.state.selected;
-
-
 
     if(isLabelSelected) { 
       //If currently selected label report that the label is ALREADY in selection
@@ -127,8 +127,6 @@ export default class Layout extends React.Component {
 
   handlePreviewUpdate(data) {
     this.previewData = data;
-    console.log(data)
-    // return data;
     this.setState({
       previewData: data
     })

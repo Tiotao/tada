@@ -8,7 +8,7 @@ export default class Switches extends React.Component {
 		this.state = {
 			x: "byPosted",
 			y: "byViews",
-			time: "3600"
+			time: "86400"
 		}
 
 		this.handleSwitchX = this.handleSwitchX.bind(this);
@@ -73,11 +73,6 @@ export default class Switches extends React.Component {
 					<h1 class="SwitchTitleY" data="byViews">Y</h1>
 					<button type="button" id="byViews" class="Switch active" onClick={this.handleSwitchY}>By views</button>
 					<button type="button" id="byLikes" class="Switch" onClick={this.handleSwitchY}>By likes</button>
-				</div>
-				<div class="SwitchTimeline">
-					<button type="button" id="3600" class="Switch active" onClick={this.handleSwitchTime}>Every 1 h</button>
-					<button type="button" id="21600" class="Switch" onClick={this.handleSwitchTime}>Every 6 h</button>
-					<button type="button" id="43200" class="Switch" onClick={this.handleSwitchTime}>Every 12 h</button>
 				</div>
 			</div>
 		);
