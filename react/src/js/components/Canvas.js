@@ -10,6 +10,9 @@ export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
 
+		this.timeScale = '86400';
+		this.currentDay = null;
+
 		this.videoData = "";
 		this.previewData = "";
 
@@ -25,12 +28,16 @@ export default class Canvas extends React.Component {
 
 	componentDidUpdate() {
 		if(this.props.videos) {
-			this.parseData(this.props.videos)
+			if(this.timeScale == '86400') {
+				this.parseData(this.props.videos)
+			}
+			else {
+				this.handleDayView(this.currentDay);
+			}
 		}
 	}
 
 	parseData(data) {
-		console.log("asdfasdfsdf",data.positions)
 		let buckets0 = new Array(30),
 			buckets1 = new Array(30),
 			buckets2 = new Array(30),
@@ -125,7 +132,8 @@ export default class Canvas extends React.Component {
 
     var _this = this;
     function onButtonDown() {
-  		var stage = this.parent.parent;
+  		_this.timeScale = '3600';
+  		_this.currentDay = this.parent.index;
   		_this.handleDayView(this.parent.index)
 	  }
 
@@ -138,14 +146,47 @@ export default class Canvas extends React.Component {
 		this.stage = new PIXI.Container();
 
   	var positions = this.props.videos.positions;
-  	console.log(index)
-  	console.log(this.buckets0[index])
-  	var _this = this;
-  	this.buckets0[index].forEach(function(videoID, i) {
-  		var x = positions[videoID]['3600'][0][0];
-  		var y = positions[videoID]['3600'][0][1];
-  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
-  	})
+
+  	var xState = this.props.x;
+		var yState = this.props.y;
+		var _this = this;
+
+		if(xState == 'byPosted') {
+			if(yState == 'byViews') {
+				console.log("by posted, by views")
+				this.buckets0[index].forEach(function(videoID, i) {
+		  		var x = positions[videoID]['3600'][0][0];
+		  		var y = positions[videoID]['3600'][0][1];
+		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+		  	})
+			}
+			else {
+				console.log("by posted, by likes")
+				this.buckets1[index].forEach(function(videoID, i) {
+		  		var x = positions[videoID]['3600'][1][0];
+		  		var y = positions[videoID]['3600'][1][1];
+		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+		  	})
+			}
+		}
+		else {
+			if(yState == 'byViews') {
+				console.log("by mentioned, by views")
+				this.buckets2[index].forEach(function(videoID, i) {
+		  		var x = positions[videoID]['3600'][2][0];
+		  		var y = positions[videoID]['3600'][2][1];
+		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+		  	})
+			}
+			else {
+				console.log("by mentioned, by likes")
+				this.buckets3[index].forEach(function(videoID, i) {
+		  		var x = positions[videoID]['3600'][3][0];
+		  		var y = positions[videoID]['3600'][3][1];
+		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+		  	})
+			}
+		}
   }
 
 	handleVideoPosition() {

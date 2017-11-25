@@ -74,10 +74,6 @@ export default class Switches extends React.Component {
 					<button type="button" id="byViews" class="Switch active" onClick={this.handleSwitchY}>By views</button>
 					<button type="button" id="byLikes" class="Switch" onClick={this.handleSwitchY}>By likes</button>
 				</div>
-				<div class="SwitchTimeline">
-					<button type="button" id="3600" class="Switch" onClick={this.handleSwitchTime}>Every 1 h</button>
-					<button type="button" id="86400" class="Switch active" onClick={this.handleSwitchTime}>86400</button>
-				</div>
 			</div>
 		);
 	}

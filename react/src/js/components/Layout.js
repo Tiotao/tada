@@ -127,8 +127,6 @@ export default class Layout extends React.Component {
 
   handlePreviewUpdate(data) {
     this.previewData = data;
-    console.log(data)
-    // return data;
     this.setState({
       previewData: data
     })
