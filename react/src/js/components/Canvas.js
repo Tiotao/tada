@@ -438,6 +438,7 @@ export default class Canvas extends React.Component {
 					  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
 					  $('.VideoCaption').html(data.description);
 
+					  $('.VideoLabels').empty();
 						for(var i = 0; i < data.labels.length; i++) {
 							$('.VideoLabels').append(
 								$('<li>').attr('class', 'VideoLabelsName').append(
