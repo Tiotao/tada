@@ -59,8 +59,9 @@ export default class Canvas extends React.Component {
 
 			_this.drawXLabel(index, canvasHeight);
 			if(bucket.length > 10) {
-				_this.drawBigDot(index)
 				var showCount = bucket.length%10;
+
+				_this.drawBigDot(index, bucket.length-showCount);
 				var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 				for(var i=0; i<showCount; i++) {
 					_this.drawDot(index, i+2, show[i], canvasHeight);
@@ -91,7 +92,7 @@ export default class Canvas extends React.Component {
 		this.stage.addChild(labelText);
 	}
 
-  drawBigDot(x) {
+  drawBigDot(x, count) {
   	var dotMarginX = window.screen.width / 30;
 		
 		var box = new PIXI.Container();
@@ -108,6 +109,12 @@ export default class Canvas extends React.Component {
 
     dot.interactive = true;
     dot.buttonMode = true;
+
+    var hiddenCount = new PIXI.Text(count);
+    hiddenCount.style = {fontSize: "10px", fill: "black"};
+    hiddenCount.x = -5;
+    hiddenCount.y = -5;
+    box.addChild(hiddenCount);
 
     this.stage.addChild(box);
   }
