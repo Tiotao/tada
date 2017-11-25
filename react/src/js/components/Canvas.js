@@ -23,51 +23,53 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidUpdate() {
-		// if(this.props.videos) {
-		// 	var positions = this.props.videos.positions;
-		// 	var videoIDs = Object.keys(positions);
-
-		// 	videoIDs.map(this.handleVideoPosition);
-		// }
 		if(this.props.videos) {
 			this.parseData(this.props.videos)
 		}
 	}
 
 	parseData(data) {
-		console.log(data);
+		console.log("asdfasdfsdf",data.positions)
+		let buckets0 = new Array(30),
+			buckets1 = new Array(30),
+			buckets2 = new Array(30),
+			buckets3 = new Array(30);
 
-		let buckets = new Array(30);
 		for(var i = 0; i < 30; i++) {
-			buckets[i] = new Array();
+			buckets0[i] = new Array();
+			buckets1[i] = new Array();
+			buckets2[i] = new Array();
+			buckets3[i] = new Array();
 		}
 
-		console.log(buckets)
 		let positions = data.positions;
 
 		for(var video in positions) {
 			let x, y;
 			if(positions[video]['86400'][0]) {
 				x = positions[video]['86400'][0][0];
-				buckets[x].push(video);
+				buckets0[x].push(video);
+			}
+			if(positions[video]['86400'][1]) {
+				x = positions[video]['86400'][1][0];
+				buckets1[x].push(video);
+			}
+			if(positions[video]['86400'][2]) {
+				x = positions[video]['86400'][2][0];
+				buckets2[x].push(video);
+			}
+			if(positions[video]['86400'][3]) {
+				x = positions[video]['86400'][3][0];
+				buckets3[x].push(video);
 			}
 		}
-		var _this = this;
 
-		buckets.forEach(function(bucket, index) {
-			var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+		this.buckets0 = buckets0;
+		this.buckets1 = buckets1;
+		this.buckets2 = buckets2;
+		this.buckets3 = buckets3;
 
-			_this.drawXLabel(index, canvasHeight);
-			if(bucket.length > 10) {
-				var showCount = bucket.length%10;
-
-				_this.drawBigDot(index, bucket.length-showCount);
-				var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-				for(var i=0; i<showCount; i++) {
-					_this.drawDot(index, i+2, show[i], canvasHeight);
-				}
-			}
-		})
+		this.handleVideoPosition();
 	}
 
 	drawXLabel(x, canvasHeight) {
@@ -116,21 +118,20 @@ export default class Canvas extends React.Component {
     hiddenCount.y = -5;
     box.addChild(hiddenCount);
 
+    dot
+      .on('pointerdown', onButtonDown)
+      // .on('pointerover', onButtonOver)
+
+    var _this = this;
+    function onButtonDown() {
+  		var stage = this.parent.parent;
+  		alert("show day view")
+	  }
+
     this.stage.addChild(box);
   }
 
-	handleVideoPosition(videoID) {
-		let positions;
-		switch(this.props.time) {
-			case "3600":
-				positions = this.props.videos.positions[videoID]['3600'];
-				break;
-			case "86400":
-				positions = this.props.videos.positions[videoID]['86400'];
-				break;
-			default:
-				positions = this.props.videos.positions[videoID]['86400'];
-		}
+	handleVideoPosition() {
 
 		var xState = this.props.x;
 		var yState = this.props.y;
@@ -139,46 +140,78 @@ export default class Canvas extends React.Component {
 
 		if(xState == 'byPosted') {
 			if(yState == 'byViews') {
-				if(positions[0]) {
-					var x = positions[0][0];
-					var y = positions[0][1];
-					this.drawDot(x, y, videoID, canvasHeight);
-				}
-				else {
-					return;
-				}
+				console.log("by posted, by views")
+				var buckets0 = this.buckets0;
+				var _this = this;
+				buckets0.forEach(function(bucket, index) {
+
+					_this.drawXLabel(index, canvasHeight);
+					if(bucket.length > 10) {
+						var showCount = bucket.length%10;
+
+						_this.drawBigDot(index, bucket.length-showCount);
+						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
+						for(var i=0; i<showCount; i++) {
+							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+				})
 			}
 			else {
-				if(positions[1]) {
-					var x = positions[1][0];
-					var y = positions[1][1];
-					this.drawDot(x, y, videoID, canvasHeight);
-				}
-				else {
-					return;
-				}
+				console.log("by posted, by likes")
+				var buckets1 = this.buckets1;
+				var _this = this;
+				buckets1.forEach(function(bucket, index) {
+
+					_this.drawXLabel(index, canvasHeight);
+					if(bucket.length > 10) {
+						var showCount = bucket.length%10;
+
+						_this.drawBigDot(index, bucket.length-showCount);
+						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
+						for(var i=0; i<showCount; i++) {
+							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+				})
 			}
 		}
 		else {
 			if(yState == 'byViews') {
-				if(positions[2]) {
-					var x = positions[2][0];
-					var y = positions[2][1];
-					this.drawDot(x, y, videoID, canvasHeight);
-				}
-				else {
-					return;
-				}
+				console.log("by mentioned, by views")
+				var buckets2 = this.buckets2;
+				var _this = this;
+				buckets2.forEach(function(bucket, index) {
+
+					_this.drawXLabel(index, canvasHeight);
+					if(bucket.length > 10) {
+						var showCount = bucket.length%10;
+
+						_this.drawBigDot(index, bucket.length-showCount);
+						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
+						for(var i=0; i<showCount; i++) {
+							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+				})
 			}
 			else {
-				if(positions[3]) {
-					var x = positions[3][0];
-					var y = positions[3][1];
-					this.drawDot(x, y, videoID, canvasHeight);
-				}
-				else {
-					return;
-				}
+				console.log("by mentioned, by likes")
+				var buckets3 = this.buckets3;
+				var _this = this;
+				buckets3.forEach(function(bucket, index) {
+
+					_this.drawXLabel(index, canvasHeight);
+					if(bucket.length > 10) {
+						var showCount = bucket.length%10;
+
+						_this.drawBigDot(index, bucket.length-showCount);
+						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
+						for(var i=0; i<showCount; i++) {
+							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+				})
 			}
 		}
 	}
