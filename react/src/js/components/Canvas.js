@@ -155,17 +155,21 @@ export default class Canvas extends React.Component {
 			if(yState == 'byViews') {
 				console.log("by posted, by views")
 				this.buckets0[index].forEach(function(videoID, i) {
-		  		var x = positions[videoID]['3600'][0][0];
-		  		var y = positions[videoID]['3600'][0][1];
-		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					if(positions[videoID]) {
+						var x = positions[videoID]['3600'][0][0];
+			  		var y = positions[videoID]['3600'][0][1];
+			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					}
 		  	})
 			}
 			else {
 				console.log("by posted, by likes")
 				this.buckets1[index].forEach(function(videoID, i) {
-		  		var x = positions[videoID]['3600'][1][0];
-		  		var y = positions[videoID]['3600'][1][1];
-		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					if(positions[videoID]) {
+						var x = positions[videoID]['3600'][1][0];
+			  		var y = positions[videoID]['3600'][1][1];
+			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					}
 		  	})
 			}
 		}
@@ -173,17 +177,21 @@ export default class Canvas extends React.Component {
 			if(yState == 'byViews') {
 				console.log("by mentioned, by views")
 				this.buckets2[index].forEach(function(videoID, i) {
-		  		var x = positions[videoID]['3600'][2][0];
-		  		var y = positions[videoID]['3600'][2][1];
-		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					if(positions[videoID]) {
+						var x = positions[videoID]['3600'][2][0];
+			  		var y = positions[videoID]['3600'][2][1];
+			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					}
 		  	})
 			}
 			else {
 				console.log("by mentioned, by likes")
 				this.buckets3[index].forEach(function(videoID, i) {
-		  		var x = positions[videoID]['3600'][3][0];
-		  		var y = positions[videoID]['3600'][3][1];
-		  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					if(positions[videoID])  {
+						var x = positions[videoID]['3600'][3][0];
+			  		var y = positions[videoID]['3600'][3][1];
+			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+					}
 		  	})
 			}
 		}
