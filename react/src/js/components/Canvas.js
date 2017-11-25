@@ -20,6 +20,7 @@ export default class Canvas extends React.Component {
 		this.parseData = this.parseData.bind(this);
 		this.drawBigDot = this.drawBigDot.bind(this);
 		this.drawXLabel = this.drawXLabel.bind(this);
+		this.handleDayView = this.handleDayView.bind(this);
 	}
 
 	componentDidUpdate() {
@@ -125,10 +126,26 @@ export default class Canvas extends React.Component {
     var _this = this;
     function onButtonDown() {
   		var stage = this.parent.parent;
-  		alert("show day view")
+  		_this.handleDayView(this.parent.index)
 	  }
 
     this.stage.addChild(box);
+  }
+
+  handleDayView(index) {
+  	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+  	this.stage.destroy();
+		this.stage = new PIXI.Container();
+
+  	var positions = this.props.videos.positions;
+  	console.log(index)
+  	console.log(this.buckets0[index])
+  	var _this = this;
+  	this.buckets0[index].forEach(function(videoID, i) {
+  		var x = positions[videoID]['3600'][0][0];
+  		var y = positions[videoID]['3600'][0][1];
+  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+  	})
   }
 
 	handleVideoPosition() {
@@ -155,6 +172,11 @@ export default class Canvas extends React.Component {
 							_this.drawDot(index, i+2, show[i], canvasHeight);
 						}
 					}
+					else {
+						for(var i=0; i<bucket.length; i++) {
+							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+						}
+					}
 				})
 			}
 			else {
@@ -171,6 +193,11 @@ export default class Canvas extends React.Component {
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
 							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+					else {
+						for(var i=0; i<bucket.length; i++) {
+							_this.drawDot(index, i+1, bucket[i], canvasHeight);
 						}
 					}
 				})
@@ -193,6 +220,11 @@ export default class Canvas extends React.Component {
 							_this.drawDot(index, i+2, show[i], canvasHeight);
 						}
 					}
+					else {
+						for(var i=0; i<bucket.length; i++) {
+							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+						}
+					}
 				})
 			}
 			else {
@@ -209,6 +241,11 @@ export default class Canvas extends React.Component {
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
 							_this.drawDot(index, i+2, show[i], canvasHeight);
+						}
+					}
+					else {
+						for(var i=0; i<bucket.length; i++) {
+							_this.drawDot(index, i+1, bucket[i], canvasHeight);
 						}
 					}
 				})
