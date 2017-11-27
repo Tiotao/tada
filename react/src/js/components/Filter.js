@@ -4,6 +4,8 @@ import $ from "jquery";
 export default class Filter extends React.Component {
 	constructor(props) {
 		super();
+
+		this.drawFilterGraph = this.drawFilterGraph.bind(this);
 	}
 
 	componentDidMount() {
@@ -47,9 +49,38 @@ export default class Filter extends React.Component {
 		}
 	}
 
+	drawFilterGraph() {
+		if(this.props.data) {
+			var data = this.props.data;
+
+			var x = []; //x axis
+
+			var strokeWidth = 3;
+			for(var i = 0; i < data.length; i++){
+				let rgb = [59, 86, 130];
+
+				var strokeHeight = data[i]/2;
+				var y = 144 - strokeHeight;
+
+				let styles = {
+					strokeWidth: strokeWidth,
+					stroke: `rgb(${rgb})`
+				}
+
+				x.push(
+					<line key={i}
+	          x1={i*strokeWidth} x2={i*strokeWidth} y1="144" y2={y}
+						style={styles} 
+					/>)
+			}
+			return <svg class="FilterGraph">{x}</svg>
+		}
+	}
+
 	render() {
 		return (
 				<div>
+					<div>{this.drawFilterGraph()}</div>
 					<canvas id={this.props.id} class="FilterCanvas" onMouseDown={this.select}></canvas>
 				</div>
 		);

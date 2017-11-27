@@ -22,7 +22,8 @@ export default class Layout extends React.Component {
       x: "byPosted",
       y: "byViews",
       time: "86400",
-      previewData: ""
+      previewData: "",
+      graph: []
     };
 
     this.previewData = "";
@@ -52,6 +53,16 @@ export default class Layout extends React.Component {
         console.log(response.data);
         this.setState({
           videos : response.data
+        })
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+    axios.get('/api/graph') 
+      .then(res => {
+        this.setState({
+          graph : res.data
         })
       })
       .catch(err => {
@@ -137,7 +148,7 @@ export default class Layout extends React.Component {
       <div class="Layout">
         <Tips />
         <div class="TopbarContainer">
-          <Filters />
+          <Filters graph={this.state.graph}/>
           <LeftBar 
             labels={this.state.labels} 
             addSelectedLabels={this.addSelectedLabels} 
