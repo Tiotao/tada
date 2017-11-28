@@ -89,10 +89,13 @@ function groupByViewLikeRatio(data) {
     })
 }
 
-function groupByViewCount(data) {
+function groupByViewCount(data, max_view) {
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
         // console.log(Math.log10(Math.max(1, d.stats.view_count))/10)
-        return Math.min(1, Math.log10(Math.max(1, d.stats.view_count))/10);})
+        return d.stats.view_count / (max_view / 100);
+        // return Math.min(1, Math.log10(Math.max(1, d.stats.view_count))/10);
+    })
+        
 }
 
 function groupByDay(data, end_time, max_count, keyFunc = (d)=>{return d.timestamp}) {

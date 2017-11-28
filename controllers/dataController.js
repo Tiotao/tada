@@ -342,6 +342,9 @@ async function cacheLabels() {
     logger.debug("db connected.")
     let label_collection = db.collection(config.get("Database.label_collection"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
+    let video_collection = db.collection(config.get("Database.video_collection"));
+    let stats_collection = db.collection(config.get("Database.stats_collection"));
+
     let curr_day;
     if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
         curr_day = utils.normalizeDay(Date.now()/1000)+86400;
@@ -349,6 +352,30 @@ async function cacheLabels() {
         curr_day = utils.normalizeDay(config.get("Scraper.end_time"));
     }
     const cache_start_time = curr_day - 2592000;
+
+    // calculating shared stats.
+
+    logger.info('caching shared stats...')
+
+    let top_view_video = await video_collection.find({
+        "timestamp": {
+            $gt: cache_start_time
+        },
+    }).sort({
+        "stats.view_count": -1
+    }).limit(1).toArray();
+
+    top_view_video = top_view_video[0];
+
+    if (stats_collection) {
+        await stats_collection.remove();
+    }
+
+    await stats_collection.insertOne({
+        max_view: top_view_video.stats.view_count
+    });
+    
+    logger.info('caching individual stats...')
 
     let labels = await label_collection.aggregate([
         {
@@ -700,10 +727,15 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     const db = await MongoClient.connect(config.get("Database.url"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
     let video_collection = db.collection(config.get("Database.video_collection"));
+    let stats_collection = db.collection(config.get("Database.stats_collection"));
 
     if (!view_count_range) {
-        view_count_range = [0, Infinity];
+        view_count_range = [0, 1];
     }
+
+    const max_view = stats_collection.findOne().max_view;
+
+    view_count_range = view_count_range.map((r)=>{return r*max_view});
 
     if (!vl_ratio_range) {
         vl_ratio_range = [0, 1];
@@ -896,9 +928,15 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
 async function getFilterGraph() {
     const db = await MongoClient.connect(config.get("Database.url"));
-    let video_collection = db.collection(config.get("Database.video_collection"));
+    const video_collection = db.collection(config.get("Database.video_collection"));
+    const stats_collection = db.collection(config.get("Database.stats_collection"));
+
+    
     
     logger.debug("db connected.")
+
+    const shared_stats = await stats_collection.find().limit(1).toArray();
+    const max_view = shared_stats[0].max_view;
 
     let curr_day;
     if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
@@ -928,7 +966,7 @@ async function getFilterGraph() {
 
     let view_like_group = utils.groupByViewLikeRatio(videos).map((group)=>{ return group.length;});
 
-    let view_count_group = utils.groupByViewCount(videos).map((group)=>{ return group.length;});
+    let view_count_group = utils.groupByViewCount(videos, max_view).map((group)=>{ return group.length;});
 
     db.close();
     logger.info("finish caching")
@@ -1010,8 +1048,8 @@ module.exports = {
     graphQuery: async(req, res)=>{
 
         const ids = req.body.ids;
-        let view_count_range = req.body.view_count_range;
-        let vl_ratio_range = req.body.like_ratio_range;
+        let view_count_range = req.body.view_count_range / 100.0;
+        let vl_ratio_range = req.body.like_ratio_range / 100.0;
         
         view_count_range = view_count_range.map(parseFloat);
         vl_ratio_range = vl_ratio_range.map(parseFloat);
