@@ -954,8 +954,6 @@ async function getFilterGraph() {
 
     const cache_start_time = curr_day - 2592000;
     
-    console.log(cache_start_time);
-    
     let videos = await video_collection.aggregate([
         {
             $match: {
@@ -971,6 +969,9 @@ async function getFilterGraph() {
             }
         }
     ]).toArray();
+
+    console.log(videos.length);
+    console.log(videos[0]);
 
     let view_like_group = utils.groupByViewLikeRatio(videos).map((group)=>{ return group.length;});
 
