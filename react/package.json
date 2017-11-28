@@ -26,6 +26,7 @@
     "clean-webpack-plugin": "^0.1.17",
     "compass": "^0.1.1",
     "css-loader": "^0.28.7",
+    "fuse.js": "^3.2.0",
     "pixi": "^0.3.1",
     "style-loader": "^0.19.0",
     "uglifyjs-webpack-plugin": "^1.0.1"

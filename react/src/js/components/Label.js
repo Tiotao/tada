@@ -20,8 +20,8 @@ export default class Label extends React.Component {
 
     axios.post('/api/filter', {
 	      "ids": selectedLabelIds,
-	      "view_count_range": ["0", "Infinity"],
-	      "like_ratio_range": ["0", "1"] 
+	      "view_count_range": ["0", "100"],
+	      "like_ratio_range": ["0", "100"] 
     })
     .then(res => {
       this.props.setVideos(res.data);
