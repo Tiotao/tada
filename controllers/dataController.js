@@ -730,16 +730,18 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     let stats_collection = db.collection(config.get("Database.stats_collection"));
 
     if (!view_count_range) {
-        view_count_range = [0, 1];
+        view_count_range = [0, 100];
     }
 
     const max_view = stats_collection.findOne().max_view;
 
-    view_count_range = view_count_range.map((r)=>{return r*max_view});
+    view_count_range = view_count_range.map((r)=>{return r*max_view/100});
 
     if (!vl_ratio_range) {
-        vl_ratio_range = [0, 1];
+        vl_ratio_range = [0, 100];
     }
+
+    vl_ratio_range = vl_ratio_range.map((r)=>{return r/100});
 
     label_ids = label_ids.map((id)=>{return new ObjectId(id)});
 
@@ -1048,8 +1050,8 @@ module.exports = {
     graphQuery: async(req, res)=>{
 
         const ids = req.body.ids;
-        let view_count_range = req.body.view_count_range / 100.0;
-        let vl_ratio_range = req.body.like_ratio_range / 100.0;
+        let view_count_range = req.body.view_count_range;
+        let vl_ratio_range = req.body.like_ratio_range;
         
         view_count_range = view_count_range.map(parseFloat);
         vl_ratio_range = vl_ratio_range.map(parseFloat);

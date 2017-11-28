@@ -62,8 +62,8 @@ async function once() {
     // await youtubeScraper.scheduleScraping();
     // logger.info("Monitering Twitter Mentions...");
     // await twitterScraper.scrape();
-    logger.info("Scrapping Completed. Caching...");
-    await dataController.cacheLabels();
+    // logger.info("Scrapping Completed. Caching...");
+    // await dataController.cacheLabels();
     // logger.info("Caching Completed.");
     // await youtubeScraper.scrapeStats();
     // logger.info("Stats Update Completed.");

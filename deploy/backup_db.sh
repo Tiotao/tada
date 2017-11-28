@@ -15,6 +15,10 @@ echo Copying Label Cache...
 mongoexport -h "$host" -d tada-test -c label_cache -o "$outPath"/label_cache.json
 echo Label Cache Copied
 
+echo Copying Stats...
+mongoexport -h "$host" -d tada-test -c stats -o "$outPath"/stats.json
+echo Stats Copied
+
 echo Copying Meta Labels...
 mongoexport -h "$host" -d tada-test -c meta_label -o "$outPath"/meta_label.json
 echo Meta Labels Copied

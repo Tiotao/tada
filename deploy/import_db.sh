@@ -16,6 +16,10 @@ echo Copying Label Cache...
 mongoimport -h "$host" -d tada-test -c label_cache --file "$inPath"/label_cache.json --mode upsert
 echo Label Cache Copied
 
+echo Copying Stats...
+mongoimport -h "$host" -d tada-test -c stats --file "$inPath"/stats.json --mode upsert
+echo Stats Copied
+
 echo Copying Meta Labels...
 mongoimport -h "$host" -d tada-test -c meta_label --file "$inPath"/meta_label.json --mode upsert
 echo Meta Labels Copied
