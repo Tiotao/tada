@@ -45,6 +45,7 @@ export default class Layout extends React.Component {
   componentDidMount() {
     axios.get('/api/labels')
       .then(res => {
+        console.log(res.data.data)
         this.setState({
           labels : res.data.data.slice(0,80)
         })
@@ -231,7 +232,6 @@ export default class Layout extends React.Component {
           <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
         </div>
         <div class="FooterContainer">
-          <Timeline />
           <div class="FooterSwitch">
             <Switches handleSwitch={this.handleSwitch} />
           </div>

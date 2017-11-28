@@ -395,10 +395,8 @@ export default class Canvas extends React.Component {
 					var canvasPosition = new PIXI.Point(left, top);
 					var elementPostion = this.parent.toGlobal(canvasPosition);
 
-					var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
-
 					$('.Preview').removeClass("hidden");
-					$('.Preview').css("left", elementPostion.x + sliderMove - (2000-window.screen.width));
+					$('.Preview').css("left", elementPostion.x - (2000-window.screen.width));
 					$('.Preview').css("top", elementPostion.y);
 					$('.PreviewImg').attr("src", previewData.href);
 					$('.PreviewTitle').html(previewData.title);
