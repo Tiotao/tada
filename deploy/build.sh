@@ -7,6 +7,7 @@ echo stopping server...
 forever stop server.js
 
 echo pulling the latest version...
+git checkout --force
 git pull origin master
 npm install
 
