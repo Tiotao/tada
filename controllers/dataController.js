@@ -325,7 +325,16 @@ async function getLabels() {
             "sorted_by": "popularity",
             "label_count": labels.length,
         },
-        data: labels
+        data: _.sortBy(labels, (l)=>{return _.reduce(l.history, (memo, num, id)=>{
+            let add;
+            // if (id >= 20) {
+            //     add = num
+            // } else {
+            //     add = 0
+            // }
+            add = num
+            return memo - add;
+        })})
     }
 
     return ret;
