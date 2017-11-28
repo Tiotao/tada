@@ -21,15 +21,33 @@ export default class Filter extends React.Component {
 
 		rect.h = $('.FilterLeft').height();
 
+		var _this = this;
+
 		function mouseDown(e) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			rect.startX = e.pageX - this.getBoundingClientRect().x;
 			rect.startY = this.getBoundingClientRect().y - this.getBoundingClientRect().top;
 			drag = true;
+			//first value of selection
+			_this.startFilter = Math.floor((e.pageX - this.getBoundingClientRect().x) /3);
 		}
 
 		function mouseUp(e) {
 			drag = false;
+
+			//second value of selection
+			var endFilter = Math.floor((e.pageX - this.getBoundingClientRect().x) /3);
+
+			//won't update if selection area is empty
+			if(endFilter != _this.startFilter) {
+				_this.endFilter = endFilter;
+				if(_this.endFilter < _this.startFilter) {
+					var temp = _this.endFilter;
+					_this.endFilter = _this.startFilter;
+					_this.startFilter = temp;
+				}
+				_this.props.handleUpdate(this.id, _this.startFilter, _this.endFilter);
+			}
 		}
 
 		function mouseMove(e) {
@@ -68,7 +86,7 @@ export default class Filter extends React.Component {
 				}
 
 				x.push(
-					<line key={i}
+					<line key={i} id={i}
 	          x1={i*strokeWidth} x2={i*strokeWidth} y1="144" y2={y}
 						style={styles} 
 					/>)

@@ -23,8 +23,13 @@ export default class Layout extends React.Component {
       y: "byViews",
       time: "86400",
       previewData: "",
-      graph: []
+      graph: [],
+      view: [0,100],
+      vl_ratio: [0,100]
     };
+
+    this.view = [0,100];
+    this.vl_ratio = [0,100];
 
     this.previewData = "";
     this.setVideos = this.setVideos.bind(this);
@@ -33,6 +38,7 @@ export default class Layout extends React.Component {
     this.removeSelectedLabel = this.removeSelectedLabel.bind(this);
     this.handleSwitch = this.handleSwitch.bind(this);
     this.handlePreviewUpdate = this.handlePreviewUpdate.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
   }
 
   componentDidMount() {
@@ -45,8 +51,8 @@ export default class Layout extends React.Component {
 
         return axios.post('/api/filter', {
           "ids": [],
-          "view_count_range": ["0", "Infinity"],
-          "like_ratio_range": ["0", "1"]
+          "view_count_range": this.state.view,
+          "like_ratio_range": this.state.vl_ratio
         })
       })
       .then(response => {
@@ -68,6 +74,34 @@ export default class Layout extends React.Component {
       .catch(err => {
         console.log(err);
       })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.view != prevState.view || 
+      this.state.vl_ratio != prevState.vl_ratio) {
+        axios.get('/api/labels')
+        .then(res => {
+          console.log(res.data)
+          this.setState({
+            labels : res.data.data.slice(0,80)
+          })
+
+          return axios.post('/api/filter', {
+            "ids": [],
+            "view_count_range": this.state.view,
+            "like_ratio_range": this.state.vl_ratio
+          })
+        })
+        .then(response => {
+          console.log(response.data);
+          this.setState({
+            videos : response.data
+          })
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    }
   }
 
   getSelectedLabelIds(){
@@ -143,12 +177,29 @@ export default class Layout extends React.Component {
     })
   }
 
+  updateFilter(filter, start, end) {
+    if(filter == "view") {
+      this.setState({
+        view: [start, end]
+      })
+    }
+    else if(filter == "vl_ratio") {
+      this.setState({
+        vl_ratio: [start, end]
+      })
+    }
+    else {
+      console.log("Can't identify the filter.")
+    }
+    console.log(filter, start, end)
+  }
+
   render() {
     return (
       <div class="Layout">
         <Tips />
         <div class="TopbarContainer">
-          <Filters graph={this.state.graph}/>
+          <Filters graph={this.state.graph} handleUpdate={this.updateFilter}/>
           <LeftBar 
             labels={this.state.labels} 
             addSelectedLabels={this.addSelectedLabels} 

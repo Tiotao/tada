@@ -13,11 +13,17 @@ export default class Filters extends React.Component {
 			<div class="Filters">
 				<h1 class="FiltersHeaderTitle">Filters</h1>
 				<div class="FilterLeft">
-					<Filter id="FilterLeftCanvas" data={this.props.graph.view}/>
+					<Filter 
+						id="view" 
+						data={this.props.graph.view}
+						handleUpdate={this.props.handleUpdate}/>
 					<p class="FilterLabel">View count</p>
 				</div>
 				<div class="FilterRight">
-					<Filter id="FilterRightCanvas" data={this.props.graph.vl_ratio}/>
+					<Filter 
+						id="vl_ratio"
+						data={this.props.graph.vl_ratio}
+						handleUpdate={this.props.handleUpdate}/>
 					<p class="FilterLabel">View/like %</p>
 				</div>
 			</div>
