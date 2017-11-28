@@ -85,6 +85,9 @@ function normalizeDay(time) {
 
 function groupByViewLikeRatio(data) {
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
+        if (!d.stats){
+            console.log(d);
+        }
         return d.stats.vl_ratio
     })
 }
