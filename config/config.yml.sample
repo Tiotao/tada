@@ -10,7 +10,6 @@ Scraper:
   stats_freq: "*/30 * * * *"
   schedule_scraping: true
   start_time: 1507939202
-  end_time: 1509148803
   max_time_range: 2592000
 Logger:
   level: debug

@@ -316,7 +316,7 @@ async function getLabels() {
 
     const labels = await cache_collection.find({
         $query: {},
-        $orderby: { score: -1 }
+        $orderby: { count: -1 }
     }).toArray();
     
 
