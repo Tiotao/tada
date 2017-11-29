@@ -162,7 +162,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][0][0];
 			  		var y = positions[videoID]['3600'][0][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[0];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -172,7 +173,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][1][0];
 			  		var y = positions[videoID]['3600'][1][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[1];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -184,7 +186,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][2][0];
 			  		var y = positions[videoID]['3600'][2][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[0];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -194,7 +197,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID])  {
 						var x = positions[videoID]['3600'][3][0];
 			  		var y = positions[videoID]['3600'][3][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[1];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -257,12 +261,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -280,12 +286,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -305,12 +313,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -328,12 +338,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -341,8 +353,8 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	drawDot(x, y, id, canvasHeight) {
-		
+	drawDot(x, y, id, colorLevel, canvasHeight) {
+
 		var dotMarginX = window.screen.width / 30;
 		var dotMarginY = 40;
 		
@@ -360,8 +372,32 @@ export default class Canvas extends React.Component {
 		tweenY.easing = Tween.outCubic;
 
     box.addChild(dot);
-    // dot.beginFill(3093046);
-    dot.beginFill(12369084);
+
+    var color = [];
+    switch(colorLevel) {
+    	case 0:
+    		color = [250,159,181];
+    		break;
+    	case 1:
+    		color = [247,104,161];
+    		break;
+    	case 2: 
+    		color = [221,52,151];
+    		break;
+    	case 3:
+    		color = [174,1,126];
+    		break;
+    	case 4:
+    		color = [122,1,119];
+    		break;
+    	case 5: 
+    		color = [73,0,106];
+    		break;
+    	defult:
+    		color = [250,159,181];
+    }
+    color = (color[0] << 16) + (color[1] << 8) + (color[2]);
+    dot.beginFill(color);
     dot.drawCircle(0, 0, 10);
 
     dot.interactive = true;
