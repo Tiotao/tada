@@ -316,7 +316,7 @@ async function getLabels() {
 
     const labels = await cache_collection.find({
         $query: {},
-        $orderby: { score: -1 }
+        $orderby: { count: -1 }
     }).toArray();
     
 
@@ -325,7 +325,16 @@ async function getLabels() {
             "sorted_by": "popularity",
             "label_count": labels.length,
         },
-        data: labels
+        data: _.sortBy(labels, (l)=>{return _.reduce(l.history, (memo, num, id)=>{
+            let add;
+            // if (id >= 20) {
+            //     add = num
+            // } else {
+            //     add = 0
+            // }
+            add = num
+            return memo - add;
+        })})
     }
 
     return ret;
@@ -953,7 +962,6 @@ async function getFilterGraph() {
     }
 
     const cache_start_time = curr_day - 2592000;
-    // console.log(cache_start_time);
     
     let videos = await video_collection.aggregate([
         {
@@ -971,9 +979,16 @@ async function getFilterGraph() {
         }
     ]).toArray();
 
+    console.log(videos.length);
+    console.log(videos[0]);
+
     let view_like_group = utils.groupByViewLikeRatio(videos).map((group)=>{ return group.length;});
 
+    console.log('vl_like_group')
+
     let view_count_group = utils.groupByViewCount(videos, max_view).map((group)=>{ return group.length;});
+
+    console.log('vl_c_group')
 
     db.close();
     logger.info("finish caching")

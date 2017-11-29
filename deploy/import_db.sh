@@ -9,21 +9,26 @@ echo "$inPath"
 
 
 echo Copying Labels...
-mongoimport -h "$host" -d tada-test -c label --file "$inPath"/label.json --mode upsert
+mongo "$host"/tada-test --eval 'db.label.drop()'
+mongoimport -h "$host" -d tada-test -c label --file "$inPath"/label.json
 echo Labels Copied
 
 echo Copying Label Cache...
-mongoimport -h "$host" -d tada-test -c label_cache --file "$inPath"/label_cache.json --mode upsert
+mongo "$host"/tada-test --eval 'db.label_cache.drop()'
+mongoimport -h "$host" -d tada-test -c label_cache --file "$inPath"/label_cache.json
 echo Label Cache Copied
 
 echo Copying Stats...
-mongoimport -h "$host" -d tada-test -c stats --file "$inPath"/stats.json --mode upsert
+mongo "$host"/tada-test --eval 'db.stats.drop()'
+mongoimport -h "$host" -d tada-test -c stats --file "$inPath"/stats.json
 echo Stats Copied
 
 echo Copying Meta Labels...
-mongoimport -h "$host" -d tada-test -c meta_label --file "$inPath"/meta_label.json --mode upsert
+mongo "$host"/tada-test --eval 'db.meta_label.drop()'
+mongoimport -h "$host" -d tada-test -c meta_label --file "$inPath"/meta_label.json
 echo Meta Labels Copied
 
 echo Copying Videos...
-mongoimport -h "$host" -d tada-test -c video --file "$inPath"/video.json --mode upsert
+mongo "$host"/tada-test --eval 'db.video.drop()'
+mongoimport -h "$host" -d tada-test -c video --file "$inPath"/video.json
 echo Videos Copied
