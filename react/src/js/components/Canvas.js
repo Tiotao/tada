@@ -473,13 +473,13 @@ export default class Canvas extends React.Component {
 
 					  $('.VideoTitle').attr('href', href).html(data.title);
 					  $('.VideoChannel').html("Posted on " + data.channel);
-					  $('.VideoPostedTime').html("at " + data.timestamp);
+					  $('.VideoPostedTime').html("at " + _this.parseDate(data.timestamp));
 					  $('.VideoView').html("Views: " + data.stats.view_count);
-					  $('.VideoComment').html("Commnets: " + data.stats.comment_count);
+					  $('.VideoComment').html("Comments: " + data.stats.comment_count);
 					  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
 					  $('.VideoLike').html("Likes: " + data.stats.like_count);
 					  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
-					  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
+					  $('.VideoVLRatio').html("Like/view ratio: " + (data.stats.vl_ratio*100).toFixed(1) + "%");
 					  $('.VideoCaption').html(data.description);
 
 					  $('.VideoLabels').empty();
@@ -496,11 +496,19 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      this.height = 8;
-	      this.width = 8;
+	      this.height = 12;
+	      this.width = 12;
 	    }
 
 	    this.stage.addChild(box);
+	}
+
+	parseDate(timestamp) {
+		var date = new Date(timestamp * 1000);
+		var year = date.getFullYear()
+			, month = date.getMonth()
+			, day = date.getDay();
+		return year + "/"+ month + "/" + day
 	}
 
 	componentDidMount() {

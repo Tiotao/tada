@@ -457,6 +457,7 @@ canvas {
 }
 .VideoCaption {
 	font-style: italic;
+	float: left;
 }
 
 .VideoLabels {
