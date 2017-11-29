@@ -267,7 +267,7 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							var colorLevel = _this.props.videos.positions[show[i]].heatmap[0];
 							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
@@ -292,7 +292,7 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							var colorLevel = _this.props.videos.positions[show[i]].heatmap[1];
 							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
@@ -319,7 +319,7 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							var colorLevel = _this.props.videos.positions[show[i]].heatmap[0];
 							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
@@ -344,7 +344,7 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							var colorLevel = _this.props.videos.positions[show[i]].heatmap[1];
 							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
@@ -414,9 +414,6 @@ export default class Canvas extends React.Component {
       .on('pointerover', onButtonOver)
       .on('pointerout', onButtonOut);
 
-    function onButtonDown() {
-    	console.log(this.parent.index)
-    }
     var _this = this;
   	function onButtonOver() {
   		var stage = this.parent.parent;
