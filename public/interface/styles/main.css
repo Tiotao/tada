@@ -211,10 +211,18 @@ button:focus {
 .SearchContainer {
 	position: absolute;
 	top: 10px;
-	right: 30px;
+	right: 110px;
+}
+
+.SearchTitle {
+	color: #333;
+	float: left;
+	margin: 0;
+	margin-right: 20px;
 }
 
 .SearchField {
+	float: left;
 	border-bottom: 1px solid #fff;
 }
 
@@ -411,15 +419,11 @@ canvas {
 .VideoTitle {
 	font-size: 24px;
 	text-decoration: none;
-	color: #70abaf;
-}
-
-.VideoTitle:hover {
-	opacity: 0.5;
+	color: #fff;
 }
 
 .VideoDescription {
-	color: #ababab;
+	color: #fff;
 }
 
 /* look at what you've done.*/
@@ -457,6 +461,12 @@ canvas {
 }
 .VideoCaption {
 	font-style: italic;
+	float: left;
+	color: #ababab;
+}
+
+.VideoLabelsTitle {
+	margin: 0;
 	float: left;
 }
 
@@ -634,66 +644,78 @@ canvas {
 }
 
 .SwitchContainerX {
-	/* position: fixed; */
-	/* bottom: 0;
-	left:; 0; */
-	margin-right: 40px;
-	margin-left: 20px;
-	flex: 0 1 auto;
+	position: relative;
+	display: inline-block;
 }
 
 .SwitchContainerY {
-	/* position: fixed; */
-	/* bottom: 0; */
-	/* left: 400px; */
-	flex: 1;
+	position: relative;
+	display: inline-block;
+	right: 20px;
+	top: -500px;
 }
 
-.SwitchTimeline {
-	/* position: fixed; */
-	/* right: 0;
-	bottom: 0; */
-}
-
-.SwitchTitleX {
-	color: #333;
-	float: left;
+.SwitchXDropdown {
+	background-color: #01579b;
+	width: 180px;
+	color: white;
+	padding: 16px;
 	font-size: 16px;
-	text-transform: uppercase;
-	margin-right: 10px;
+	cursor: pointer;
+	border: none;
+	border-radius: 50px;
 }
 
-.SwitchTitleY {
-	color: #333;
-	float: left;
+.SwitchYDropdown {
+	background-color: #01579b;
+	width: 180px;
+	color: white;
+	padding: 16px;
 	font-size: 16px;
-	text-transform: uppercase;
-	margin-left: 10px;
-	margin-right: 10px;
+	cursor: pointer;
+	border: none;
+	border-radius: 50px;
+}
+
+.DropdownButtons {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 160px;
+	z-index: 1;
+}
+
+.SwitchContainerX > .DropdownButtons {
+	bottom: 50px;
 }
 
 .Switch {
-	/* margin-bottom: 15px; */
-	margin-right: 10px;
-	width: 100px;
-	height: 40px;
-	border-radius: 50px;
-	background-color: #444;
-	color: #fff;
-	float: left;
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+	border: none;
+	background-color: #efefef;
 	cursor: pointer;
-	border: 1px solid #222;
+	width: 100%;
+	text-align: center;
+}
+
+.active {
+	background-color: #999;
+}
+
+.SwitchContainerX:hover .DropdownButtons {
+	display: block;
+}
+
+.SwitchContainerY:hover .DropdownButtons {
+	display: block;
 }
 
 .SwitchContainerX > .Switch {
 	width: 160px;
-}
-
-.active {
-	color: #258632;
-	background-color: #000;
-	cursor: default;
-	border: none;
+	display: inline-block;
 }
 
 #particles-js {
