@@ -99,7 +99,7 @@ export default class Canvas extends React.Component {
 		else {
 			labelText.text = (30-x-1)+" d";
 		}
-		labelText.style = {fontSize:"15px", fill:"white"};
+		labelText.style = {fontSize:"15px", fill:"#333"};
 		labelText.x = x * dotMarginX + 100;
 		labelText.y = canvasHeight - 20;
 		labelText.rotation = 0.5;
@@ -118,15 +118,15 @@ export default class Canvas extends React.Component {
     box.index = x;
 
     box.addChild(dot);
-    dot.beginFill(12369084);
+    dot.beginFill(87963);
     dot.drawCircle(0, 0, 20);
 
     dot.interactive = true;
     dot.buttonMode = true;
 
-    var hiddenCount = new PIXI.Text(count);
-    hiddenCount.style = {fontSize: "10px", fill: "black"};
-    hiddenCount.x = -5;
+    var hiddenCount = new PIXI.Text("+"+count);
+    hiddenCount.style = {fontSize: "10px", fill: "white"};
+    hiddenCount.x = -10;
     hiddenCount.y = -5;
     box.addChild(hiddenCount);
 
@@ -213,17 +213,23 @@ export default class Canvas extends React.Component {
     box.index = index;
 
     box.addChild(dot);
-    dot.beginFill(12369084);
+    dot.beginFill(87963);
     dot.drawCircle(0, 0, 20);
 
     dot.interactive = true;
     dot.buttonMode = true;
 
     var meta = new PIXI.Text((30-index-1) + " days ago");
-    meta.style = {fontSize: "16px", fill: "white"};
+    meta.style = {fontSize: "16px", fill: "#333"};
     meta.x = 30;
     meta.y = -5;
     box.addChild(meta);
+
+    var hiddenCount = new PIXI.Text("Back");
+    hiddenCount.style = {fontSize: "10px", fill: "white"};
+    hiddenCount.x = -10;
+    hiddenCount.y = -5;
+    box.addChild(hiddenCount);
 
     dot
       .on('pointerdown', onButtonDown)

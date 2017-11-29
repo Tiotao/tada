@@ -72,7 +72,7 @@ export default class Switches extends React.Component {
 				<div class="SwitchContainerY">
 					<h1 class="SwitchTitleY" data="byViews">Y</h1>
 					<button type="button" id="byViews" class="Switch active" onClick={this.handleSwitchY}>By views</button>
-					<button type="button" id="byLikes" class="Switch" onClick={this.handleSwitchY}>By likes</button>
+					<button type="button" id="byLikes" class="Switch" onClick={this.handleSwitchY}>By like/view</button>
 				</div>
 			</div>
 		);

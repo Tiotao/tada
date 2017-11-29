@@ -69,11 +69,11 @@ export default class Label extends React.Component {
 		var days = [];
 		var history = this.props.history;
 		var strokeWidth = 5;
-		for(var i = 0; i < history.length; i++){
+		for(var i = 0; i < history.length; i++){                                         
 			let rgb = [];
-			rgb.push(parseInt(Math.log(history[i]+0.1)/5*255));
-			rgb.push(36);
-			rgb.push(52);
+			rgb.push(255-parseInt(Math.log(history[i]+0.1)/4*255));
+			rgb.push(255-parseInt(Math.log(history[i]+0.1)/7*255));
+			rgb.push(255-parseInt(Math.log(history[i]+0.1)/10*255));
 
 			let styles = {
 				strokeWidth: strokeWidth,

@@ -1,7 +1,7 @@
 
 body {
 	font-family: 'Open Sans', sans-serif;
-	background-color: #10181d;
+	background-color: #f5f5f6;
 	margin: 0;
 	height: 100%;
 	overflow: hidden;
@@ -11,8 +11,7 @@ h1 {
 	font-family: 'Montserrat', sans-serif;
 	margin: 0;
 	font-weight: 100;
-	color: #fff;
-	opacity: 0.6;
+	color: #333;
 }
 
 p{
@@ -135,16 +134,16 @@ button:focus {
 }
 
 ::-webkit-scrollbar-track {
-	background-color: #10181d;
+	background-color: #e1e2e1;
 }
 
 ::-webkit-scrollbar {
-	background-color: #10181d;
+	background-color: #e1e2e1;
 	width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #223c4c;
+	background-color: #e1e2e1;
 }
 
 .LeftBarLabel {
@@ -174,7 +173,7 @@ button:focus {
 }
 
 .Selected {
-	background-color: #3d7263;
+	background-color: #999;
 }
 
 .LeftBarLabel:hover {
@@ -195,7 +194,7 @@ button:focus {
 	word-break: break-all;
 	text-transform: uppercase;
 	font-weight: 600;
-	color: #efefef;
+	color: #333;
 	margin: 0px 0px;
 	float: left;
 	/* white-space: nowrap; */
@@ -204,7 +203,7 @@ button:focus {
 .LeftBarLabelCount {
 	position: absolute;
 	right: 0;
-	color: #ababab;
+	color: #333;
 	margin: 0px 0px 0px;
 	font-size: 12px;
 }
@@ -232,7 +231,7 @@ button:focus {
 	position: relative;
 	height: 60px;
 	text-transform: uppercase;
-	background-color: #323f4c;
+	background-color: #01579b;
 	padding: 10px 50px;
 	list-style: none;
 	overflow: auto;
@@ -315,7 +314,7 @@ button:focus {
 canvas {
 	position: absolute;
 	right: 0;
-	padding-top:10px;
+	padding-top:15px;
 }
 
 .Preview {
@@ -341,7 +340,7 @@ canvas {
 	width: 100px;
 	object-fit: cover;
 	border-radius: 100px;
-	border: 10px solid #10181d;
+	border: 10px solid #f5f5f6;
 	float: left;
 }
 
@@ -352,7 +351,7 @@ canvas {
 	color: #fff;
 	padding: 10px;
 	font-size: 12px;
-	border: 10px solid #10181d;
+	border: 10px solid #f5f5f6;
 }
 
 .PreviewTitle {
@@ -568,7 +567,7 @@ canvas {
 .Filters {
 	position: absolute;
 	top: 0;
-	right: 0;
+	right: 20px;
 	width: 500px;
 	height: 300px;
 }
@@ -585,8 +584,9 @@ canvas {
 
 .FilterLabel {
 	font-size: 14px;
-	color: #fff;
-	margin: 0;
+	color: #333;
+	position: absolute;
+	right: 10px;
 }
 
 .FilterLeft {
@@ -612,9 +612,11 @@ canvas {
 }
 
 .FilterGraph {
-	height: 100%;
+	border: 1px solid #333;
+	height: 125px;
 	width: 100%;
 	position: absolute;
+	top: 10px;
 	stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
 	animation: draw 3s ease-out 1s 1 forwards;
@@ -653,7 +655,7 @@ canvas {
 }
 
 .SwitchTitleX {
-	color: #aaa;
+	color: #333;
 	float: left;
 	font-size: 16px;
 	text-transform: uppercase;
@@ -661,7 +663,7 @@ canvas {
 }
 
 .SwitchTitleY {
-	color: #aaa;
+	color: #333;
 	float: left;
 	font-size: 16px;
 	text-transform: uppercase;
@@ -717,7 +719,7 @@ canvas {
 	top: 0;
 	-webkit-transition: top 0.2s; /* Safari */
   transition: top 0.2s;
-  background-color: #10181d;
+  background-color: #e1e2e1;
 }
 
 .Layout .CenterContainer {
