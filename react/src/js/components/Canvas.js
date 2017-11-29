@@ -442,7 +442,15 @@ export default class Canvas extends React.Component {
 					var elementPostion = this.parent.toGlobal(canvasPosition);
 
 					$('.Preview').removeClass("hidden");
-					$('.Preview').css("left", elementPostion.x - (2000-window.screen.width));
+					if(x == 0) {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) + 100);
+					}
+					else if(x >= 27) {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 200);
+					}
+					else {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 20);
+					}
 					$('.Preview').css("top", elementPostion.y);
 					$('.PreviewImg').attr("src", previewData.href);
 					$('.PreviewTitle').html(previewData.title);
@@ -558,6 +566,12 @@ export default class Canvas extends React.Component {
 		return (
 			<div>
 				<h1 class="CanvasHeaderTitle">Videos</h1>
+				<div class="CanvasHeatmapLegend">
+					<img class="CanvasHeatmapLegendImg" src="./interface/images/heatmap2.png" />
+					<p class="CanvasHeatmapLegendText">Fewer</p>
+					<p class="CanvasHeatmapLegendText">number of videos</p>
+					<p class="CanvasHeatmapLegendText">More</p>
+				</div>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
 			</div>

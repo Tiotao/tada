@@ -124,6 +124,29 @@ button:focus {
 	padding-bottom: 0;
 }
 
+.LeftBarHeatmapLegend {
+	position: absolute;
+	left: 200px;
+	top: 15px;
+	width: 200px;
+}
+
+.LeftBarHeatmapLegendImg {
+	width: 200px;
+}
+
+.LeftBarHeatmapLegendText {
+	font-size: 12px;
+	color: #333;
+	float: left;
+	margin: 0;
+	margin-right: 18px;
+}
+
+.LeftBarHeatmapLegendText:last-child {
+	margin-right: 0;
+}
+
 .LeftBarLabels {
 	width: 100%;
 	height: 100%;
@@ -315,8 +338,33 @@ button:focus {
 	top: 400px;
 	left: 20px;
 	z-index: 200;
-	-webkit-transition: top 0.2s; /* Safari */
+	-webkit-transition: top 0.2s;
   transition: top 0.2s;
+}
+
+.CanvasHeatmapLegend {
+	position: absolute;
+	left: 200px;
+	top: 400px;
+	width: 200px;
+	-webkit-transition: top 0.2s;
+  transition: top 0.2s;
+}
+
+.CanvasHeatmapLegendImg {
+	width: 200px;
+}
+
+.CanvasHeatmapLegendText {
+	font-size: 12px;
+	color: #333;
+	float: left;
+	margin: 0;
+	margin-right: 18px;
+}
+
+.CanvasHeatmapLegendText:last-child {
+	margin-right: 0;
 }
 
 canvas {
@@ -336,7 +384,6 @@ canvas {
 	transition: opacity 1s ease-in;
 	-webkit-transition: width 1s, height 1s;
 	transition: width 1s, height 1s;
-	border-radius: 200px;
 	cursor: pointer;
 	display: flex;
   align-items: center;
@@ -344,21 +391,21 @@ canvas {
 }
 
 .PreviewImg {
-	height: 100px;
-	width: 100px;
+	height: 120px;
+	width: 120px;
 	object-fit: cover;
 	border-radius: 100px;
-	border: 10px solid #f5f5f6;
+	border: 5px solid #f5f5f6;
 	float: left;
 }
 
 .PreviewMeta {
 	display: inline-block;
 	height: auto;
-	background-color: #333;
+	background-color: #093251;
 	color: #fff;
 	padding: 10px;
-	font-size: 12px;
+	font-size: 14px;
 	border: 10px solid #f5f5f6;
 }
 
@@ -581,11 +628,27 @@ canvas {
 	right: 20px;
 	width: 500px;
 	height: 300px;
+	-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Safari */
+			-khtml-user-select: none; /* Konqueror HTML */
+				-moz-user-select: none; /* Firefox */
+					-ms-user-select: none; /* Internet Explorer/Edge */
+						user-select: none;
 }
 
 .FiltersHeaderTitle {
 	margin: 10px 20px;
 	display: inline-block;
+}
+
+.FiltersReset {
+	cursor: pointer;
+	text-decoration: underline;
+	display: inline-block;
+	position: absolute;
+	margin: 0 20px;
+	margin-top: 70px;
+	left: 0;
 }
 
 .FilterCanvas {
@@ -646,6 +709,7 @@ canvas {
 .SwitchContainerX {
 	position: relative;
 	display: inline-block;
+	left: 20px;
 }
 
 .SwitchContainerY {
@@ -653,6 +717,8 @@ canvas {
 	display: inline-block;
 	right: 20px;
 	top: -500px;
+	-webkit-transition: top 0.2s;
+  transition: top 0.2s;
 }
 
 .SwitchXDropdown {
@@ -736,6 +802,7 @@ canvas {
 }
 
 .Layout .TopbarContainer {
+	width: 100%;
 	flex: 0 1 auto;
 	z-index: 99;
 	position: fixed;
