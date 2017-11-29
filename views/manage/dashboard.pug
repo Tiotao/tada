@@ -13,7 +13,7 @@ block content
             .col-md-2.sidebar
                 .meta-label-title Meta
                 .meta-label-container
-                    .meta-label(ng-repeat="label in meta_labels"  ng-class="{ 'selected': label._id == selected_meta_label._id}")
+                    .meta-label(ng-repeat="label in meta_labels track by label._id"  ng-class="{ 'selected': label._id == selected_meta_label._id}")
                         .row
                             .col-md-8(ng-click="selectMetaLabel(label)") {{ label.name }}
                             .col-md-4
@@ -28,7 +28,7 @@ block content
                 .child-label-description Click to release the label from {{ selected_meta_label.name }}
                 hr
                 .child-label-container
-                    .child-label(ng-repeat="label in assigned_labels" ng-click="unassignLabel(label._id)")
+                    .child-label(ng-repeat="label in assigned_labels track by label._id" ng-click="unassignLabel(label._id)")
                         | {{ label.name }}
                         .remove-btn
                             i.fa.fa-times()
@@ -38,7 +38,7 @@ block content
                 .child-label-description Click to add the label from {{ selected_meta_label.name }}
                 input.label-search(ng-model="label_filter" placeholder="Search Labels")
                 .unassigned-label-container
-                    .unassigned-label(ng-repeat="label in unassigned_labels | filter:label_filter" ng-click="assignLabel(label._id)")
+                    .unassigned-label(ng-repeat="label in unassigned_labels | filter:label_filter track by label._id " ng-click="assignLabel(label._id)")
                         | {{ label.name }}
                         .plus-btn
                             i.fa.fa-plus()

@@ -54,12 +54,14 @@ app.controller('metaLabelCtrl', ($scope, $http)=>{
     function refreshAssignedLabelList(id) {
         $http.post('/manage/meta_label/labels', {id: id}).then((res) => {
             $scope.assigned_labels = res.data.value;
+            
         });
     }
 
     function refreshMetaLabelList() {
         $http.get('/manage/meta_label/list').then((res) => {
             $scope.meta_labels = res.data.value;
+            console.log($scope.meta_labels);
         });
     }
 
