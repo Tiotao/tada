@@ -442,7 +442,15 @@ export default class Canvas extends React.Component {
 					var elementPostion = this.parent.toGlobal(canvasPosition);
 
 					$('.Preview').removeClass("hidden");
-					$('.Preview').css("left", elementPostion.x - (2000-window.screen.width));
+					if(x == 0) {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) + 100);
+					}
+					else if(x >= 27) {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 200);
+					}
+					else {
+						$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 20);
+					}
 					$('.Preview').css("top", elementPostion.y);
 					$('.PreviewImg').attr("src", previewData.href);
 					$('.PreviewTitle').html(previewData.title);
