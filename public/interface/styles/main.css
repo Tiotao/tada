@@ -170,7 +170,7 @@ button:focus {
 	width: 100%;
 	stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
-	animation: draw 3s ease-out 0.5s 1 forwards;
+	animation: draw 3s ease-out 1 forwards;
 }
 
 .Selected {

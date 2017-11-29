@@ -66,6 +66,10 @@ export default class Canvas extends React.Component {
 				x = positions[video]['86400'][2][0];
 				buckets2[x].push(video);
 			}
+			// else {
+			// 	console.log(positions[video]['86400'])
+			// 	count2++;
+			// }
 			if(positions[video]['86400'][3]) {
 				x = positions[video]['86400'][3][0];
 				buckets3[x].push(video);
