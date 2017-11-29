@@ -24,7 +24,7 @@ app.controller('metaLabelCtrl', ($scope, $http)=>{
 
     function assignLabel(id) {
         const data = {
-            mid: $scope.selected_meta_label_id,
+            mid: $scope.selected_meta_label._id,
             id: id
         }
         $http.post('/manage/label/assign', data).then(() => {
@@ -35,7 +35,7 @@ app.controller('metaLabelCtrl', ($scope, $http)=>{
 
     function unassignLabel(id) {
         const data = {
-            mid: $scope.selected_meta_label_id,
+            mid: $scope.selected_meta_label._id,
             id: id
         }
         $http.post('/manage/label/unassign', data).then(() => {
@@ -45,9 +45,9 @@ app.controller('metaLabelCtrl', ($scope, $http)=>{
     }
 
 
-    function selectMetaLabel(id) {
-        $scope.selected_meta_label_id = id;
-        refreshAssignedLabelList(id);
+    function selectMetaLabel(label) {
+        $scope.selected_meta_label = label;
+        refreshAssignedLabelList(label._id);
         refreshUnassignedLabelList();
     }
 
