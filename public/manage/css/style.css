@@ -1,7 +1,203 @@
-.selected {
-    background: #ccc;
+
+
+body {
+    font-family: 'Montserrat', sans-serif;
 }
 
-.heatmap svg {
-    height: 60px;
+.header-row {
+    height: 3em;
+    background: #99C6E4;
+    
+}
+
+.text-header {
+    background:#338DC9;
+    margin-top: auto;
+    margin-bottom: auto;
+    line-height: 2.5em;
+    height: 100%;
+    text-align: left;
+    color:white;
+    font-weight: 500;
+    font-size: 1.2em;
+    padding-left: 20px;
+}
+
+.sidebar {
+    background: #E6E6E6;
+    height: calc(100% - 3em);
+    position: relative;
+    padding: 0em;
+    /* top: -3em; */
+}
+
+.child-label-title, .meta-label-title {
+    padding: 0.5em 20px 0em;
+    color: #333;
+    font-size: 2em;
+    font-weight: 700
+}
+
+.child-label-title {
+    padding-left: 0px;
+}
+
+.child-label-title span {
+    color: #338DC9;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.details {
+    padding-left: 36px;
+}
+
+.child-label-description {
+    color: #999;
+    font-size: 0.9em;
+}
+
+.meta-label {
+    color: #333333;
+    padding: 0.5em 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    
+}
+
+.meta-label:hover {
+    background: white;
+}
+
+
+.meta-label.selected {
+    background: white;
+    
+}
+
+.child-label {
+    display: inline-block;
+    position: relative;
+    padding: 0.5em;
+    margin: 0.5em 1em 0.5em 0em;
+    background: #e6e6e6;
+    color: #333;
+    cursor: pointer;
+    
+}
+
+.unassigned-label {
+    display: inline-block;
+    position: relative;
+    padding: 0.2em 0.5em;
+    margin: 0.2em 0.5em 0.2em 0em;
+    background: #e6e6e6;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9em;
+    
+}
+
+.unassigned-label:hover {
+    box-shadow: inset 0 0 0 2px #338DC9;
+}
+
+.unassigned-label:hover > .plus-btn {
+    display: inline-block;
+}
+
+.unassigned-label i {
+    color: white;
+    padding: 0em 0.5em;
+    
+    position: absolute;
+    top: 5px;
+}
+
+.plus-btn {
+    display: none;
+    position: absolute;
+    height: 10px;
+    background: #338DC9;
+    width: 30px;
+    right: 0px;
+    height: 100%;
+    top: 0px;
+}
+
+.label-search {
+    margin: 1em 0em;
+    width: 100%;
+    height: 2em;
+    padding: 1em;
+    border: none;
+    border-bottom: 1px solid #e6e6e6;
+    
+}
+.unassigned-label-container {
+    overflow-y:scroll;
+    overflow-x:hidden;
+    height: calc(100% - 15em);
+}
+
+
+.child-label:hover > .remove-btn {
+    display: inline-block;
+}
+
+.child-label:hover {
+    box-shadow: inset 0 0 0 2px rgb(252, 116, 116);
+}
+
+
+.child-label i {
+    color: white;
+    padding: 0em 0.5em;
+    
+    position: absolute;
+    top: 10px;
+}
+
+/* .child-label i:hover {
+    color: #333;
+    padding: 0em 0.5em;
+    cursor: pointer;
+} */
+
+.remove-btn {
+    display: none;
+    position: absolute;
+    height: 20px;
+    background: rgb(252, 116, 116);
+    width: 30px;
+    right: 0px;
+    height: 100%;
+    top: 0px;
+}
+
+.add-meta-label-container input {
+    height: 40px;
+    padding: 0.5em;
+    display: inline;
+    width: calc(100% - 2em);
+    background: transparent;
+    padding-left: 20px;
+    border: none;
+    background: #eee;
+}
+
+.add-meta-label-container .add-btn {
+    width: 2em;
+    height: 40px;
+    display: inline;
+    padding: 0.5em;
+    background: #999;
+    color: ccc;
+    cursor: pointer;
+}
+
+.add-meta-label-container .add-btn:hover {
+    background: #338DC9;
+    color: white;
 }

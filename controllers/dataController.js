@@ -738,6 +738,15 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     let video_collection = db.collection(config.get("Database.video_collection"));
     let stats_collection = db.collection(config.get("Database.stats_collection"));
 
+    let curr_day;
+    if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
+        curr_day = utils.normalizeDay(Date.now()/1000)+86400;
+    } else {
+        curr_day = utils.normalizeDay(config.get("Scraper.end_time"));
+    }
+
+    const cache_start_time = curr_day - 2592000;
+
     if (!view_count_range) {
         view_count_range = [0, 100];
     }
@@ -805,6 +814,9 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
                 "stats.vl_ratio": {
                     $gt: vl_ratio_range[0],
                     $lt: vl_ratio_range[1],
+                },
+                timestamp: {
+                    $gt: cache_start_time
                 }
             }
         },
@@ -829,6 +841,9 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
             "stats.vl_ratio": {
                 $gt: vl_ratio_range[0],
                 $lt: vl_ratio_range[1],
+            },
+            timestamp: {
+                $gt: cache_start_time
             }
         }
     }
@@ -865,9 +880,10 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
             let combine = [by_day]
             let by_hour = utils.groupByHour(by_day, end_time - index*day, 24, keyFunc)
             combine.push(by_hour);
-            // console.log(acc, by_day);
             return combine;
         })
+        
+        
 
         function findIndex(sorted_groups, x_id) {
             for (let i = 0; i < sorted_groups.length; i++) {
@@ -927,15 +943,12 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
         })
 
         findIndex(groups_by_vlr, y_id * 2 + 1);
-        
-        
-
     }
 
     x_axis_key_functions.map(calcDotsPosition);
     
     const ret = {
-        total: videos.length,
+        total: Object.keys(result).length,
         positions: result
     }
     
@@ -979,16 +992,9 @@ async function getFilterGraph() {
         }
     ]).toArray();
 
-    console.log(videos.length);
-    console.log(videos[0]);
-
     let view_like_group = utils.groupByViewLikeRatio(videos).map((group)=>{ return group.length;});
 
-    console.log('vl_like_group')
-
     let view_count_group = utils.groupByViewCount(videos, max_view).map((group)=>{ return group.length;});
-
-    console.log('vl_c_group')
 
     db.close();
     logger.info("finish caching")
