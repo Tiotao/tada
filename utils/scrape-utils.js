@@ -84,22 +84,50 @@ function normalizeDay(time) {
 }
 
 function groupByViewLikeRatio(data) {
+    const log101 = 2.0043213737826426;
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
-        // if (!d.stats){
-        //     console.log(d);
-        // }
-        return d.stats.vl_ratio
+        return Math.log10(d.stats.vl_ratio*100 + 1) / log101;
     })
 }
 
 function groupByViewCount(data, max_view) {
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
-        // console.log(Math.log10(Math.max(1, d.stats.view_count))/10)
-        return d.stats.view_count / (max_view / 100);
-        // return Math.min(1, Math.log10(Math.max(1, d.stats.view_count))/10);
+        return Math.log10(d.stats.view_count + 1) / Math.log10(max_view);
     })
         
 }
+
+/**
+ * Denormalize relative view count range into absolute range
+ * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+ * @param {Number} max_view - max view count ever recorded
+ * @return {Array<Number>} a pair of number represent absolute range of view counts [0-max_view, 0-max_view]
+ *
+ */
+
+function parseViewCountRange(range, max_view) {
+    range = range.map((r)=>{
+        return (Math.pow(10, r/100 * Math.log10(max_view))-1) ;
+    });
+    return range;
+}
+
+/**
+ * Denormalize relative like view ratio range into absolute range
+ * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+ * @return {Array<Number>} a pair of number represent absolute range of like view ratio [0-1, 0-1]
+ *
+ */
+
+function parseViewLikeRatioRange(range) {
+    const log101 = 2.0043213737826426;
+    range = range.map((r)=>{
+        return ((Math.pow(10, r/100 * log101)-1)) / 100 ;
+    });
+    return range;
+}
+
+
 
 function groupByDay(data, end_time, max_count, keyFunc = (d)=>{return d.timestamp}) {
     // normalize start time
@@ -199,6 +227,8 @@ module.exports = {
     groupByViewLikeRatio: groupByViewLikeRatio,
     groupByViewCount: groupByViewCount,
     normalizeDay: normalizeDay,
-    calculateHeatmapLevel: calculateHeatmapLevel
+    calculateHeatmapLevel: calculateHeatmapLevel,
+    parseViewLikeRatioRange: parseViewLikeRatioRange,
+    parseViewCountRange: parseViewCountRange,
 }
 

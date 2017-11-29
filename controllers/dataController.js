@@ -755,17 +755,16 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     const max_view = shared_stats[0].max_view
 
     // console.log(max_view);
-
-    view_count_range = view_count_range.map((r)=>{return r*max_view/100});
+    console.log(view_count_range);
+    view_count_range = utils.parseViewCountRange(view_count_range, max_view);
+    console.log(view_count_range);
 
     if (!vl_ratio_range) {
         vl_ratio_range = [0, 100];
     }
-
-    vl_ratio_range = vl_ratio_range.map((r)=>{return r/100});
-
-    // console.log(vl_ratio_range, view_count_range)
-
+    
+    vl_ratio_range = utils.parseViewLikeRatioRange(vl_ratio_range)
+    
     label_ids = label_ids.map((id)=>{return new ObjectId(id)});
 
     let id_query = [
@@ -1002,6 +1001,7 @@ async function getFilterGraph() {
     const ret = {
         view: view_count_group.reverse(),
         vl_ratio: view_like_group.reverse(),
+        max_view: max_view
     }
 
     return ret
