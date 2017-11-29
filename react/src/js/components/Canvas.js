@@ -558,6 +558,12 @@ export default class Canvas extends React.Component {
 		return (
 			<div>
 				<h1 class="CanvasHeaderTitle">Videos</h1>
+				<div class="CanvasHeatmapLegend">
+					<img class="CanvasHeatmapLegendImg" src="./interface/images/heatmap2.png" />
+					<p class="CanvasHeatmapLegendText">Fewer</p>
+					<p class="CanvasHeatmapLegendText">number of videos</p>
+					<p class="CanvasHeatmapLegendText">More</p>
+				</div>
 				<div class="Canvas" ref="canvas" id="canvas">
 				</div>
 			</div>
