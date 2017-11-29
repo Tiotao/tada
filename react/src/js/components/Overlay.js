@@ -38,6 +38,7 @@ export default class Overlay extends React.Component {
 						<p class="VideoVLRatio"></p>
 						<p class="VideoCaption"></p>
 					</div>
+					<p class="VideoLabelsTitle">Labels:</p>
 					<ul class="VideoLabels"></ul>
 					<ul class="VideoActions">
 						<Action icon="/interface/images/share.png" action="Share"/>

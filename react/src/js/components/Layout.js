@@ -1,6 +1,5 @@
 import React from "react";
 import axios from "axios";
-import Fuse from "fuse.js";
 
 import Canvas from "./Canvas";
 import Filters from "./Filters";
@@ -45,24 +44,10 @@ export default class Layout extends React.Component {
   componentDidMount() {
     axios.get('/api/labels')
       .then(res => {
+        console.log(res.data.data)
         this.setState({
-          labels : res.data.data.slice(0,80)
+          labels : res.data.data
         })
-
-        // var options = {
-        //   shouldSort: true,
-        //   threshold: 0.6,
-        //   location: 0,
-        //   distance: 100,
-        //   maxPatternLength: 32,
-        //   minMatchCharLength: 1,
-        //   keys: [
-        //     "name"
-        //   ]
-        // };
-        // var fuse = new Fuse(res.data.data, options);
-        // var result = fuse.search("ea");
-        // console.log(result)
 
         return axios.post('/api/filter', {
           "ids": [],
@@ -231,7 +216,6 @@ export default class Layout extends React.Component {
           <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
         </div>
         <div class="FooterContainer">
-          <Timeline />
           <div class="FooterSwitch">
             <Switches handleSwitch={this.handleSwitch} />
           </div>

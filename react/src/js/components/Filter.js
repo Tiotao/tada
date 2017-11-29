@@ -61,7 +61,7 @@ export default class Filter extends React.Component {
 
 		function draw() {
       ctx.lineWidth = 1;
-			ctx.strokeStyle = '#fff';
+			ctx.strokeStyle = '#333';
 			ctx.setLineDash([6]);
 			ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
 		}

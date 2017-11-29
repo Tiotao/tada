@@ -66,6 +66,10 @@ export default class Canvas extends React.Component {
 				x = positions[video]['86400'][2][0];
 				buckets2[x].push(video);
 			}
+			// else {
+			// 	console.log(positions[video]['86400'])
+			// 	count2++;
+			// }
 			if(positions[video]['86400'][3]) {
 				x = positions[video]['86400'][3][0];
 				buckets3[x].push(video);
@@ -95,7 +99,7 @@ export default class Canvas extends React.Component {
 		else {
 			labelText.text = (30-x-1)+" d";
 		}
-		labelText.style = {fontSize:"15px", fill:"white"};
+		labelText.style = {fontSize:"15px", fill:"#333"};
 		labelText.x = x * dotMarginX + 100;
 		labelText.y = canvasHeight - 20;
 		labelText.rotation = 0.5;
@@ -114,15 +118,15 @@ export default class Canvas extends React.Component {
     box.index = x;
 
     box.addChild(dot);
-    dot.beginFill(12369084);
+    dot.beginFill(87963);
     dot.drawCircle(0, 0, 20);
 
     dot.interactive = true;
     dot.buttonMode = true;
 
-    var hiddenCount = new PIXI.Text(count);
-    hiddenCount.style = {fontSize: "10px", fill: "black"};
-    hiddenCount.x = -5;
+    var hiddenCount = new PIXI.Text("+"+count);
+    hiddenCount.style = {fontSize: "10px", fill: "white"};
+    hiddenCount.x = -10;
     hiddenCount.y = -5;
     box.addChild(hiddenCount);
 
@@ -158,7 +162,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][0][0];
 			  		var y = positions[videoID]['3600'][0][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[0];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -168,7 +173,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][1][0];
 			  		var y = positions[videoID]['3600'][1][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[1];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -180,7 +186,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][2][0];
 			  		var y = positions[videoID]['3600'][2][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[0];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -190,7 +197,8 @@ export default class Canvas extends React.Component {
 					if(positions[videoID])  {
 						var x = positions[videoID]['3600'][3][0];
 			  		var y = positions[videoID]['3600'][3][1];
-			  		_this.drawDot(x+3, y+2, videoID, canvasHeight);
+			  		var colorLevel = positions[videoID].heatmap[1];
+			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  	})
 			}
@@ -205,17 +213,23 @@ export default class Canvas extends React.Component {
     box.index = index;
 
     box.addChild(dot);
-    dot.beginFill(12369084);
+    dot.beginFill(87963);
     dot.drawCircle(0, 0, 20);
 
     dot.interactive = true;
     dot.buttonMode = true;
 
     var meta = new PIXI.Text((30-index-1) + " days ago");
-    meta.style = {fontSize: "16px", fill: "white"};
+    meta.style = {fontSize: "16px", fill: "#333"};
     meta.x = 30;
     meta.y = -5;
     box.addChild(meta);
+
+    var hiddenCount = new PIXI.Text("Back");
+    hiddenCount.style = {fontSize: "10px", fill: "white"};
+    hiddenCount.x = -10;
+    hiddenCount.y = -5;
+    box.addChild(hiddenCount);
 
     dot
       .on('pointerdown', onButtonDown)
@@ -253,12 +267,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -276,12 +292,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -301,12 +319,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -324,12 +344,14 @@ export default class Canvas extends React.Component {
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
-							_this.drawDot(index, i+2, show[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
 						}
 					}
 					else {
 						for(var i=0; i<bucket.length; i++) {
-							_this.drawDot(index, i+1, bucket[i], canvasHeight);
+							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
+							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
 						}
 					}
 				})
@@ -337,8 +359,8 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	drawDot(x, y, id, canvasHeight) {
-		
+	drawDot(x, y, id, colorLevel, canvasHeight) {
+
 		var dotMarginX = window.screen.width / 30;
 		var dotMarginY = 40;
 		
@@ -356,8 +378,32 @@ export default class Canvas extends React.Component {
 		tweenY.easing = Tween.outCubic;
 
     box.addChild(dot);
-    // dot.beginFill(3093046);
-    dot.beginFill(12369084);
+
+    var color = [];
+    switch(colorLevel) {
+    	case 0:
+    		color = [250,159,181];
+    		break;
+    	case 1:
+    		color = [247,104,161];
+    		break;
+    	case 2: 
+    		color = [221,52,151];
+    		break;
+    	case 3:
+    		color = [174,1,126];
+    		break;
+    	case 4:
+    		color = [122,1,119];
+    		break;
+    	case 5: 
+    		color = [73,0,106];
+    		break;
+    	defult:
+    		color = [250,159,181];
+    }
+    color = (color[0] << 16) + (color[1] << 8) + (color[2]);
+    dot.beginFill(color);
     dot.drawCircle(0, 0, 10);
 
     dot.interactive = true;
@@ -395,10 +441,8 @@ export default class Canvas extends React.Component {
 					var canvasPosition = new PIXI.Point(left, top);
 					var elementPostion = this.parent.toGlobal(canvasPosition);
 
-					var sliderMove = parseInt($('.TimelineSlider').css('right'), 10);
-
 					$('.Preview').removeClass("hidden");
-					$('.Preview').css("left", elementPostion.x + sliderMove - (2000-window.screen.width));
+					$('.Preview').css("left", elementPostion.x - (2000-window.screen.width));
 					$('.Preview').css("top", elementPostion.y);
 					$('.PreviewImg').attr("src", previewData.href);
 					$('.PreviewTitle').html(previewData.title);
@@ -429,13 +473,13 @@ export default class Canvas extends React.Component {
 
 					  $('.VideoTitle').attr('href', href).html(data.title);
 					  $('.VideoChannel').html("Posted on " + data.channel);
-					  $('.VideoPostedTime').html("at " + data.timestamp);
+					  $('.VideoPostedTime').html("at " + _this.parseDate(data.timestamp));
 					  $('.VideoView').html("Views: " + data.stats.view_count);
-					  $('.VideoComment').html("Commnets: " + data.stats.comment_count);
+					  $('.VideoComment').html("Comments: " + data.stats.comment_count);
 					  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
 					  $('.VideoLike').html("Likes: " + data.stats.like_count);
 					  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
-					  $('.VideoVLRatio').html("View/Like ratio: " + data.stats.vl_ratio);
+					  $('.VideoVLRatio').html("Like/view ratio: " + (data.stats.vl_ratio*100).toFixed(1) + "%");
 					  $('.VideoCaption').html(data.description);
 
 					  $('.VideoLabels').empty();
@@ -452,11 +496,19 @@ export default class Canvas extends React.Component {
 	    }
 
 	    function onButtonOut() {
-	      this.height = 8;
-	      this.width = 8;
+	      this.height = 12;
+	      this.width = 12;
 	    }
 
 	    this.stage.addChild(box);
+	}
+
+	parseDate(timestamp) {
+		var date = new Date(timestamp * 1000);
+		var year = date.getFullYear()
+			, month = date.getMonth()
+			, day = date.getDay();
+		return year + "/"+ month + "/" + day
 	}
 
 	componentDidMount() {

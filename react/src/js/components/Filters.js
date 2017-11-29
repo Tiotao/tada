@@ -24,7 +24,7 @@ export default class Filters extends React.Component {
 						id="vl_ratio"
 						data={this.props.graph.vl_ratio}
 						handleUpdate={this.props.handleUpdate}/>
-					<p class="FilterLabel">View/like %</p>
+					<p class="FilterLabel">Like/View %</p>
 				</div>
 			</div>
 		);
