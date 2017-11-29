@@ -7,11 +7,22 @@ export default class Filters extends React.Component {
 	constructor(props) {
 		super();
 	}
+
+	resetFilters() {
+		var canvasLeft = document.getElementById('view');
+		var canvasRight = document.getElementById('vl_ratio');
+		var ctxLeft = canvasLeft.getContext('2d');
+		var ctxRight = canvasRight.getContext('2d');
+
+		ctxLeft.clearRect(0, 0, canvasLeft.width, canvasLeft.height);
+		ctxRight.clearRect(0, 0, canvasRight.width, canvasRight.height);
+	}
 	
 	render() {
 		return (
 			<div class="Filters">
 				<h1 class="FiltersHeaderTitle">Filters</h1>
+				<p class="FiltersReset" onMouseDown={this.resetFilters}>Reset</p>
 				<div class="FilterLeft">
 					<Filter 
 						id="view" 
