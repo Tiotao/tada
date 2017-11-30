@@ -32,7 +32,7 @@ export default class Label extends React.Component {
 	}
 	
 	createLabelElement(isSelected) {
-		let heatmapElement, labelNameElement, labelCountElement, labelContainerElement;
+		let heatmapElement, labelNameElement, labelCountElement, labelTooltipElement, labelContainerElement;
 		heatmapElement = React.createElement(
 			'div',
 			{ className: 'LeftBarLabelHeatmap'},
@@ -48,12 +48,18 @@ export default class Label extends React.Component {
 			{ className: 'LeftBarLabelCount'},
 			this.props.count + " vids"
 		);
+		labelTooltipElement = React.createElement(
+			'span',
+			{ className: 'LeftBarLabelTooltip'},
+			this.props.name
+		);
 		labelContainerElement = React.createElement(
 			'div',
 			{ className: this.getSelectedLabelClassName(isSelected), onClick: this.handleClick, 'data-name': name, 'data-id': this.props._id},
 			heatmapElement,
 			labelNameElement,
-			labelCountElement
+			labelCountElement,
+			labelTooltipElement
 		)
 		return labelContainerElement;
 	}

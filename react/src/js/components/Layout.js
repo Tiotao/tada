@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import $ from "jquery";
 
 import Canvas from "./Canvas";
 import Filters from "./Filters";
