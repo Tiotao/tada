@@ -58,18 +58,22 @@ if (config.get("Scraper.schedule_scraping")) {
 }
 
 async function once() {
-    // logger.info("Scraping New Videos...");
-    // await youtubeScraper.scheduleScraping();
-    // logger.info("Monitering Twitter Mentions...");
-    // await twitterScraper.scrape();
-    // logger.info("Scrapping Completed. Caching...");
-    // await dataController.cacheLabels();
-    // logger.info("Caching Completed.");
-    // await youtubeScraper.scrapeStats();
-    // logger.info("Stats Update Completed.");
+    logger.info("Scraping New Videos...");
+    await youtubeScraper.scheduleScraping();
+    logger.info("Monitering Twitter Mentions...");
+    await twitterScraper.scrape();
+    logger.info("Scrapping Completed. Caching...");
+    await dataController.cacheLabels();
+    logger.info("Caching Completed.");
+    await youtubeScraper.scrapeStats();
+    logger.info("Stats Update Completed.");
 }
 
-once();
+if (config.get("Scraper.schedule_scraping")) {
+    once();
+}
+
+
 
 
 console.log('Magic happens on ' + port);

@@ -192,8 +192,8 @@ function groupByHour(data, end_time, max_count, keyFunc = (d)=>{return d.timesta
  */
 function calculateHeatmapLevel(view_count, vl_ratio, max_view) {
     const log101 = 2.0043213737826426;
-    const view_level = Math.round(Math.log10(d.stats.view_count + 1) / Math.log10(max_view) * 5);
-    const vlr_level = Math.round(Math.log10(d.stats.vl_ratio*100 + 1) / log101 * 5);
+    const view_level = Math.round(Math.log10(view_count + 1) / Math.log10(max_view) * 5);
+    const vlr_level = Math.round(Math.log10(vl_ratio*100 + 1) / log101 * 5);
     return [view_level, vlr_level]
 }
 
