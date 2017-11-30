@@ -416,7 +416,6 @@ export default class Canvas extends React.Component {
     var _this = this;
   	function onButtonOver() {
   		var stage = this.parent.parent;
-
       axios.get('/api/videos/'+this.parent.index)
       	.then(res => {
 		    	var data = res.data;
@@ -565,7 +564,7 @@ export default class Canvas extends React.Component {
 				<div class="CanvasHeatmapLegend">
 					<img class="CanvasHeatmapLegendImg" src="./interface/images/heatmap2.png" />
 					<p class="CanvasHeatmapLegendText">Fewer</p>
-					<p class="CanvasHeatmapLegendText">number of videos</p>
+					<p class="CanvasHeatmapLegendText">views or like/view</p>
 					<p class="CanvasHeatmapLegendText">More</p>
 				</div>
 				<div class="Canvas" ref="canvas" id="canvas">

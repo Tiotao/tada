@@ -113,7 +113,7 @@ button:focus {
 
 .LeftBar {
 	position: relative;
-	width: calc(100% - 500px);
+	width: calc(100% - 530px);
 	height: 250px;
 	padding-bottom: 0;
 }
@@ -157,16 +157,16 @@ button:focus {
 }
 
 ::-webkit-scrollbar-track {
-	background-color: #e1e2e1;
+	background-color: #b1bdc6;
 }
 
 ::-webkit-scrollbar {
-	background-color: #e1e2e1;
+	background-color: #b1bdc6;
 	width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #e1e2e1;
+	background-color: #82909b;
 }
 
 .LeftBarLabel {
@@ -277,7 +277,7 @@ button:focus {
 
 .TopBarLabels {
 	position: relative;
-	height: 60px;
+	height: 30px;
 	text-transform: uppercase;
 	background-color: #01579b;
 	padding: 10px 50px;
@@ -301,6 +301,7 @@ button:focus {
 	display: inline-block;
 	font-weight: 900;
 	color: #fff;
+	margin: 0;
 }
 
 .TopBarLabelRemove {
