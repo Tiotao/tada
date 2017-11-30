@@ -410,7 +410,6 @@ export default class Canvas extends React.Component {
     dot.buttonMode = true;
 
     dot
-      .on('pointerdown', onButtonDown)
       .on('pointerover', onButtonOver)
       .on('pointerout', onButtonOut);
 
