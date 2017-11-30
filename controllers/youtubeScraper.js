@@ -21,7 +21,12 @@ const parallel = require('async-await-parallel');
 async function getListOfVideos(query, method) {
     logger.info('labelling', 'recent', 'posts from:', query);
 
-    function formatVideo(video, method) {
+    const db = await MongoClient.connect(config.get("Database.url"));
+    let stats_collection = db.collection(config.get("Database.stats_collection"));
+    const shared_stats = await stats_collection.find({}).toArray();
+    const max_view = shared_stats[0].max_view;
+
+    function formatVideo(video, method, max_view) {
         let formatted_video = {};
         formatted_video = {
             content: {
@@ -46,7 +51,7 @@ async function getListOfVideos(query, method) {
                 vl_ratio = 0;
             }
 
-            const heatmap_level = utils.calculateHeatmapLevel(video.statistics.viewCount, vl_ratio);
+            const heatmap_level = utils.calculateHeatmapLevel(video.statistics.viewCount, vl_ratio, max_view);
 
             formatted_video.stats = {
                 "view_count": parseInt(video.statistics.viewCount),
@@ -84,7 +89,7 @@ async function getListOfVideos(query, method) {
             vl_ratio = 0;
         }
 
-        const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
+        const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio, max_view);
 
         dict[vs.id].stats =  {
             "view_count": parseInt(vs.statistics.viewCount),
@@ -120,7 +125,7 @@ async function getListOfVideos(query, method) {
         }
 
         let videos = response.items.map((v)=>{ 
-            return formatVideo(v, method)
+            return formatVideo(v, method, max_view)
         });
 
         if (method == "id") {
@@ -255,7 +260,10 @@ async function scrapeStats(query_videos) {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(config.get("Database.url"));
         let video_collection = db.collection(config.get("Database.video_collection"));
-        let videos;
+        let stats_collection = db.collection(config.get("Database.stats_collection"));
+
+        const shared_stats = await stats_collection.find({}).toArray();
+        const max_view = shared_stats[0].max_view;
 
         if (!query_videos) {
             videos = await video_collection.aggregate(
@@ -316,7 +324,7 @@ async function scrapeStats(query_videos) {
         let update_promises = video_stats.map((vs) => {
             return async() => {
                 let vl_ratio = vs.statistics.likeCount / vs.statistics.viewCount;
-                const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio);
+                const heatmap_level = utils.calculateHeatmapLevel(vs.statistics.viewCount, vl_ratio, max_view);
                 if (!vl_ratio) {
                     vl_ratio = 0;
                 }

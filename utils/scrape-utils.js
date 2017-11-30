@@ -3,37 +3,38 @@ const config = require('config');
 const logger  = require('logger').createLogger();
 logger.setLevel(config.get("Logger.level"));
 
-
-function combine(dict, entry) {
-    if (entry.local_id in dict) {
-        let old_search_ref = dict[entry.local_id].search_ref;
-        dict[entry.local_id].search_ref = old_search_ref.concat(entry.search_ref);
-    } else {
-        dict[entry.local_id] = entry;
-    }
-    return dict;
-}
-
-function parseSeconds(str){
-    var p = str.split(':'),
-        s = 0, m = 1;
-
-    while (p.length > 0) {
-        s += m * parseInt(p.pop(), 10);
-        m *= 60;
-    }
-    return s;
-}
-
+/**
+ * Combine data entries with same resource id
+ * @param {Array{Array}} entries - 2D array contains multiple batches of data returned from 
+ *                                 database query. Each batch is an array of data entries
+ * @return {Array} 1D array contains unique data entries
+ */
 function combineDuplicates(entries) {
     entries = _.flatten(entries, true);
     const raw_length = entries.length;
+
+    function combine(dict, entry) {
+        if (entry.local_id in dict) {
+            let old_search_ref = dict[entry.local_id].search_ref;
+            dict[entry.local_id].search_ref = old_search_ref.concat(entry.search_ref);
+        } else {
+            dict[entry.local_id] = entry;
+        }
+        return dict;
+    }
+
     let entry_dict = entries.reduce(combine, {});
     entries = Object.values(entry_dict);
     logger.info("collapse db with same local_id:", raw_length, '->', entries.length);
     return entries;
 }
 
+/**
+ * Sort data by customized function
+ * @param {Array} data - a collection of data, stored in an array
+ * @param {Function} keyFunc - function to access key used for indexing data
+ * @return {Array} sorted data
+ */
 function sortBy(data, keyFunc) {
     function compare(a,b) {
         if (keyFunc(a) < keyFunc(b))
@@ -46,15 +47,65 @@ function sortBy(data, keyFunc) {
     return data;
 }
 
+/**
+ * Get timestamp of the beginning of the day - 00:00:00+UTC
+ * @param {Number} time - number of seconds since 01 Jan 1970 00:00:00 GMT, 10 digits
+ * @return {Number} 10-digit timestamp
+ */
+function normalizeDay(time) {
+    let normalized_time = new Date(time*1000);
+    normalized_time.setUTCHours(0);
+    normalized_time.setUTCMinutes(0);
+    normalized_time.setUTCSeconds(0);
+    normalized_time.setUTCMilliseconds(0);
+    return normalized_time / 1000
+}
 
+/**
+ * Denormalize relative view count range into absolute range
+ * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+ * @param {Number} max_view - max view count ever recorded
+ * @return {Array<Number>} a pair of number represent absolute range of view counts [0-max_view, 0-max_view]
+ */
+function parseViewCountRange(range, max_view) {
+    range = range.map((r)=>{
+        return (Math.pow(10, r/100 * Math.log10(max_view))-1) ;
+    });
+    return range;
+}
 
-function groupBy(data, start_time, end_time, duration, max_count, keyFunc) {
+/**
+ * Denormalize relative like view ratio range into absolute range
+ * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+ * @return {Array<Number>} a pair of number represent absolute range of like view ratio [0-1, 0-1]
+ */
+function parseViewLikeRatioRange(range) {
+    const log101 = 2.0043213737826426;
+    range = range.map((r)=>{
+        return ((Math.pow(10, r/100 * log101)-1)) / 100 ;
+    });
+    return range;
+}
+
+/**
+ * Group data by a customized metric and bounds
+ * @param {Array} data - a collection of data in array
+ * @param {Number} start_bound - lower bound of the data, data metric must be higher than this 
+ *                               in order to get grouped.
+ * @param {Number} end_bound - higher bound of the data, data metric must be lower than this 
+ *                             in order to get grouped.
+ * @param {Number} window_size - size of the group
+ * @param {Number} max_count - max number of groups
+ * @param {Function} keyFunc - function used to access data's metric
+ * @return {Array<Array>} 2D array that groups data into different groups.
+ */
+function groupBy(data, start_bound, end_bound, window_size, max_count, keyFunc) {
     data = sortBy(data, keyFunc);
     let ret = [[]];
     let group_index = 0, data_index = 0;
-    let window_start = end_time - duration;
-    let window_end = end_time;
-    while(group_index < max_count) {
+    let window_start = end_bound - window_size;
+    let window_end = end_bound;
+    while(group_index < max_count && window_start >= start_bound) {
         if (data_index < data.length && keyFunc(data[data_index]) > window_start && keyFunc(data[data_index]) <= window_end) {
             ret[group_index].push(data[data_index]);
             data_index += 1
@@ -67,22 +118,19 @@ function groupBy(data, start_time, end_time, duration, max_count, keyFunc) {
                 }
                 group_index += 1;
                 window_end = window_start;
-                window_start -= duration; 
+                window_start -= window_size; 
             }
         }
     }
     return ret;
 }
 
-function normalizeDay(time) {
-    let normalized_time = new Date(time*1000);
-    normalized_time.setUTCHours(0);
-    normalized_time.setUTCMinutes(0);
-    normalized_time.setUTCSeconds(0);
-    normalized_time.setUTCMilliseconds(0);
-    return normalized_time / 1000
-}
-
+/**
+ * Group data by like view ratio in log scale (100 groups)
+ * @param {Array} data - a collection of data in array
+ * @return {Array<Array>} 2D array that groups data into 100 groups. 
+ *                        First entry has lowest like view ratio
+ */
 function groupByViewLikeRatio(data) {
     const log101 = 2.0043213737826426;
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
@@ -90,6 +138,12 @@ function groupByViewLikeRatio(data) {
     })
 }
 
+/**
+ * Group data by view count in log scale (100 groups)
+ * @param {Array} data - a collection of data in array
+ * @return {Array<Array>} 2D array that groups data into 100 groups. 
+ *                        First entry has lowest view count
+ */
 function groupByViewCount(data, max_view) {
     return groupBy(data, 0, 1, 0.01, 100, (d)=>{
         return Math.log10(d.stats.view_count + 1) / Math.log10(max_view);
@@ -98,130 +152,54 @@ function groupByViewCount(data, max_view) {
 }
 
 /**
- * Denormalize relative view count range into absolute range
- * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
- * @param {Number} max_view - max view count ever recorded
- * @return {Array<Number>} a pair of number represent absolute range of view counts [0-max_view, 0-max_view]
- *
+ * Group data by timestamp in by day
+ * @param {Array} data - a collection of data in array
+ * @param {Number} end_time - 10-digit timestamp. Consider only data before this timestamp
+ * @param {Number} max_count - max number of groups
+ * @param {Function} keyFunc - function used to access entry's timestamp
+ * @return {Array<Array>} 2D array that groups data into day groups 
+ *                        First entry is the nearist day.
  */
-
-function parseViewCountRange(range, max_view) {
-    range = range.map((r)=>{
-        return (Math.pow(10, r/100 * Math.log10(max_view))-1) ;
-    });
-    return range;
-}
-
-/**
- * Denormalize relative like view ratio range into absolute range
- * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
- * @return {Array<Number>} a pair of number represent absolute range of like view ratio [0-1, 0-1]
- *
- */
-
-function parseViewLikeRatioRange(range) {
-    const log101 = 2.0043213737826426;
-    range = range.map((r)=>{
-        return ((Math.pow(10, r/100 * log101)-1)) / 100 ;
-    });
-    return range;
-}
-
-
-
-function groupByDay(data, end_time, max_count, keyFunc = (d)=>{return d.timestamp}) {
-    // normalize start time
+function groupByDay(data, end_time, max_count, keyFunc=(d)=>{return d.timestamp}) {
     const day = 86400;
     const start_time  = end_time - day*max_count;
     return groupBy(data, start_time, end_time, day, max_count, keyFunc);
 
 }
-
+/**
+ * Group data by timestamp in by hour
+ * @param {Array} data - a collection of data in array
+ * @param {Number} end_time - 10-digit timestamp. Consider only data before this timestamp
+ * @param {Number} max_count - max number of groups
+ * @param {Function} keyFunc - function used to access entry's timestamp
+ * @return {Array<Array>} 2D array that groups data into hour groups 
+ *                        First entry is the nearist hour.
+ */
 function groupByHour(data, end_time, max_count, keyFunc = (d)=>{return d.timestamp}) {
     const hour = 3600;
     const day = 86400;
-    
     const start_time  = end_time - day;
     return groupBy(data, start_time, end_time, hour, max_count, keyFunc);
 }
 
-
-function groupByDuration(data, now=true, duration=[3600, 86400], curr, keyFunc = (d)=>{return d.timestamp}) {
-
-    const window_size = duration[0];
-    const max_window = duration[1];
-    const max_count = max_window / window_size;
-
-
-    function compare(a,b) {
-        if (keyFunc(a) < keyFunc(b))
-          return 1;
-        if (keyFunc(a) > keyFunc(b))
-          return -1;
-        return 0;
-    }
-
-    data.sort(compare);
-    
-    let ret = [[]];
-    let ti = 0, di = 0
-    
-    let curr_time_raw;
-    let curr_time;
-
-    if (now) {
-        curr_time_raw = new Date();
-    } else{
-        if (curr) { 
-            curr_time_row = curr
-        } else {
-            curr_time_raw = new Date(config.get("Scraper.end_time")*1000);
-        }
-    }
-
-    curr_time_raw.setHours(0);
-    curr_time_raw.setMinutes(0);
-    curr_time_raw.setSeconds(0);
-    curr_time_raw.setMilliseconds(0);
-    curr_time = curr_time_raw / 1000 + 86400;
-
-
-    let end = curr_time,
-        start = curr_time - window_size
-    
-    while (ti < max_count-1) {
-        if (di < data.length && keyFunc(data[di]) > start && keyFunc(data[di]) <= end) {
-            ret[ti].push(data[di]);
-            di += 1
-        } else {
-            ret.push([]);
-            ti += 1;
-            end = start;
-            start = start  - window_size;
-        }
-    }
-
-    let acc = 0;
-
-    for (let i = 0; i < ret.length; i++) {
-        acc += ret[i].length
-    }
-
-    return ret;
-}
-
-function calculateHeatmapLevel(view_count, vl_ratio) {
-    const view_level = Math.min(5, Math.floor(Math.log10(Math.max(1, view_count))));
-    const vlr_level = Math.min(5, Math.floor(1/(Math.log(vl_ratio)/Math.log(0.3))*5));
+/**
+ * Calculate heatmap level for each data, sorted based on view count and like view ratio.
+ * @param {Number} view_count - original view count of the video
+ * @param {Number} vl_ratio - original like view ratio of the video
+ * @param {Number} max_view - max view count ever recorded
+ * @return {Array<Number>} a pair of numbers recording the heatmap level sorted by view count 
+ *                         and like view ratio
+ */
+function calculateHeatmapLevel(view_count, vl_ratio, max_view) {
+    const log101 = 2.0043213737826426;
+    const view_level = Math.round(Math.log10(d.stats.view_count + 1) / Math.log10(max_view) * 5);
+    const vlr_level = Math.round(Math.log10(d.stats.vl_ratio*100 + 1) / log101 * 5);
     return [view_level, vlr_level]
 }
 
 
-
 module.exports = {
     combineDuplicates: combineDuplicates,
-    parseSeconds: parseSeconds,
-    groupByDuration: groupByDuration,
     groupByDay: groupByDay,
     groupByHour: groupByHour,
     groupByViewLikeRatio: groupByViewLikeRatio,
