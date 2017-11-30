@@ -174,6 +174,15 @@ async function getOneLabel(id) {
     ]).toArray();
 
     let ret;
+    const day = 86400;
+
+    if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
+        end_time = new Date() / 1000;
+    } else {
+        end_time = config.get("Scraper.end_time")
+    }
+
+    end_time = utils.normalizeDay(end_time) + day;
 
     if (query_label) {
         ret = {
@@ -182,7 +191,7 @@ async function getOneLabel(id) {
             relations: labels,
             history: {
                 grouped_by: "day",
-                videos: utils.groupByDuration(videos, !config.has("Scraper.end_time"), (3600*24, config.get("Scraper.max_time_range"))).map((d)=>{return d.length})
+                videos: utils.groupByDay(videos, end_time, 30).map((d)=>{return d.length})
             }
         }
     } else {
@@ -755,17 +764,16 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     const max_view = shared_stats[0].max_view
 
     // console.log(max_view);
-
-    view_count_range = view_count_range.map((r)=>{return r*max_view/100});
+    console.log(view_count_range);
+    view_count_range = utils.parseViewCountRange(view_count_range, max_view);
+    console.log(view_count_range);
 
     if (!vl_ratio_range) {
         vl_ratio_range = [0, 100];
     }
-
-    vl_ratio_range = vl_ratio_range.map((r)=>{return r/100});
-
-    // console.log(vl_ratio_range, view_count_range)
-
+    
+    vl_ratio_range = utils.parseViewLikeRatioRange(vl_ratio_range)
+    
     label_ids = label_ids.map((id)=>{return new ObjectId(id)});
 
     let id_query = [
@@ -870,6 +878,8 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
         if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
             end_time = new Date() / 1000;
+        } else {
+            end_time = config.get("Scraper.end_time")
         }
 
         end_time = utils.normalizeDay(end_time) + day;
@@ -1002,6 +1012,7 @@ async function getFilterGraph() {
     const ret = {
         view: view_count_group.reverse(),
         vl_ratio: view_like_group.reverse(),
+        max_view: max_view
     }
 
     return ret
