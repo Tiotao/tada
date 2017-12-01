@@ -551,6 +551,19 @@ canvas {
 	text-transform: uppercase;
 }
 
+.VideoLabelsNameCustomized {
+	float: left;
+	list-style: none;
+	margin-right: 20px;
+	font-weight: 900;
+	text-transform: uppercase;
+	color: #fa9fb5;
+}
+
+.VideoAddNewLabel {
+	float: left;
+}
+
 .VideoActions {
 	position: absolute;
 	right: 20px;

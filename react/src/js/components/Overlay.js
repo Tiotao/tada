@@ -19,6 +19,16 @@ export default class Overlay extends React.Component {
 			$('.OverlayVideo').removeAttr('src');
 		})
 	}
+
+	addNewLabel() {
+		var newLabel = $(".VideoAddNewLabelInput").val();
+
+		$('.VideoLabels').append(
+			$('<li>').attr('class', 'VideoLabelsNameCustomized').append(
+			$('<a>').append(newLabel)));
+		
+		$(".VideoAddNewLabelInput").val('');
+	}
  
 	render() {
 		return (
@@ -40,6 +50,10 @@ export default class Overlay extends React.Component {
 					</div>
 					<p class="VideoLabelsTitle">Labels:</p>
 					<ul class="VideoLabels"></ul>
+					<form class="VideoAddNewLabel">
+						<input class="VideoAddNewLabelInput" type="text" name="addNewLabel" />
+						<button class="VideoAddNewLabelButton" type="button" value="Add" onMouseDown={this.addNewLabel}>Add</button>
+					</form>
 					<ul class="VideoActions">
 						<Action icon="/interface/images/share.png" action="Share"/>
 						<Action icon="/interface/images/add.png" action="Add"/>
