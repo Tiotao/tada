@@ -123,8 +123,7 @@ button:focus {
 
 .LeftBarHeader {
 	color: #aaa;
-	padding: 10px 20px;
-	padding-bottom: 10px;
+	padding: 10px 20px 10px 20px;
 }
 
 .LeftBarHeatmapLegend {
@@ -672,7 +671,7 @@ canvas {
 }
 
 .Filters {
-	position: absolute;
+	float: right;
 	top: 0;
 	right: 20px;
 	width: 500px;
@@ -686,18 +685,24 @@ canvas {
 }
 
 .FiltersHeaderTitle {
-	margin: 10px 20px;
+	margin-top: 10px;
+	width: 80px;
 	display: inline-block;
 }
 
 .FiltersReset {
-	cursor: pointer;
-	text-decoration: underline;
-	display: inline-block;
 	position: absolute;
-	margin: 0 20px;
-	margin-top: 70px;
-	left: 0;
+	cursor: pointer;
+	top: 30px;
+	width: 60px;
+	right: 430px;
+	border: 1px solid #fff;
+	border-radius: 5px;
+	color: #fff;
+	background-color: #01579b;
+	text-align: center;
+	display: inline-block;
+	font-size: 12px;
 }
 
 .FilterCanvas {

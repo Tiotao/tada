@@ -462,7 +462,7 @@ export default class Canvas extends React.Component {
 							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
 						}
 						else {
-							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 20);
+							$('.Preview').css("left", elementPostion.x - 20);
 						}
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
