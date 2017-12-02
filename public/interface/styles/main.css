@@ -778,7 +778,8 @@ canvas {
 .SwitchContainerX {
 	position: absolute;
 	display: inline-block;
-	left: 20px;
+	left: 10px;
+	bottom: 10px;
 }
 
 .SwitchContainerY {
@@ -901,7 +902,7 @@ canvas {
 .Layout .FooterContainer {
 	flex: 0 1 100px;
 	position: relative;
-	max-height: 100px;
+	max-height: 70px;
 }
 
 .FooterSwitch {
