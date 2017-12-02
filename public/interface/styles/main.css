@@ -116,6 +116,8 @@ button:focus {
 	width: calc(100% - 530px);
 	height: 250px;
 	padding-bottom: 0;
+	-webkit-transition: height 0.2s; 
+	transition: height 0.2s;
 }
 
 .LeftBarHeader {
@@ -316,16 +318,29 @@ button:focus {
 	cursor: pointer;
 }
 
-.HideTopBar {
+.HideTop {
 	position: absolute;
-	right: 130px;
-	top: 20px;
+	right: 230px;
+	top: 10px;
 	border: 1px solid #fff;
 	border-radius: 50px;
 	text-transform: none;
 	color: #fff;
 	display: inline-block;
-	padding: 10px 30px;
+	padding: 5px 30px;
+	cursor: pointer;
+}
+
+.HideBottom {
+	position: absolute;
+	right: 130px;
+	top: 10px;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	text-transform: none;
+	color: #fff;
+	display: inline-block;
+	padding: 5px 30px;
 	cursor: pointer;
 }
 

@@ -8,33 +8,51 @@ export default class TopBar extends React.Component {
 		super(props);
 
 		this.state = {
-			hidden: false
+			visibility: 'shown'
 		}
 
 		this.hideTopBar = this.hideTopBar.bind(this);
+		this.hideBottom = this.hideBottom.bind(this);
 	}
 
 	hideTopBar() {
-		if(this.state.hidden == false) {
-			$('.TopbarContainer').css("top", -310);
+		if(this.state.visibility == 'shown') {
+			$('.TopbarContainer').css("top", -300);
+			$('.HideTop').css("opacity", 0.3).css('cursor', 'inherit');
 			$('.HideTopBarText').html("Show");
-			$('.HideTopBarIcon').attr("src", "./interface/images/down.png");
 			$('.CanvasHeaderTitle').css("top", 90);
 			$('.CanvasHeatmapLegend').css("top", 90);
 			$('.SwitchContainerY').css("top", -800);
 			this.setState({
-				hidden: true
+				visibility: 'hidden'
 			})
 		}
-		else {
+		else if(this.state.visibility == 'full'){
+			$('.LeftBar').css("height", 250);
+			$('.HideBottom').css("opacity", 1).css('cursor', 'pointer');
+			this.setState({
+				visibility: 'shown'
+			})
+		}
+	}
+
+	hideBottom() {
+		if(this.state.visibility == 'hidden') {
 			$('.TopbarContainer').css("top", 0);
 			$('.HideTopBarText').html("Hide");
-			$('.HideTopBarIcon').attr("src", "./interface/images/up.png");
 			$('.CanvasHeaderTitle').css("top", 400);
 			$('.CanvasHeatmapLegend').css("top", 400);
 			$('.SwitchContainerY').css("top", -500);
+			$('.HideTop').css("opacity", 1).css('cursor', 'pointer');
 			this.setState({
-				hidden: false
+				visibility: 'shown'
+			})
+		}
+		else if(this.state.visibility == 'shown') {
+			$('.LeftBar').css("height", $(window).height() - 100);
+			$('.HideBottom').css("opacity", 0.3).css('cursor', 'inherit');
+			this.setState({
+				visibility: 'full'
 			})
 		}
 	}
@@ -52,9 +70,11 @@ export default class TopBar extends React.Component {
 		return (
 			<div class="TopBarLabels">
 				<ul>{selectedLabelElements}</ul>
-				<div class="HideTopBar" onMouseDown={this.hideTopBar}>
-					<p class="HideTopBarText">Hide</p>
+				<div class="HideTop" onMouseDown={this.hideTopBar}>
 					<img class="HideTopBarIcon" src="./interface/images/up.png" />
+				</div>
+				<div class="HideBottom" onMouseDown={this.hideBottom}>
+					<img class="HideTopBarIcon" src="./interface/images/down.png" />
 				</div>
 			</div>
 		);
