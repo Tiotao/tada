@@ -393,8 +393,7 @@ export default class Canvas extends React.Component {
 	    box.index = id;
 
 	    var tweenY = new Tween(box, "y", - y * smallDotSpacingY + canvasHeight - smallDotMarginY, 30, true);
-			
-			tweenY.easing = Tween.outCubic;
+		tweenY.easing = Tween.outCubic;
 
 	    box.addChild(dot);
 
@@ -457,13 +456,13 @@ export default class Canvas extends React.Component {
 
 						$('.Preview').removeClass("hidden");
 						if(x == 0) {
-							$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) + 100);
+							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) + 100);
 						}
 						else if(x >= 27) {
-							$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 200);
+							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
 						}
 						else {
-							$('.Preview').css("left", elementPostion.x - (2000-window.screen.width) - 20);
+							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 20);
 						}
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
@@ -544,8 +543,8 @@ export default class Canvas extends React.Component {
 
 		this.refs.canvas.appendChild(this.renderer.view);
 
-		//window.addEventListener("resize", this.resize);
-		//this.resize();
+		window.addEventListener("resize", this.resize);
+		this.resize();
 
 		this.stage = new PIXI.Container();
 
