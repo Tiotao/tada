@@ -40,8 +40,8 @@ export default class TopBar extends React.Component {
 		if(this.state.visibility == 'hidden') {
 			$('.TopbarContainer').css("top", 0);
 			$('.HideTopBarText').html("Hide");
-			$('.CanvasHeaderTitle').css("top", 400);
-			$('.CanvasHeatmapLegend').css("top", 400);
+			$('.CanvasHeaderTitle').css("top", 345);
+			$('.CanvasHeatmapLegend').css("top", 345);
 			$('.SwitchContainerY').css("bottom", 550);
 			$('.HideTop').css("opacity", 1).css('cursor', 'pointer');
 			this.setState({
