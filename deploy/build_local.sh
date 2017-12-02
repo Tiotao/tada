@@ -4,7 +4,6 @@ read -r -p 'server environment: ' env
 echo "$env"
 
 echo pulling the latest version...
-git checkout --force
 git pull origin master
 npm install
 
