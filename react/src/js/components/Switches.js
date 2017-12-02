@@ -44,7 +44,15 @@ export default class Switches extends React.Component {
 		}
 	}
 
-	getAxisName(id){
+	drawDropDown(id){
+		if(id === xPostedId)
+			return (<button type="button" id={xMentionedId} class="Switch" onClick={this.handleSwitchX}>{xMentionedText}</button>);
+		else if(id === xMentionedId)
+			return (<button type="button" id={xPostedId} class="Switch active" onClick={this.handleSwitchX}>{xPostedText}</button>);
+		else if(id === yViewId) 			
+			return (<button type="button" id={yLikeViewId} class="Switch" onClick={this.handleSwitchY}>{yLikeViewText}</button>);
+		else if(id === yLikeViewId)
+			return (<button type="button" id={yViewId} class="Switch active" onClick={this.handleSwitchY}>{yViewText}</button>);
 	}
 
 	handleSwitchY(e) {
@@ -72,8 +80,7 @@ export default class Switches extends React.Component {
 				<div class="SwitchContainerX">
 					<div class="UpArrow"></div>
 					<div class="DropdownButtons">
-						<button type="button" id={xPostedId} class="Switch active" onClick={this.handleSwitchX}>{xPostedText}</button>
-						<button type="button" id={xMentionedId} class="Switch" onClick={this.handleSwitchX}>{xMentionedText}</button>
+						{this.drawDropDown(this.state.x)}
 					</div>
 					<button class="SwitchXDropdown">{xPostedText}</button>
 				</div>
@@ -81,8 +88,7 @@ export default class Switches extends React.Component {
 					<div class="DownArrow"></div>
 					<button class="SwitchYDropdown">{yViewText}</button>
 					<div class="DropdownButtons">
-						<button type="button" id={yViewId} class="Switch active" onClick={this.handleSwitchY}>{yViewText}</button>
-						<button type="button" id={yLikeViewId} class="Switch" onClick={this.handleSwitchY}>B{yLikeViewText}</button>
+						{this.drawDropDown(this.state.y)}
 					</div>
 				</div>
 			</div>

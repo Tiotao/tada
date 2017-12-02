@@ -768,7 +768,7 @@ canvas {
 	border-right: 5px solid transparent;  
 	border-top: 5px solid black;
   	position: absolute;
-  	left: 134px;
+  	left: 130px;
   	bottom: 17px;
   	width: 0;
   	height: 0;
@@ -784,8 +784,7 @@ canvas {
 	position: absolute;
 	display: inline-block;
 	right: 20px;
-	-webkit-transition: top 0.2s;
-  transition: top 0.2s;
+	bottom: 550px;
 }
 
 .SwitchXDropdown {
@@ -838,8 +837,12 @@ canvas {
 	text-align: center;
 }
 
+.Switch:hover {
+	background-color: #a6ccdc;
+}
+
 .active {
-	background-color: #999;
+	/*background-color: #80b7cd;*/
 }
 
 .SwitchContainerX:hover .DropdownButtons {
