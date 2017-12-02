@@ -6,6 +6,13 @@ import $ from "jquery";
 import Overlay from "./Overlay";
 import Preview from "./Preview";
 
+const screenPaddingX = 50;
+const screenLeftOffset = 100;
+const bigDotSize = 20,
+	smallDotSize = 10;
+const dotMarginX = (window.screen.width - (screenPaddingX<<1)) / 30,
+	dotMarginY = 40;
+
 export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
@@ -85,41 +92,43 @@ export default class Canvas extends React.Component {
 	}
 
 	drawXLabel(x, canvasHeight) {
-		var dotMarginX = window.screen.width / 30;
+		var date = new Date();
 		var labelText = new PIXI.Text();
 		if(x == 29) {
-			labelText.text = "Today";
+			labelText.text = "Yesterday";
 		}
-		else if(x == 22) {
+		else if(x == 23) {
 			labelText.text = "1 week ago";
 		}
 		else if(x == 0) {
 			labelText.text = "1 month ago";
 		}
 		else {
-			labelText.text = (30-x-1)+" d";
+			date.setDate(date.getDate() - (30 - x));
+			labelText.text = "" + date.getDate() + "/" + date.getMonth();
 		}
-		labelText.style = {fontSize:"15px", fill:"#333"};
-		labelText.x = x * dotMarginX + 100;
-		labelText.y = canvasHeight - 20;
-		labelText.rotation = 0.5;
+		labelText.style = {fontSize:"12px", fill:"#333"};
+		labelText.x = this.getDotPosition(x);
+		labelText.anchor.x = 0.5;
+		labelText.align = "right";
+		labelText.y = canvasHeight - 10;
+		//labelText.rotation = 0.5;
 		this.stage.addChild(labelText);
 	}
 
-  drawBigDot(x, count) {
-  	var dotMarginX = window.screen.width / 30;
-		
-		var box = new PIXI.Container();
-		var dot = new PIXI.Graphics();
-		box.x = x * dotMarginX + 100;
-		box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
-		box.pivot.x = box.width / 2;
+  drawBigDot(x, count) {		
+	var box = new PIXI.Container();
+	var dot = new PIXI.Graphics();
+	box.x = this.getDotPosition(x);
+	console.log(box.width);
+	box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+	//box.pivot.x = box.width / 2; //this is 0
     box.pivot.y = box.height / 2 + 40; //margin bottom
     box.index = x;
 
     box.addChild(dot);
     dot.beginFill(87963);
-    dot.drawCircle(0, 0, 20);
+    dot.drawCircle(0, 0, bigDotSize);
 
     dot.interactive = true;
     dot.buttonMode = true;
@@ -147,7 +156,7 @@ export default class Canvas extends React.Component {
   handleDayView(index) {
   	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
   	this.stage.destroy();
-		this.stage = new PIXI.Container();
+	this.stage = new PIXI.Container();
 
   	var positions = this.props.videos.positions;
 
@@ -214,7 +223,7 @@ export default class Canvas extends React.Component {
 
     box.addChild(dot);
     dot.beginFill(87963);
-    dot.drawCircle(0, 0, 20);
+    dot.drawCircle(0, 0, bigDotSize);
 
     dot.interactive = true;
     dot.buttonMode = true;
@@ -359,17 +368,19 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	drawDot(x, y, id, colorLevel, canvasHeight) {
+	getDotPosition(x){
+		return x * dotMarginX + screenLeftOffset + screenPaddingX;
+	}
 
-		var dotMarginX = window.screen.width / 30;
+	drawDot(x, y, id, colorLevel, canvasHeight) {
 		var dotMarginY = 40;
 		
 		var box = new PIXI.Container();
 		var dot = new PIXI.Graphics();
-		box.x = x * dotMarginX + 100;
+		box.x = this.getDotPosition(x);
 		// box.y = - pos[i][1] * dotMargin + canvasHeight;
 		box.y = this.random();
-		box.pivot.x = box.width / 2;
+		//box.pivot.x = box.width / 2;
     box.pivot.y = box.height / 2;
     box.index = id;
 
@@ -404,7 +415,7 @@ export default class Canvas extends React.Component {
     }
     color = (color[0] << 16) + (color[1] << 8) + (color[2]);
     dot.beginFill(color);
-    dot.drawCircle(0, 0, 10);
+    dot.drawCircle(0, 0, smallDotSize);
 
     dot.interactive = true;
     dot.buttonMode = true;
@@ -539,6 +550,7 @@ export default class Canvas extends React.Component {
   }
 
 	componentWillReceiveProps(nextProps) {
+		console.log("trigger");
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}
