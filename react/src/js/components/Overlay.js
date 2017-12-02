@@ -57,8 +57,6 @@ export default class Overlay extends React.Component {
 					<ul class="VideoActions">
 						<Action icon="/interface/images/share.png" action="Share"/>
 						<Action icon="/interface/images/add.png" action="Add"/>
-						<Action icon="/interface/images/favorite2.png" action="Mark"/>
-						<Action icon="/interface/images/favorite.png" action="Favorite"/>
 					</ul>
 				</div>
 			</div>
