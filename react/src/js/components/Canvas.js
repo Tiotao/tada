@@ -122,7 +122,7 @@ export default class Canvas extends React.Component {
 		}
 		else {
 			date.setDate(date.getDate() - (30 - x));
-			labelText.text = "" + date.getDate() + "/" + date.getMonth();
+			labelText.text = (date.getMonth()+1) + "/" + date.getDate();
 		}
 		labelText.style = {fontSize:"12px", fill:"#333"};
 		labelText.x = this.getDotPosition(x);
@@ -563,7 +563,7 @@ export default class Canvas extends React.Component {
 	parseDate(timestamp) {
 		var date = new Date(timestamp * 1000);
 		var year = date.getFullYear()
-			, month = date.getMonth()
+			, month = date.getMonth() + 1
 			, day = date.getDay();
 		return year + "/"+ month + "/" + day
 	}
