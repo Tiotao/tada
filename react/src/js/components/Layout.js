@@ -131,7 +131,7 @@ export default class Layout extends React.Component {
     //Label is unselected so remove it from topbar.
     else { 
       //Removed label state change handled in removeSelectedLabel function
-      this.removeSelectedLabel(id);
+      return this.removeSelectedLabel(id);
     }
     
     return this.getSelectedLabelIds();
@@ -148,6 +148,7 @@ export default class Layout extends React.Component {
   }
 
   setVideos(data) {
+    console.log(data);
     this.setState({
       videos:data
     });
@@ -210,8 +211,7 @@ export default class Layout extends React.Component {
           <TopBar 
             selected={this.state.selected} 
             removeSelectedLabel={this.removeSelectedLabel} 
-            setVideos={this.setVideos} 
-            handleRemove={this.handleRemove}/>
+            setVideos={this.setVideos}/>
         </div>
         <div class="CenterContainer">
           <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>

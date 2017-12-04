@@ -162,11 +162,11 @@ export default class Canvas extends React.Component {
 			this.stage.addChild(labelText);
 		}
 	}
-  drawBigDot(x, count) {		
-		var box = new PIXI.Container();
-		var dot = new PIXI.Graphics();
-		box.x = this.getDotPosition(x);
-		box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+  drawBigDot(x, count) {
+	var box = new PIXI.Container();
+	var dot = new PIXI.Graphics();
+	box.x = this.getDotPosition(x);
+	box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
     box.pivot.y = screenMarginY; //margin bottom
     box.index = x;
 
@@ -495,10 +495,10 @@ export default class Canvas extends React.Component {
 							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) + 100);
 						}
 						else if(x >= 27) {
-							$('.Preview').css("right", elementPostion.x - (canvasWidth-window.screen.width) - 200);
+							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
 						}
 						else {
-							$('.Preview').css("right", canvasWidth - elementPostion.x + 20);
+							$('.Preview').css("left", elementPostion.x - 20);
 						}
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
@@ -594,7 +594,6 @@ export default class Canvas extends React.Component {
   }
 
 	componentWillReceiveProps(nextProps) {
-		console.log("trigger");
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}
