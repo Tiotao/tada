@@ -11,10 +11,11 @@ export default class Action extends React.Component {
 	handleClick(e) {
 		var action = $(e.target).parent().attr('id'); 
 		if(action == "Add") {
-
+			$('.VideoActionAdd').removeClass('hidden').addClass('load');
 		}
 		if(action == "Share") {
-			
+			$('.VideoActionShare').removeClass('hidden').addClass('load');
+			// document.execCommand('copy');
 		}
 	}
 

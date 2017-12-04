@@ -602,6 +602,49 @@ canvas {
 	opacity: 0.8;
 }
 
+.VideoActionAdd {
+	width: 200px;
+	height: 300px;
+	color: #333;
+	background-color: #efefef;
+	padding: 10px;
+	position: absolute;
+	left: 50px;
+	bottom: 0;
+	box-shadow: 3px 3px 5px grey;
+}
+
+.VideoActionShare {
+	width: 200px;
+	height: 80px;
+	color: #333;
+	background-color: #efefef;
+	padding: 10px;
+	position: absolute;
+	left: 80px;
+	bottom: 0;
+	box-shadow: 3px 3px 5px grey;
+}
+
+.ShareURL {
+	width: 150px;
+}
+
+.ShareButton {
+	color: white;
+	width: 45px;
+	height: 20px;
+	padding: 0;
+	background-color: #167ac6;
+	border: none;
+	border-radius: 0 2px 2px 0;
+	cursor: pointer;
+}
+
+.ShareButton:active {
+	opacity: 0.7;
+}
+
 .OverlayClose {
 	height: 40px;
 	width: 40px;
