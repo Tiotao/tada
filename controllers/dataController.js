@@ -6,6 +6,31 @@ const logger  = require('logger').createLogger();
 const utils = require('../utils/scrape-utils');
 logger.setLevel(config.get('Logger.level'));
 
+/**
+ * Query Label inforamtion from Database
+ * @param {String} id - label id, eg. 59e17db91b724b6a08449a09
+ * @return {Object} Label information in the following format
+ * {
+ *      name: string,
+ *      id: string,
+ *      relations: [
+ *          {
+ *               _id: string,
+ *               name: string,
+ *               is_meta: bool,
+ *               score: float - how related they are,
+ *               count: int - number of common video,
+ *           },
+ *           ...
+ *      ],
+ *      history: {
+ *          grouped_by: "day",
+ *          videos: [1,3,4...0] - number of videos posted about 
+ *                                this label per day
+ *      }
+ * 
+ * }
+ */
 async function getOneLabel(id) {
     const db = await MongoClient.connect(config.get("Database.url"));
     let video_collection = db.collection(config.get("Database.video_collection"));
@@ -201,6 +226,44 @@ async function getOneLabel(id) {
     return ret
 }
 
+/**
+ * Query Video inforamtion from Database
+ * @param {String} id - video id, eg. 59e17db91b724b6a08449a09
+ * @return {Object} Video information in the following format
+ * {
+ *      
+ *      id: string,
+ *      href: string,
+ *      channel: "YouTube",
+ *      stats: {
+ *          view_count: int,
+ *          like_count: int,
+ *          dislike_count: int,
+ *          fav_count: int,
+ *          comment_count: int,
+ *          vl_ratio: float,
+ *          heatmap: {
+ *              view: int,
+ *              vl_ratio: int     
+ *          }
+ *      },
+ *      title: string,
+ *      description: string,
+ *      timestamp: int,
+ *      thumbnail: string
+ *      labels: [
+ *          {
+ *               _id: string,
+ *               name: string,
+ *               is_meta: bool,
+ *               score: float - how related they are,
+ *               count: int - number of common video,
+ *           },
+ *           ...
+ *      ],
+ * 
+ * }
+ */
 async function getOneVideo(id) {
     const db = await MongoClient.connect(config.get("Database.url"));
     let video_collection = db.collection(config.get("Database.video_collection"));
@@ -336,11 +399,6 @@ async function getLabels() {
         },
         data: _.sortBy(labels, (l)=>{return _.reduce(l.history, (memo, num, id)=>{
             let add;
-            // if (id >= 20) {
-            //     add = num
-            // } else {
-            //     add = 0
-            // }
             add = num
             return memo - add;
         })})
@@ -349,6 +407,10 @@ async function getLabels() {
     return ret;
 }
 
+
+/**
+ * Calculate label scores and history, cache the result into cache database
+ */
 async function cacheLabels() {
     logger.info("start caching")
     console.time("CACHING");
@@ -538,6 +600,17 @@ async function cacheLabels() {
     logger.info("finish caching")
 }
 
+
+/**
+ * Create a meta label with given name
+ * @param {String} name - name of the metalabel
+ * @return {Object} - 
+ * 
+ * {
+ *      status: string, - "success", "duplication", "fail"
+ *      value: object - created metalabel information or error msg 
+ * }
+ */
 async function createMetaLabel(name) {
     const db = await MongoClient.connect(config.get("Database.url"));
     let meta_label_collection = db.collection(config.get("Database.meta_label_collection"));
@@ -572,6 +645,16 @@ async function createMetaLabel(name) {
     }
 }
 
+/**
+ * Delete a meta label with given id
+ * @param {String} id - id of the meta label to be deleted
+ * @return {Object} - 
+ * 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message if any
+ * }
+ */
 async function deleteMetaLabel(id) {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -592,6 +675,16 @@ async function deleteMetaLabel(id) {
 
 }
 
+/**
+ * Assign a label under an meta label
+ * @param {String} meta_label_id - id of the meta label
+ * @param {String} id - id of the label to be assigned
+ * @return {Object} - 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message if any
+ * }
+ */
 async function assignLabel(meta_label_id, id) {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -612,6 +705,16 @@ async function assignLabel(meta_label_id, id) {
     }
 }
 
+/**
+ * Release a label from an meta label
+ * @param {String} meta_label_id - id of the meta label
+ * @param {String} id - id of the label to be released
+ * @return {Object} - 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message if any
+ * }
+ */
 async function unassignLabel(meta_label_id, id) {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -632,6 +735,23 @@ async function unassignLabel(meta_label_id, id) {
     }
 }
 
+/**
+ * Get all labels under a meta label
+ * @param {String} meta_label_id - id of the meta label
+ * @return {Object} - 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message or label that are 
+ *                      assigned under the meta label
+ *      [
+ *          {
+ *              _id: string,
+ *              name: string
+ *          },
+ *          ...
+ *      ]
+ * }
+ */
 async function getAssignedLabel(meta_label_id) {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -677,6 +797,21 @@ async function getAssignedLabel(meta_label_id) {
     }
 }
 
+/**
+ * List all labels that are not assigned to any meta label
+ * @return {Object} - 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message or unassigned labels
+ *      [
+ *          {
+ *              _id: string,
+ *              name: string
+ *          },
+ *          ...
+ *      ]
+ * }
+ */
 async function getUnassignedLabels() {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -722,6 +857,24 @@ async function getUnassignedLabels() {
     
 }
 
+
+/**
+ * List all meta labels
+ * @return {Object} - 
+ * {
+ *      status: string, - "success", "fail"
+ *      value: object - error message or label that are 
+ *                      assigned under the meta label
+ *      [
+ *          {
+ *              _id: string,
+ *              name: string,
+ *              labels: [id of labels under this meta label]
+ *          },
+ *          ...
+ *      ]
+ * }
+ */
 async function getMetaLabels() {
     try {
         const db = await MongoClient.connect(config.get("Database.url"));
@@ -740,6 +893,41 @@ async function getMetaLabels() {
     }
 }
 
+
+/**
+ * Filter video based on label, view count and like view ratio. Both view count
+ * range and like view ratio range is a relative, log-based range. Their absolute 
+ * range is calculated using utils.parseViewCountRange and utils.parseViewLikeRatioRange
+ * @param {Array} label_ids - array of label ids
+ * @param {Array<Number>} view_count_range - view count filter range 0-100.
+ * @param {Array<Number<} vl_ratio_range - like view ratio filter range 0-100
+ * @return {Array<Object>} 
+ * {
+ *      total: int - total number of videos
+ *      positions: {
+ *          video_id: {
+ *              3600: array - 4 video positions indexes,
+ *              86400: array - 4 video positions indexes,
+ *              heatmap: array - heatmap index
+ *          },
+ *          video_id2: {
+ *              3600: array - 4 video positions indexes,
+ *              86400: array - 4 video positions indexes,
+ *              heatmap: array - heatmap index
+ *          },
+ *          ...
+ *      }
+ * }
+ * 
+ * video positions index: an array that reflects video dots' position on the axis, [0, 1]
+ * index 0 is x-axis=post date, y-axis=view count
+ * index 1 is x-axis=post date, y-axis=like vied ratio
+ * index 2 is x-axis=last mention date, y-axis=view count
+ * index 3 is x-axis=last mention date, y-axis=like vied ratio
+ *
+ * heatmap index: an array that reflects video dot's color level when sorted by 
+ * view and view count ratio
+ */
 async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
 
     const db = await MongoClient.connect(config.get("Database.url"));
@@ -965,13 +1153,21 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     return ret
 }
 
+
+/**
+ * Get filter graph data. Filter graph is the preview graph that was displayed on view count
+ * filter and like view ratio filter
+ * @return {Object}
+ * {
+ *      view: [] - array of number of videos for each view count range
+ *      vl_ratio: [] - array of number of videos for each like view ratio range
+ * }
+ */
 async function getFilterGraph() {
     const db = await MongoClient.connect(config.get("Database.url"));
     const video_collection = db.collection(config.get("Database.video_collection"));
     const stats_collection = db.collection(config.get("Database.stats_collection"));
 
-    
-    
     logger.debug("db connected.")
 
     const shared_stats = await stats_collection.find().limit(1).toArray();

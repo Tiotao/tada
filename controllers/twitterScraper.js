@@ -2,15 +2,10 @@ const config = require('config');
 const MongoClient = require('mongodb').MongoClient;
 const logger  = require('logger').createLogger();
 logger.setLevel(config.get("Logger.level"));
-
 const nodeUtil = require('util');
-
 const youtubeScraper = require('./youtubeScraper');
-
 const Twitter = require('twitter');
 const TwitterClient = new Twitter(config.get("Credentials.twitter"));
-
-
 const TwitterGet = nodeUtil.promisify(TwitterClient.get.bind(TwitterClient));
 const parallel = require('async-await-parallel');
 

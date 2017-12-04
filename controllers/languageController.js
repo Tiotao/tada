@@ -7,6 +7,14 @@ const language = Language.v1beta2({
 const logger  = require('logger').createLogger();
 logger.setLevel(config.get("Logger.level"));
 
+
+/**
+ * Label video based on its title using Google Language API
+ * @param {Array<Object>} posts - database entry of a scraped video
+ * @param {Boolean} sentiment - if include sentiment analysis
+ * @return {Array<Object} - posts that contains post.content.entities
+ */
+
 async function labelPosts(posts, sentiment=true) {
 
     async function label(post) {
