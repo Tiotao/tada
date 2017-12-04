@@ -41,7 +41,7 @@ export default class LeftBar extends React.Component {
 	}
 
 	render() {
-		let labels
+		let labels;
 
 		if(this.state.labels.length != 0) {
 			labels = this.state.labels;
@@ -50,7 +50,7 @@ export default class LeftBar extends React.Component {
 			labels = this.props.labels.slice(0, 80);
 		}
 
-		let Labels 
+		let Labels; 
 
 		if(labels) {
 			Labels = labels.map((label) => {

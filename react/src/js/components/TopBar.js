@@ -22,7 +22,7 @@ export default class TopBar extends React.Component {
 			$('.HideTopBarText').html("Show");
 			$('.CanvasHeaderTitle').css("top", 90);
 			$('.CanvasHeatmapLegend').css("top", 90);
-			$('.SwitchContainerY').css("top", -800);
+			$('.SwitchContainerY').css("bottom", 800);
 			this.setState({
 				visibility: 'hidden'
 			})
@@ -40,9 +40,9 @@ export default class TopBar extends React.Component {
 		if(this.state.visibility == 'hidden') {
 			$('.TopbarContainer').css("top", 0);
 			$('.HideTopBarText').html("Hide");
-			$('.CanvasHeaderTitle').css("top", 400);
-			$('.CanvasHeatmapLegend').css("top", 400);
-			$('.SwitchContainerY').css("top", -500);
+			$('.CanvasHeaderTitle').css("top", 345);
+			$('.CanvasHeatmapLegend').css("top", 345);
+			$('.SwitchContainerY').css("bottom", 550);
 			$('.HideTop').css("opacity", 1).css('cursor', 'pointer');
 			this.setState({
 				visibility: 'shown'
