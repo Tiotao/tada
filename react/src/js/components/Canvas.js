@@ -115,7 +115,7 @@ export default class Canvas extends React.Component {
 		}
 		else {
 			date.setDate(date.getDate() - (30 - x));
-			labelText.text = "" + date.getDate() + "/" + date.getMonth();
+			labelText.text = "" + date.getDate() + "/" + (date.getMonth()+1);
 		}
 		labelText.style = {fontSize:"12px", fill:"#333"};
 		labelText.x = this.getDotPosition(x);
@@ -130,7 +130,6 @@ export default class Canvas extends React.Component {
 	var box = new PIXI.Container();
 	var dot = new PIXI.Graphics();
 	box.x = this.getDotPosition(x);
-	console.log("box height", box.height);
 	box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
 	//box.pivot.x = box.width / 2; //this is 0
     box.pivot.y = screenMarginY; //margin bottom
@@ -459,10 +458,10 @@ export default class Canvas extends React.Component {
 							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) + 100);
 						}
 						else if(x >= 27) {
-							$('.Preview').css("right", elementPostion.x - (canvasWidth-window.screen.width) - 200);
+							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
 						}
 						else {
-							$('.Preview').css("right", canvasWidth - elementPostion.x + 20);
+							$('.Preview').css("left", elementPostion.x - 20);
 						}
 						$('.Preview').css("top", elementPostion.y);
 						$('.PreviewImg').attr("src", previewData.href);
@@ -557,7 +556,6 @@ export default class Canvas extends React.Component {
   }
 
 	componentWillReceiveProps(nextProps) {
-		console.log("trigger");
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}

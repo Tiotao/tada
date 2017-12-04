@@ -11,6 +11,7 @@ export default class TopBar extends React.Component {
 			visibility: 'shown'
 		}
 
+		this.removeSelectedLabel = props.removeSelectedLabel;
 		this.hideTopBar = this.hideTopBar.bind(this);
 		this.hideBottom = this.hideBottom.bind(this);
 	}
@@ -60,11 +61,10 @@ export default class TopBar extends React.Component {
 	render() {
 		const selectedLabels = this.props.selected;
 		let selectedLabelElements;
-
 		if(selectedLabels.length > 0) {
 			selectedLabelElements = selectedLabels.map((labelObj, i) => {
 				return <Selected key={labelObj.id} name={labelObj.name} id={labelObj.id} selected={this.props.selected} setVideos={this.props.setVideos}
-						removeSelectedLabel={this.props.removeSelectedLabel} handleRemove={this.props.handleRemove}/>;
+						removeSelectedLabel={this.removeSelectedLabel}/>;
 			});
 		}
 		return (
