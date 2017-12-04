@@ -57,6 +57,21 @@ export default class Overlay extends React.Component {
 					<ul class="VideoActions">
 						<Action icon="/interface/images/share.png" action="Share"/>
 						<Action icon="/interface/images/add.png" action="Add"/>
+						<div class="VideoActionAdd hidden">
+							<p class="VideoActionAddTitle">Add to</p>
+							<ul class="AddTo">
+								<li class="AddToItem">Promote</li>
+								<li class="AddToItem">Promote</li>
+								<li class="AddToItem">Promote</li>
+							</ul>
+						</div>
+						<div class="VideoActionShare hidden">
+							<p class="VideoActionShareTitle">Share this video</p>
+							<form class="ShareTo">
+								<input class="ShareURL" type="text" name="shareURL" />
+								<button type="button" class="ShareButton" value="Copy">Share</button>
+							</form>
+						</div>
 					</ul>
 				</div>
 			</div>

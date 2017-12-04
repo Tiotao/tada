@@ -40,6 +40,7 @@ export default class Canvas extends React.Component {
 		this.parseData = this.parseData.bind(this);
 		this.drawBigDot = this.drawBigDot.bind(this);
 		this.drawXLabel = this.drawXLabel.bind(this);
+		this.drawXLabelDayView = this.drawXLabelDayView.bind(this);
 		this.handleDayView = this.handleDayView.bind(this);
 	}
 
@@ -101,6 +102,12 @@ export default class Canvas extends React.Component {
 		this.handleVideoPosition();
 	}
 
+	/*
+	 * Draw labels on x axis in month view
+	 * @ x {int} column index
+	 * @ canvasHeight {int} canvas height
+	 * return {null}
+	 */
 	drawXLabel(x, canvasHeight) {
 		var date = new Date();
 		var labelText = new PIXI.Text();
@@ -115,23 +122,51 @@ export default class Canvas extends React.Component {
 		}
 		else {
 			date.setDate(date.getDate() - (30 - x));
-			labelText.text = "" + date.getDate() + "/" + (date.getMonth()+1);
+			labelText.text = (date.getMonth()+1) + "/" + date.getDate();
 		}
 		labelText.style = {fontSize:"12px", fill:"#333"};
 		labelText.x = this.getDotPosition(x);
 		labelText.anchor.x = 0.5;
 		labelText.align = "right";
 		labelText.y = canvasHeight - screenMarginY;
-		//labelText.rotation = 0.5;
 		this.stage.addChild(labelText);
 	}
 
-  drawBigDot(x, count) {		
+	/* 
+	 * Draw labels on x axis in day view
+	 * return {null}
+	 */
+	drawXLabelDayView() {
+		var col = 24;
+		var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+
+		for(var i = 1; i <= col; i++) {
+			var labelText = new PIXI.Text();
+			labelText.style = {fontSize:"12px", fill:"#333"};
+			labelText.x = this.getDotPosition(i+2);
+			labelText.anchor.x = 0.5;
+			labelText.align = "right";
+			labelText.y = canvasHeight - screenMarginY - 40;
+			if(i < 12) {
+				labelText.text = i + " am";
+			}
+			else if(i ==12) {
+				labelText.text = i + " pm";
+			}
+			else if(i < 24){
+				labelText.text = (i-12) + " pm";
+			}
+			else {
+				labelText.text = (i-12) + " am"; 
+			}
+			this.stage.addChild(labelText);
+		}
+	}
+  drawBigDot(x, count) {
 	var box = new PIXI.Container();
 	var dot = new PIXI.Graphics();
 	box.x = this.getDotPosition(x);
 	box.y = document.getElementById("canvas").childNodes[0].clientHeight - 30;
-	//box.pivot.x = box.width / 2; //this is 0
     box.pivot.y = screenMarginY; //margin bottom
     box.index = x;
 
@@ -165,9 +200,11 @@ export default class Canvas extends React.Component {
   handleDayView(index) {
   	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
   	this.stage.destroy();
-	this.stage = new PIXI.Container();
+		this.stage = new PIXI.Container();
 
   	var positions = this.props.videos.positions;
+
+  	this.drawXLabelDayView();
 
   	var xState = this.props.x;
 		var yState = this.props.y;
@@ -501,6 +538,7 @@ export default class Canvas extends React.Component {
 						  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
 						  $('.VideoVLRatio').html("Like/view ratio: " + (data.stats.vl_ratio*100).toFixed(1) + "%");
 						  $('.VideoCaption').html(data.description);
+						  $('.ShareURL').val(data.href);
 
 						  $('.VideoLabels').empty();
 							for(var i = 0; i < data.labels.length; i++) {
@@ -526,7 +564,7 @@ export default class Canvas extends React.Component {
 	parseDate(timestamp) {
 		var date = new Date(timestamp * 1000);
 		var year = date.getFullYear()
-			, month = date.getMonth()
+			, month = date.getMonth() + 1
 			, day = date.getDay();
 		return year + "/"+ month + "/" + day
 	}
