@@ -29,7 +29,11 @@ export default class Overlay extends React.Component {
 		
 		$(".VideoAddNewLabelInput").val('');
 	}
- 
+
+	addToList(e) {
+		$(e.target).css('opacity', 0.5);
+	}
+
 	render() {
 		return (
 			<div class="Overlay hidden">
@@ -60,10 +64,14 @@ export default class Overlay extends React.Component {
 						<div class="VideoActionAdd hidden">
 							<p class="VideoActionAddTitle">Add to</p>
 							<ul class="AddTo">
-								<li class="AddToItem">Promote</li>
-								<li class="AddToItem">Promote</li>
-								<li class="AddToItem">Promote</li>
+								<li class="AddToItem" onClick={this.addToList}>Promote</li>
+								<li class="AddToItem" onClick={this.addToList}>Good for experts</li>
+								<li class="AddToItem" onClick={this.addToList}>For beginers</li>
 							</ul>
+							<div class="VideoActionAddNewList">
+								<img class="VideoActionAddNewListIcon" src="/interface/images/add-dark.png"/>
+								<p class="VideoActionAddNewListText">Create a new list</p>
+							</div>
 						</div>
 						<div class="VideoActionShare hidden">
 							<p class="VideoActionShareTitle">Share this video</p>
