@@ -26,12 +26,9 @@ export default class Switches extends React.Component {
 
 	handleSwitchX(e) {
 		e.preventDefault();
-
 		if(this.state.x == e.target.id) return;
 		else {
-			this.setState({
-				x: e.target.id
-			})
+			this.state.x = e.target.id;
 			$(e.target).addClass('active');
 			$(e.target).siblings().removeClass('active');
 			if(e.target.id === xPostedId)
@@ -39,7 +36,6 @@ export default class Switches extends React.Component {
 			else if(e.target.id === xMentionedId)				
 				$('.SwitchXDropdown').html(xMentionedText);
 			this.props.handleSwitch("x", this.state.x);
-			console.log(this.state.x);
 		}
 	}
 
@@ -59,16 +55,13 @@ export default class Switches extends React.Component {
 		
 		if(this.state.y == e.target.id) return;
 		else {
-			this.setState({
-				y: e.target.id
-			})
+			this.state.y = e.target.id;
 			$(e.target).addClass('active');
 			$(e.target).siblings().removeClass('active');
 			if(e.target.id === yViewId)
 				$('.SwitchYDropdown').html(yViewText);
 			else if(e.target.id === yLikeViewId)
 				$('.SwitchYDropdown').html(yLikeViewText);
-
 			this.props.handleSwitch("y", this.state.y);
 		}
 	}

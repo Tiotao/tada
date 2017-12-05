@@ -67,7 +67,7 @@ export default class Canvas extends React.Component {
 			buckets2[i] = new Array();
 			buckets3[i] = new Array();
 		}
-
+		console.log(data);
 		let positions = data.positions;
 
 		for(var video in positions) {
@@ -102,6 +102,16 @@ export default class Canvas extends React.Component {
 		this.handleVideoPosition();
 	}
 
+
+	getMaxVideosPerCol(bucket){
+		//let max = 0;
+		//console.log(bucket);
+		return bucket.reduce((prev, curr) => {
+			return Math.max(prev, curr.length);
+		}, 0);
+		//console.log("max videos", max);
+		return max;
+	}
 	/*
 	 * Draw labels on x axis in month view
 	 * @ x {int} column index
@@ -220,7 +230,7 @@ export default class Canvas extends React.Component {
 			  		var colorLevel = positions[videoID].heatmap[0];
 			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
-		  	})
+		  		});
 			}
 			else {
 				console.log("by posted, by likes")
@@ -231,7 +241,7 @@ export default class Canvas extends React.Component {
 			  		var colorLevel = positions[videoID].heatmap[1];
 			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
-		  	})
+		  		});
 			}
 		}
 		else {
@@ -313,11 +323,13 @@ export default class Canvas extends React.Component {
 				console.log("by posted, by views")
 				var buckets0 = this.buckets0;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets0);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets0.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
@@ -338,11 +350,13 @@ export default class Canvas extends React.Component {
 				console.log("by posted, by likes")
 				var buckets1 = this.buckets1;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets1);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets1.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
@@ -365,11 +379,13 @@ export default class Canvas extends React.Component {
 				console.log("by mentioned, by views")
 				var buckets2 = this.buckets2;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets2);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets2.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
@@ -390,11 +406,13 @@ export default class Canvas extends React.Component {
 				console.log("by mentioned, by likes")
 				var buckets3 = this.buckets3;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets3);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets3.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
