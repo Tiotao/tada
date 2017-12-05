@@ -498,6 +498,10 @@ canvas {
 	overflow: scroll;
 }
 
+.OverlayInfo::-webkit-scrollbar { 
+		display: none; 
+}
+
 .VideoTitle {
 	font-size: 24px;
 	text-decoration: none;
@@ -618,9 +622,23 @@ canvas {
 	font-weight: bolder;
 }
 
+.AddTo {
+	height: 220px;
+	overflow: scroll;
+}
+
+.AddTo::-webkit-scrollbar { 
+	display: none; 
+}
+
 .AddToItem {
 	padding: 10px 0;
 	cursor: pointer;
+	color: #111;
+}
+
+.added {
+	opacity: 0.5;
 }
 
 .AddToItem:hover {
@@ -683,6 +701,11 @@ canvas {
 	padding: 0;
 	margin: auto;
 	margin-left: 10px;
+}
+
+.VideoActionAddNewListInput {
+	margin: auto;
+	margin-right: 0;
 }
 
 .OverlayClose {

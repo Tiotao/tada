@@ -6,6 +6,9 @@ import Action from "./Action";
 export default class Overlay extends React.Component {
 	constructor(props) {
 		super();
+
+		this.showNewListInput = this.showNewListInput.bind(this);
+		this.createNewList = this.createNewList.bind(this);
 	}
 
 	componentDidMount() {
@@ -31,7 +34,37 @@ export default class Overlay extends React.Component {
 	}
 
 	addToList(e) {
-		$(e.target).css('opacity', 0.5);
+		if($(e.target).hasClass('added')) {
+			$(e.target).removeClass('added');
+		}
+		else {
+			$(e.target).addClass('added');
+		}
+	}
+
+	showNewListInput() {
+		if($('.VideoActionAddNewList').find('input').length == 0) {
+			$('.VideoActionAddNewListText').hide();
+			$('.VideoActionAddNewList').prepend(
+				$('<input>').attr('class', 'VideoActionAddNewListInput'));
+			$('.VideoActionAddNewList').css('cursor', 'initial');
+		}
+	}
+
+	createNewList() {
+		if($('.VideoActionAddNewList').find('input').length != 0) {
+			var newList = $('.VideoActionAddNewListInput').val();
+			$('.AddTo').append(
+				$('<li>').attr('class', 'AddToItem').html(newList).on('click', this.addToList));
+
+			$('.VideoActionAddNewListInput').val("");
+		}
+		else {
+			$('.VideoActionAddNewListText').hide();
+			$('.VideoActionAddNewList').prepend(
+				$('<input>').attr('class', 'VideoActionAddNewListInput'));
+			$('.VideoActionAddNewList').css('cursor', 'initial');
+		}
 	}
 
 	render() {
@@ -64,12 +97,12 @@ export default class Overlay extends React.Component {
 						<div class="VideoActionAdd hidden">
 							<p class="VideoActionAddTitle">Add to</p>
 							<ul class="AddTo">
-								<li class="AddToItem" onClick={this.addToList}>Promote</li>
-								<li class="AddToItem" onClick={this.addToList}>Good for experts</li>
-								<li class="AddToItem" onClick={this.addToList}>For beginers</li>
+								<li class="AddToItem" onMouseDown={this.addToList}>Promote</li>
+								<li class="AddToItem" onMouseDown={this.addToList}>Good for experts</li>
+								<li class="AddToItem" onMouseDown={this.addToList}>For beginers</li>
 							</ul>
-							<div class="VideoActionAddNewList">
-								<img class="VideoActionAddNewListIcon" src="/interface/images/add-dark.png"/>
+							<div class="VideoActionAddNewList" onMouseDown={this.showNewListInput}>
+								<img class="VideoActionAddNewListIcon" src="/interface/images/add-dark.png" onMouseDown={this.createNewList}/>
 								<p class="VideoActionAddNewListText">Create a new list</p>
 							</div>
 						</div>
