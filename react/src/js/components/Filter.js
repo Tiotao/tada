@@ -1,5 +1,6 @@
 import React from "react";
 import $ from "jquery";
+import TopBar from "./TopBar";
 
 export default class Filter extends React.Component {
 	constructor(props) {
@@ -9,7 +10,6 @@ export default class Filter extends React.Component {
 	}
 
 	componentDidMount() {
-
 		var canvas = document.getElementById(this.props.id);
 		var rect = {};
 		var ctx = canvas.getContext('2d');
@@ -24,6 +24,8 @@ export default class Filter extends React.Component {
 		var _this = this;
 
 		function mouseDown(e) {
+			if(TopBar.getVisibility() === 'hidden')
+				return;
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			rect.startX = e.pageX - this.getBoundingClientRect().x;
 			rect.startY = this.getBoundingClientRect().y - this.getBoundingClientRect().top;

@@ -4,12 +4,10 @@ import $ from "jquery";
 import Selected from "./Selected";
 
 export default class TopBar extends React.Component {
+	static visibility = 'shown';
+
 	constructor(props) {
 		super(props);
-
-		this.state = {
-			visibility: 'shown'
-		}
 
 		this.removeSelectedLabel = props.removeSelectedLabel;
 		this.hideTopBar = this.hideTopBar.bind(this);
@@ -17,45 +15,43 @@ export default class TopBar extends React.Component {
 	}
 
 	hideTopBar() {
-		if(this.state.visibility == 'shown') {
+		if(TopBar.visibility == 'shown') {
 			$('.TopbarContainer').css("top", -300);
 			$('.HideTop').css("opacity", 0.3).css('cursor', 'inherit');
 			$('.HideTopBarText').html("Show");
 			$('.CanvasHeaderTitle').css("top", 90);
 			$('.CanvasHeatmapLegend').css("top", 90);
 			$('.SwitchContainerY').css("bottom", 800);
-			this.setState({
-				visibility: 'hidden'
-			})
+			TopBar.visibility = 'hidden';
 		}
-		else if(this.state.visibility == 'full'){
+		else if(TopBar.visibility == 'full'){
 			$('.LeftBar').css("height", 250);
 			$('.HideBottom').css("opacity", 1).css('cursor', 'pointer');
-			this.setState({
-				visibility: 'shown'
-			})
+			TopBar.visibility = 'shown';
 		}
+		console.log(TopBar.visibility);
 	}
 
 	hideBottom() {
-		if(this.state.visibility == 'hidden') {
+		if(TopBar.visibility == 'hidden') {
 			$('.TopbarContainer').css("top", 0);
 			$('.HideTopBarText').html("Hide");
 			$('.CanvasHeaderTitle').css("top", 345);
 			$('.CanvasHeatmapLegend').css("top", 345);
 			$('.SwitchContainerY').css("bottom", 550);
 			$('.HideTop').css("opacity", 1).css('cursor', 'pointer');
-			this.setState({
-				visibility: 'shown'
-			})
+			TopBar.visibility = 'shown';
 		}
-		else if(this.state.visibility == 'shown') {
+		else if(TopBar.visibility == 'shown') {
 			$('.LeftBar').css("height", $(window).height() - 100);
 			$('.HideBottom').css("opacity", 0.3).css('cursor', 'inherit');
-			this.setState({
-				visibility: 'full'
-			})
+			TopBar.visibility = 'full';
 		}
+		console.log(TopBar.visibility);
+	}
+
+	static getVisibility() {
+		return TopBar.visibility;
 	}
 
 	render() {
@@ -70,10 +66,10 @@ export default class TopBar extends React.Component {
 		return (
 			<div class="TopBarLabels">
 				<ul>{selectedLabelElements}</ul>
-				<div class="HideTop" onMouseDown={this.hideTopBar}>
+				<div class="HideTop" onClick={this.hideTopBar.bind(this)}>
 					<img class="HideTopBarIcon" src="./interface/images/up.png" />
 				</div>
-				<div class="HideBottom" onMouseDown={this.hideBottom}>
+				<div class="HideBottom" onClick={this.hideBottom.bind(this)}>
 					<img class="HideTopBarIcon" src="./interface/images/down.png" />
 				</div>
 			</div>
