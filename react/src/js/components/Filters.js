@@ -23,7 +23,7 @@ export default class Filters extends React.Component {
 		//this.props.handleUpdate('vl_ratio', 0, 100);
 		this.props.handleUpdate(null);
 	}
-	
+
 	render() {
 		return (
 			<div class="Filters">
@@ -33,6 +33,7 @@ export default class Filters extends React.Component {
 					<Filter 
 						id="view" 
 						data={this.props.graph.view}
+						max={this.props.graph.max_view}
 						handleUpdate={this.props.handleUpdate}/>
 					<p class="FilterLabel">View count</p>
 				</div>

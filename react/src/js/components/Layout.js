@@ -67,6 +67,7 @@ export default class Layout extends React.Component {
     axios.get('/api/graph') 
       .then(res => {
         this.state.graph = res.data;
+        console.log(res.data)
       })
       .catch(err => {
         console.log(err);
