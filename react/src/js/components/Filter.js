@@ -100,6 +100,11 @@ export default class Filter extends React.Component {
 	render() {
 		return (
 				<div>
+					<div class="FilterYLabels">
+						<p class="FilterYLabel">More</p>
+						<p class="FilterYLabel">number of videos</p>
+						<p class="FilterYLabel">Fewer</p>
+					</div>
 					<div>{this.drawFilterGraph()}</div>
 					<canvas id={this.props.id} class="FilterCanvas" onMouseDown={this.select}></canvas>
 				</div>
