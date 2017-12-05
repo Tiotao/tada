@@ -139,7 +139,7 @@ export default class Layout extends React.Component {
   }
 
   setVideos(data) {
-    console.log(data);
+    console.log("set videos triggered", data);
     this.setState({
       videos:data
     });
@@ -174,6 +174,7 @@ export default class Layout extends React.Component {
   }
 
   updateFilter(filter, start, end) {
+    console.log("filter");
     if(filter == "view") {
       this.setState({
         view: [start, end]
