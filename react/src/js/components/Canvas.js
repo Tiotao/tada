@@ -47,7 +47,7 @@ export default class Canvas extends React.Component {
 	componentDidUpdate() {
 		if(this.props.videos) {
 			if(this.timeScale == '86400') {
-				this.parseData(this.props.videos)
+				this.parseData(this.props.videos);
 			}
 			else {
 				this.handleDayView(this.currentDay);
@@ -594,7 +594,7 @@ export default class Canvas extends React.Component {
   }
 
 	componentWillReceiveProps(nextProps) {
-		console.log("props", nextProps);
+		//console.log("props", nextProps);
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}
