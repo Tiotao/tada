@@ -594,6 +594,7 @@ export default class Canvas extends React.Component {
   }
 
 	componentWillReceiveProps(nextProps) {
+		console.log("props", nextProps);
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}

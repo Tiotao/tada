@@ -43,38 +43,34 @@ export default class Layout extends React.Component {
   }
 
   componentDidMount() {
+    let videos;
     axios.get('/api/labels')
       .then(res => {
-        console.log(res.data.data)
-        this.setState({
-          labels : res.data.data
-        })
-
+        console.log(res.data.data);
+        this.state.labels = res.data.data;
         return axios.post('/api/filter', {
           "ids": [],
           "view_count_range": this.state.view,
           "like_ratio_range": this.state.vl_ratio
-        })
+        });
       })
       .then(response => {
         console.log(response.data);
         this.setState({
-          videos : response.data
+          videos: response.data
         })
       })
       .catch(err => {
         console.log(err);
-      })
+      });
 
     axios.get('/api/graph') 
       .then(res => {
-        this.setState({
-          graph : res.data
-        })
+        this.state.graph = res.data;
       })
       .catch(err => {
         console.log(err);
-      })
+      });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -82,11 +78,8 @@ export default class Layout extends React.Component {
       this.state.vl_ratio != prevState.vl_ratio) {
         axios.get('/api/labels')
         .then(res => {
-          console.log(res.data)
-          this.setState({
-            labels : res.data.data.slice(0,80)
-          })
-
+          console.log(res.data);
+          this.state.labels = res.data.data.slice(0,80);
           return axios.post('/api/filter', {
             "ids": [],
             "view_count_range": this.state.view,
@@ -97,11 +90,11 @@ export default class Layout extends React.Component {
           console.log(response.data);
           this.setState({
             videos : response.data
-          })
+          });
         })
         .catch(err => {
           console.log(err);
-        })
+        });
     }
   }
 
@@ -123,7 +116,6 @@ export default class Layout extends React.Component {
       //Label is not in selection, so add it in.
       else { 
         this.state.selected.push({name: name, id: id, label: label});
-        this.setState({selected: this.state.selected});
         //Reacts label state change might be slower than this function's completion. Hence purely UI change.
         label.setState({selected: isLabelSelected});
       }
@@ -143,7 +135,6 @@ export default class Layout extends React.Component {
     let removedLabelObj = this.state.selected.splice(removeIndex, 1);
     //Deselects label from left bar (if disabled from top bar);
     removedLabelObj[0].label.setState({selected: false});
-    this.setState({selected: this.state.selected});
     return this.getSelectedLabelIds();
   }
 
@@ -173,7 +164,9 @@ export default class Layout extends React.Component {
     }
   }
 
+  //Doesn't do anything? Added return
   handlePreviewUpdate(data) {
+    return;
     this.previewData = data;
     this.setState({
       previewData: data
