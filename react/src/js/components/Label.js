@@ -14,21 +14,21 @@ export default class Label extends React.Component {
 	handleClick(e) {
 		event.stopPropagation();
 
-  	let name = this.props.name;
-  	let id = this.props._id;
-    let selectedLabelIds = this.props.addSelectedLabels(id, name, this);
+	  	let name = this.props.name;
+	  	let id = this.props._id;
+	    let selectedLabelIds = this.props.addSelectedLabels(id, name, this);
 
-    axios.post('/api/filter', {
-	      "ids": selectedLabelIds,
-	      "view_count_range": ["0", "100"],
-	      "like_ratio_range": ["0", "100"] 
-    })
-    .then(res => {
-      this.props.setVideos(res.data);
-    })
-    .catch(err => {
-      console.log(err);
-    });
+	    axios.post('/api/filter', {
+		      "ids": selectedLabelIds,
+		      "view_count_range": ["0", "100"],
+		      "like_ratio_range": ["0", "100"] 
+	    })
+	    .then(res => {
+	      this.props.setVideos(res.data);
+	    })
+	    .catch(err => {
+	      console.log(err);
+	    });
 	}
 	
 	createLabelElement(isSelected) {

@@ -324,13 +324,12 @@ export default class Canvas extends React.Component {
 				var buckets0 = this.buckets0;
 				var _this = this;
 				var maxVids = this.getMaxVideosPerCol(buckets0);
-				var quotient = Math.max(1, Math.floor(maxVids/10));
+				var quotient = Math.ceil(maxVids/10);
+				console.log(maxVids);
 				buckets0.forEach(function(bucket, index) {
-
 					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10) {
+					if(bucket.length > 10 && quotient > 0) {
 						var showCount = Math.floor(bucket.length/quotient);
-
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
 						for(var i=0; i<showCount; i++) {
@@ -351,11 +350,11 @@ export default class Canvas extends React.Component {
 				var buckets1 = this.buckets1;
 				var _this = this;
 				var maxVids = this.getMaxVideosPerCol(buckets1);
-				var quotient = Math.max(1, Math.floor(maxVids/10));
+				var quotient = Math.ceil(maxVids/10);
 				buckets1.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10) {
+					if(bucket.length > 10 && quotient > 0) {
 						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
@@ -380,11 +379,11 @@ export default class Canvas extends React.Component {
 				var buckets2 = this.buckets2;
 				var _this = this;
 				var maxVids = this.getMaxVideosPerCol(buckets2);
-				var quotient = Math.max(1, Math.floor(maxVids/10));
+				var quotient = Math.ceil(maxVids/10);
 				buckets2.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10) {
+					if(bucket.length > 10 && quotient > 0) {
 						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
@@ -407,11 +406,11 @@ export default class Canvas extends React.Component {
 				var buckets3 = this.buckets3;
 				var _this = this;
 				var maxVids = this.getMaxVideosPerCol(buckets3);
-				var quotient = Math.max(1, Math.floor(maxVids/10));
+				var quotient = Math.ceil(maxVids/10);
 				buckets3.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10) {
+					if(bucket.length > 10 && quotient > 0) {
 						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
