@@ -200,6 +200,7 @@ function calculateHeatmapLevel(view_count, vl_ratio, max_view) {
 
 module.exports = {
     combineDuplicates: combineDuplicates,
+    sortBy: sortBy,
     groupByDay: groupByDay,
     groupByHour: groupByHour,
     groupByViewLikeRatio: groupByViewLikeRatio,

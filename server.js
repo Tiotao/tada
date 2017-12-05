@@ -70,7 +70,7 @@ async function once() {
 }
 
 if (config.get("Scraper.schedule_scraping")) {
-    once();
+    // once();
 }
 
 

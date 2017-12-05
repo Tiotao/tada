@@ -1053,11 +1053,11 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
-        (v)=>{ if (v.stats && v.stats.last_mention) {
-            return v.stats.last_mention.timestamp;
-        } else {
-            return -1;
-        }}
+        // (v)=>{ if (v.stats && v.stats.last_mention) {
+        //     return v.stats.last_mention.timestamp;
+        // } else {
+        //     return -1;
+        // }}
     ]
 
     function calcDotsPosition(keyFunc, y_id) {
@@ -1117,11 +1117,11 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
         // sort by view count
         
         const groups_by_views = groups.map((g)=>{
-            const byViewCount = (a, b)=>{return a.stats.view_count > b.stats.view_count};
+            const getViewCount = (a)=>{return -a.stats.view_count};
             r = []
-            r.push(g[0].sort(byViewCount));
+            r.push(utils.sortBy(g[0], getViewCount));
             r.push(g[1].map((h)=>{
-                h.sort(byViewCount)
+                utils.sortBy(h, getViewCount);
                 return h;
             }))
             return r;
@@ -1130,11 +1130,11 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
         findIndex(groups_by_views, y_id * 2 + 0);
 
         const groups_by_vlr = groups.map((g)=>{
-            const byViewLikeRatio = (a, b)=>{return a.stats.vl_ratio > b.stats.vl_ratio};
+            const getViewLikeRatio = (a)=>{return -a.stats.vl_ratio};
             r = []
-            r.push(g[0].sort(byViewLikeRatio));
+            r.push(utils.sortBy(g[0], getViewLikeRatio));
             r.push(g[1].map((h)=>{
-                h.sort(byViewLikeRatio)
+                utils.sortBy(h, getViewLikeRatio);
                 return h;
             }))
             return r;
