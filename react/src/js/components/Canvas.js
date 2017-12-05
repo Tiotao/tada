@@ -583,7 +583,7 @@ export default class Canvas extends React.Component {
 		var date = new Date(timestamp * 1000);
 		var year = date.getFullYear()
 			, month = date.getMonth() + 1
-			, day = date.getDay();
+			, day = date.getDate();
 		return year + "/"+ month + "/" + day
 	}
 
