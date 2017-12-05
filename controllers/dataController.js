@@ -1053,11 +1053,11 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
     
     let x_axis_key_functions = [
         (v)=>{return v.timestamp},
-        // (v)=>{ if (v.stats && v.stats.last_mention) {
-        //     return v.stats.last_mention.timestamp;
-        // } else {
-        //     return -1;
-        // }}
+        (v)=>{ if (v.stats && v.stats.last_mention) {
+            return v.stats.last_mention.timestamp;
+        } else {
+            return -1;
+        }}
     ]
 
     function calcDotsPosition(keyFunc, y_id) {
