@@ -350,6 +350,8 @@ export default class Canvas extends React.Component {
 				console.log("by posted, by likes")
 				var buckets1 = this.buckets1;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets0);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets1.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
@@ -377,6 +379,8 @@ export default class Canvas extends React.Component {
 				console.log("by mentioned, by views")
 				var buckets2 = this.buckets2;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets0);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets2.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
@@ -402,6 +406,8 @@ export default class Canvas extends React.Component {
 				console.log("by mentioned, by likes")
 				var buckets3 = this.buckets3;
 				var _this = this;
+				var maxVids = this.getMaxVideosPerCol(buckets0);
+				var quotient = Math.max(1, Math.floor(maxVids/10));
 				buckets3.forEach(function(bucket, index) {
 
 					_this.drawXLabel(index, canvasHeight);
