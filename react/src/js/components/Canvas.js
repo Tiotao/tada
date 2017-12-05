@@ -124,7 +124,7 @@ export default class Canvas extends React.Component {
 		if(x == 29) {
 			labelText.text = "Today";
 		}
-		else if(x == 24) {
+		else if(x == 23) {
 			labelText.text = "1 week ago";
 		}
 		else if(x == 0) {
