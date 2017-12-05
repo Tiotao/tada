@@ -879,6 +879,27 @@ canvas {
 	text-align: right;
 }
 
+.FilterXLabels {
+	position: absolute;
+	left: 0;
+	bottom: 10px;
+	width: 300px;
+}
+
+.FilterXLabel {
+	font-size: 10px;
+	margin: 0;
+	position: absolute;
+}
+
+.FilterXStartLabel {
+	left: 0;
+}
+
+.FilterXEndLabel {
+	right: 0;
+}
+
 @keyframes draw {
 	from {
     stroke-dashoffset: 1000;
