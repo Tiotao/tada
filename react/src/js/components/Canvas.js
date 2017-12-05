@@ -354,7 +354,7 @@ export default class Canvas extends React.Component {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
@@ -381,7 +381,7 @@ export default class Canvas extends React.Component {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
@@ -406,7 +406,7 @@ export default class Canvas extends React.Component {
 
 					_this.drawXLabel(index, canvasHeight);
 					if(bucket.length > 10) {
-						var showCount = bucket.length%10;
+						var showCount = Math.floor(bucket.length/quotient);
 
 						_this.drawBigDot(index, bucket.length-showCount);
 						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
