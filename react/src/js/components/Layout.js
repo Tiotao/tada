@@ -174,21 +174,20 @@ export default class Layout extends React.Component {
   }
 
   updateFilter(filter, start, end) {
-    console.log("filter");
+    let state = this.state;
     if(filter == "view") {
-      this.setState({
-        view: [start, end]
-      })
+      state.view = [start, end];
     }
     else if(filter == "vl_ratio") {
-      this.setState({
-        vl_ratio: [start, end]
-      })
+      state.vl_ratio = [start, end];
     }
     else {
       console.log("Can't identify the filter.")
     }
-    console.log(filter, start, end)
+    this.setState({
+      state: state
+    });
+    console.log(filter, start, end);
   }
 
   render() {
