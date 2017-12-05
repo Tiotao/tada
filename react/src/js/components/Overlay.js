@@ -54,8 +54,10 @@ export default class Overlay extends React.Component {
 	createNewList() {
 		if($('.VideoActionAddNewList').find('input').length != 0) {
 			var newList = $('.VideoActionAddNewListInput').val();
-			$('.AddTo').append(
-				$('<li>').attr('class', 'AddToItem').html(newList).on('click', this.addToList));
+			if(newList) {
+				$('.AddTo').append(
+					$('<li>').attr('class', 'AddToItem').html(newList).on('click', this.addToList));
+			}
 
 			$('.VideoActionAddNewListInput').val("");
 		}
