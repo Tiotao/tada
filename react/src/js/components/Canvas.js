@@ -122,16 +122,16 @@ export default class Canvas extends React.Component {
 		var date = new Date();
 		var labelText = new PIXI.Text();
 		if(x == 29) {
-			labelText.text = "Yesterday";
+			labelText.text = "Today";
 		}
-		else if(x == 23) {
+		else if(x == 24) {
 			labelText.text = "1 week ago";
 		}
 		else if(x == 0) {
 			labelText.text = "1 month ago";
 		}
 		else {
-			date.setDate(date.getDate() - (30 - x));
+			date.setDate(date.getDate() - (29 - x));
 			labelText.text = (date.getMonth()+1) + "/" + date.getDate();
 		}
 		labelText.style = {fontSize:"12px", fill:"#333"};
