@@ -857,6 +857,49 @@ canvas {
 	pointer-events: visible;
 }
 
+.FilterYLabels {
+	position: absolute;
+	left: -60px;
+	top: 0;
+	width: 60px;
+	height: 150px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.FilterYLabel:nth-child(2) {
+	font-weight: bolder;
+}
+
+.FilterYLabel {
+	margin: auto;
+	font-size: 10px;
+	margin-right: 10px;
+	text-align: right;
+}
+
+.FilterXLabels {
+	position: absolute;
+	left: 0;
+	bottom: 10px;
+	width: 300px;
+}
+
+.FilterXLabel {
+	font-size: 10px;
+	margin: 0;
+	position: absolute;
+}
+
+.FilterXStartLabel {
+	left: 0;
+}
+
+.FilterXEndLabel {
+	right: 0;
+}
+
 @keyframes draw {
 	from {
     stroke-dashoffset: 1000;

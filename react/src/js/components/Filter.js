@@ -32,6 +32,18 @@ export default class Filter extends React.Component {
 			drag = true;
 			//first value of selection
 			_this.startFilter = Math.floor((e.pageX - this.getBoundingClientRect().x) /3);
+
+			//update x label
+			if(e.target.id == 'view') {
+				_this.startLabel = _this.parseViewCountRange([_this.startFilter, 100], _this.props.max)[0];
+				$('.view .FilterXStartLabel').html(Math.floor(_this.startLabel));
+				$('.view .FilterXStartLabel').css('left', e.pageX - this.getBoundingClientRect().x)
+			}
+			else {
+				_this.startLabel = _this.parseViewLikeRatioRange([_this.startFilter, 100])[0];
+				$('.vl_ratio .FilterXStartLabel').html((_this.startLabel * 100).toFixed(1) + "%");
+				$('.vl_ratio .FilterXStartLabel').css('left', e.pageX - this.getBoundingClientRect().x)
+			}
 		}
 
 		function mouseUp(e) {
@@ -43,6 +55,20 @@ export default class Filter extends React.Component {
 			//won't update if selection area is empty
 			if(endFilter != _this.startFilter) {
 				_this.endFilter = endFilter;
+
+				//update x label
+				if(e.target.id == "view") {
+					_this.endLabel = _this.parseViewCountRange([0, _this.endFilter], _this.props.max)[1];
+					$('.view .FilterXEndLabel').html(Math.floor(_this.endLabel));
+					$('.view .FilterXEndLabel').css('left', e.pageX - this.getBoundingClientRect().x);
+				}
+				else {
+					_this.endLabel = _this.parseViewLikeRatioRange([0, _this.endFilter])[1];
+					$('.vl_ratio .FilterXEndLabel').html((_this.endLabel * 100).toFixed(1) + "%");
+					$('.vl_ratio .FilterXEndLabel').css('left', e.pageX - this.getBoundingClientRect().x)
+				}
+				
+				//make sure End is greater than Start
 				if(_this.endFilter < _this.startFilter) {
 					var temp = _this.endFilter;
 					_this.endFilter = _this.startFilter;
@@ -51,9 +77,23 @@ export default class Filter extends React.Component {
 				_this.props.handleUpdate(this.id, _this.startFilter, _this.endFilter);
 			}
 		}
-
+		var i = 0;
 		function mouseMove(e) {
 			if(drag) {
+
+				//update x label
+				var endFilter = Math.floor((e.pageX - this.getBoundingClientRect().x) /3);
+				if(e.target.id == "view") {
+					_this.endLabel = _this.parseViewCountRange([0, endFilter], _this.props.max)[1];
+					$('.view .FilterXEndLabel').html(Math.floor(_this.endLabel));
+					$('.view .FilterXEndLabel').css('left', e.pageX - this.getBoundingClientRect().x);
+				}
+				else {
+					_this.endLabel = _this.parseViewLikeRatioRange([0, endFilter])[1];
+					$('.vl_ratio .FilterXEndLabel').html((_this.endLabel * 100).toFixed(1) + "%");
+					$('.vl_ratio .FilterXEndLabel').css('left', e.pageX - this.getBoundingClientRect().x);
+				}
+
 				rect.w = (e.pageX - this.getBoundingClientRect().x) - rect.startX;
 				rect.y = (e.pageY - this.getBoundingClientRect().y) - rect.startY;
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -97,11 +137,48 @@ export default class Filter extends React.Component {
 		}
 	}
 
+	/**
+	 * Denormalize relative view count range into absolute range
+	 * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+	 * @param {Number} max_view - max view count ever recorded
+	 * @return {Array<Number>} a pair of number represent absolute range of view counts [0-max_view, 0-max_view]
+	 *
+	 */
+	parseViewCountRange(range, max_view) {
+		range = range.map((r)=>{
+			return (Math.pow(10, r/100 * Math.log10(max_view))-1) ;
+		});
+		return range;
+	}
+
+	/**
+	 * Denormalize relative like view ratio range into absolute range
+	 * @param {Array<Number>} range - a pair of number represent the relative range [0-100, 0-100]
+	 * @return {Array<Number>} a pair of number represent absolute range of like view ratio [0-1, 0-1]
+	 *
+	 */
+	parseViewLikeRatioRange(range) {
+		const log101 = 2.0043213737826426;
+		range = range.map((r)=>{
+			return ((Math.pow(10, r/100 * log101)-1)) / 100 ;
+		});
+		return range;
+	}
+
 	render() {
 		return (
-				<div>
+				<div class={this.props.id}>
+					<div class="FilterYLabels">
+						<p class="FilterYLabel">More</p>
+						<p class="FilterYLabel">number of videos</p>
+						<p class="FilterYLabel">Fewer</p>
+					</div>
 					<div>{this.drawFilterGraph()}</div>
 					<canvas id={this.props.id} class="FilterCanvas" onMouseDown={this.select}></canvas>
+					<div class="FilterXLabels">
+						<p class="FilterXLabel FilterXStartLabel">0</p>
+						<p class="FilterXLabel FilterXEndLabel">100</p>
+					</div>
 				</div>
 		);
 	}

@@ -67,36 +67,20 @@ export default class Layout extends React.Component {
     axios.get('/api/graph') 
       .then(res => {
         this.state.graph = res.data;
+        console.log(res.data)
       })
       .catch(err => {
         console.log(err);
       });
   }
-
+  /*
   componentDidUpdate(prevProps, prevState) {
     if(this.state.view != prevState.view || 
       this.state.vl_ratio != prevState.vl_ratio) {
-        axios.get('/api/labels')
-        .then(res => {
-          console.log(res.data);
-          this.state.labels = res.data.data.slice(0,80);
-          return axios.post('/api/filter', {
-            "ids": [],
-            "view_count_range": this.state.view,
-            "like_ratio_range": this.state.vl_ratio
-          })
-        })
-        .then(response => {
-          console.log(response.data);
-          this.setState({
-            videos : response.data
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        });
+        
     }
   }
+  */
 
   getSelectedLabelIds(){
       return this.state.selected.map(label =>
@@ -174,22 +158,39 @@ export default class Layout extends React.Component {
   }
 
   updateFilter(filter, start, end) {
-    console.log("filter");
-    if(filter == "view") {
-      this.setState({
-        view: [start, end]
-      })
+    if(filter === null) {
+      this.state.view = [0, 100];
+      this.state.vl_ratio = [0, 100];
+    }
+    else if(filter == "view") {
+      this.state.view = [start, end];
     }
     else if(filter == "vl_ratio") {
-      this.setState({
-        vl_ratio: [start, end]
-      })
+      this.state.vl_ratio = [start, end];
     }
     else {
       console.log("Can't identify the filter.")
     }
-    console.log(filter, start, end)
+    this.updateVideosAfterFilter();
   }
+
+  updateVideosAfterFilter() {
+    axios.get('/api/labels').then(res => {
+        this.state.labels = res.data.data.slice(0,80);
+        return axios.post('/api/filter', {
+          "ids": [],
+          "view_count_range": this.state.view,
+          "like_ratio_range": this.state.vl_ratio
+        });
+    }).then(response => {
+      console.log(response.data);
+      this.setState({
+        videos : response.data
+      });
+    }).catch(err => {
+      console.log(err);
+    });
+  };
 
   render() {
     return (
