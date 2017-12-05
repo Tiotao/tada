@@ -20,8 +20,8 @@ export default class Layout extends React.Component {
     this.state = {
       title: "Tada Interface",
       selected: [],
-      x: "byPosted",
-      y: "byViews",
+      x: Switches.getDefaultXAxis(),
+      y: Switches.getDefaultYAxis(),
       time: "86400",
       previewData: "",
       graph: [],
@@ -155,6 +155,7 @@ export default class Layout extends React.Component {
   }
 
   handleSwitch(axis, value) {
+    console.log(value);
     if(axis == "x") {
       this.setState({
         x: value

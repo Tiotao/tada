@@ -16,11 +16,10 @@ export default class Switches extends React.Component {
 		super(props);
 
 		this.state = {
-			x: xPostedId,
-			y: yViewId,
+			x: Switches.getDefaultXAxis(),
+			y: Switches.getDefaultYAxis(),
 			time: "86400"
 		}
-
 		this.handleSwitchX = this.handleSwitchX.bind(this);
 		this.handleSwitchY = this.handleSwitchY.bind(this);
 	}
@@ -39,8 +38,8 @@ export default class Switches extends React.Component {
 				$('.SwitchXDropdown').html(xPostedText);
 			else if(e.target.id === xMentionedId)				
 				$('.SwitchXDropdown').html(xMentionedText);
-
 			this.props.handleSwitch("x", this.state.x);
+			console.log(this.state.x);
 		}
 	}
 
@@ -72,6 +71,14 @@ export default class Switches extends React.Component {
 
 			this.props.handleSwitch("y", this.state.y);
 		}
+	}
+
+	static getDefaultXAxis() {
+		return xPostedId;
+	}
+
+	static getDefaultYAxis() {
+		return yViewId;
 	}
 
 	render() {
