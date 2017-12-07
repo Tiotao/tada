@@ -14,6 +14,9 @@ import Timeline from "./Timeline";
 import Tips from "./Tips";
 import TopBar from "./TopBar";
 
+/**
+ * Main component
+ */
 export default class Layout extends React.Component {
   constructor(props) {
     super(props);
@@ -44,9 +47,10 @@ export default class Layout extends React.Component {
 
   componentDidMount() {
     let videos;
+
+    //Request for labels data
     axios.get('/api/labels')
       .then(res => {
-        console.log(res.data.data);
         this.state.labels = res.data.data;
         return axios.post('/api/filter', {
           "ids": [],
@@ -55,7 +59,6 @@ export default class Layout extends React.Component {
         });
       })
       .then(response => {
-        console.log(response.data);
         this.setState({
           videos: response.data
         })
@@ -64,30 +67,33 @@ export default class Layout extends React.Component {
         console.log(err);
       });
 
+    //Request for filter graph data
     axios.get('/api/graph') 
       .then(res => {
         this.state.graph = res.data;
-        console.log(res.data)
       })
       .catch(err => {
         console.log(err);
       });
   }
-  /*
-  componentDidUpdate(prevProps, prevState) {
-    if(this.state.view != prevState.view || 
-      this.state.vl_ratio != prevState.vl_ratio) {
-        
-    }
-  }
-  */
 
+  /**
+   * Get selected label IDs
+   * @return {Array} - selected label IDs
+   */
   getSelectedLabelIds(){
       return this.state.selected.map(label =>
         label.id
     );
   }
 
+  /**
+   * Add selected labels
+   * @param {String} - id
+   * @param {String} - name
+   * @param {React Component} - label
+   * @return {Function} - get or remove selected label IDs
+   */
   addSelectedLabels(id, name, label) {    
     let currSelectedLabels = this.getSelectedLabelIds();
     let isLabelSelected = !label.state.selected;
@@ -113,6 +119,11 @@ export default class Layout extends React.Component {
     return this.getSelectedLabelIds();
   }
 
+  /**
+   * Remove selected labe
+   * @param {String} - id
+   * @return {Function} - getSelectedLabelIds
+   */
   removeSelectedLabel(id) {
     let currSelectedLabels = this.getSelectedLabelIds();
     let removeIndex = currSelectedLabels.indexOf(id);
@@ -122,13 +133,23 @@ export default class Layout extends React.Component {
     return this.getSelectedLabelIds();
   }
 
+  /**
+   * Set videos
+   * @param {Object} - data
+   * @return {null}
+   */
   setVideos(data) {
-    console.log("set videos triggered", data);
     this.setState({
       videos:data
     });
   }
 
+  /**
+   * Handle switch 
+   * @param {String} - axis
+   * @param {String} - switch name/value
+   * @return {null}
+   */
   handleSwitch(axis, value) {
     console.log(value);
     if(axis == "x") {
@@ -157,6 +178,13 @@ export default class Layout extends React.Component {
     })
   }
 
+  /**
+   * Update filter
+   * @param {String} - filter name
+   * @param {Number} - start position
+   * @param {Number} - end position
+   * @return {null}
+   */
   updateFilter(filter, start, end) {
     if(filter === null) {
       this.state.view = [0, 100];
@@ -174,6 +202,10 @@ export default class Layout extends React.Component {
     this.updateVideosAfterFilter();
   }
 
+  /**
+   * Update videos after filter
+   * @return {null}
+   */
   updateVideosAfterFilter() {
     axios.get('/api/labels').then(res => {
         this.state.labels = res.data.data.slice(0,80);
@@ -183,7 +215,6 @@ export default class Layout extends React.Component {
           "like_ratio_range": this.state.vl_ratio
         });
     }).then(response => {
-      console.log(response.data);
       this.setState({
         videos : response.data
       });
