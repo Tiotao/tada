@@ -23,6 +23,8 @@ const dotMarginX = (window.screen.width - (screenMarginX<<1)) / 30,
 
 const smallDotBotMargin = dotMarginX + bigDotSize;
 
+const maxRevealedDots = 10;
+
 export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
@@ -207,16 +209,16 @@ export default class Canvas extends React.Component {
     this.stage.addChild(box);
   }
 
-  handleDayView(index) {
-  	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
-  	this.stage.destroy();
+  	handleDayView(index) {
+	  	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
+	  	this.stage.destroy();
 		this.stage = new PIXI.Container();
 
-  	var positions = this.props.videos.positions;
+	  	var positions = this.props.videos.positions;
 
-  	this.drawXLabelDayView();
+	  	this.drawXLabelDayView();
 
-  	var xState = this.props.x;
+	  	var xState = this.props.x;
 		var yState = this.props.y;
 		var _this = this;
 
@@ -226,9 +228,9 @@ export default class Canvas extends React.Component {
 				this.buckets0[index].forEach(function(videoID, i) {
 					if(positions[videoID]) {
 						var x = positions[videoID]['3600'][0][0];
-			  		var y = positions[videoID]['3600'][0][1];
-			  		var colorLevel = positions[videoID].heatmap[0];
-			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
+				  		var y = positions[videoID]['3600'][0][1];
+				  		var colorLevel = positions[videoID].heatmap[0];
+				  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
 		  		});
 			}
@@ -254,18 +256,18 @@ export default class Canvas extends React.Component {
 			  		var colorLevel = positions[videoID].heatmap[0];
 			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
-		  	})
+		  		});
 			}
 			else {
-				console.log("by mentioned, by likes")
+				console.log("by mentioned, by likes");
 				this.buckets3[index].forEach(function(videoID, i) {
 					if(positions[videoID])  {
 						var x = positions[videoID]['3600'][3][0];
-			  		var y = positions[videoID]['3600'][3][1];
-			  		var colorLevel = positions[videoID].heatmap[1];
-			  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
+				  		var y = positions[videoID]['3600'][3][1];
+				  		var colorLevel = positions[videoID].heatmap[1];
+				  		_this.drawDot(x+3, y+2, videoID, colorLevel, canvasHeight);
 					}
-		  	})
+		  		});
 			}
 		}
 
@@ -296,139 +298,63 @@ export default class Canvas extends React.Component {
 	    hiddenCount.y = -5;
 	    box.addChild(hiddenCount);
 
-	    dot
-	      .on('pointerdown', onButtonDown)
+	    dot.on('pointerdown', onButtonDown)
 
 	    var _this = this;
 	    function onButtonDown() {
 	  		_this.timeScale = '86400';
 	  		_this.currentDay = null;
 	  		_this.handleVideoPosition();
-		  }
+	  	}
 
 	    this.stage.addChild(box);
-  }
+  	}
+
+  	drawVideoSection(xState, yState) {
+  		console.log("Axes X Y", xState, yState);
+  		let bucket;
+  		if(xState === 'byPosted' && yState === 'byViews') 
+			bucket = this.buckets0;
+  		else if(xState === 'byPosted' && yState === 'byLikeViewRatio') 
+			bucket = this.buckets1;
+  		else if(xState === 'byMentioned' && yState === 'byViews')
+  			bucket = this.buckets2;
+  		else if(xState === 'byMentioned' && yState === 'byViews')
+  			bucket = this.buckets3;
+
+		var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight;
+		var _this = this;
+		var maxVids = this.getMaxVideosPerCol(bucket);
+		var quotient = Math.ceil(maxVids/maxRevealedDots);
+		console.log(maxVids, quotient);
+		bucket.forEach(function(bucketCol, index) {
+			_this.drawXLabel(index, canvasHeight);
+			if(bucketCol.length > maxRevealedDots && quotient > 0) {
+				var showCount = Math.floor(bucketCol.length/quotient);
+				_this.drawBigDot(index, bucketCol.length-showCount);
+				var show = bucketCol.slice(bucketCol.length-showCount-1, bucketCol.length-1);
+
+				for(var i=0; i<showCount; i++) {
+					var colorLevel = _this.props.videos.positions[show[i]].heatmap[0];
+					_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
+				}
+			}
+			else {
+				for(var i=0; i<bucketCol.length; i++) {
+					var colorLevel = _this.props.videos.positions[bucketCol[i]].heatmap[0];
+					_this.drawDot(index, i+1, bucketCol[i], colorLevel, canvasHeight);
+				}
+			}
+		});
+  	}
 
 	handleVideoPosition() {
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
-
 		var xState = this.props.x;
 		var yState = this.props.y;
 
-		var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight;
-
-		if(xState == 'byPosted') {
-			if(yState == 'byViews') {
-				console.log("by posted, by views")
-				var buckets0 = this.buckets0;
-				var _this = this;
-				var maxVids = this.getMaxVideosPerCol(buckets0);
-				var quotient = Math.ceil(maxVids/10);
-				console.log(maxVids);
-				buckets0.forEach(function(bucket, index) {
-					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10 && quotient > 0) {
-						var showCount = Math.floor(bucket.length/quotient);
-						_this.drawBigDot(index, bucket.length-showCount);
-						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[show[i]].heatmap[0];
-							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
-						}
-					}
-					else {
-						for(var i=0; i<bucket.length; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
-							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
-						}
-					}
-				})
-			}
-			else {
-				console.log("by posted, by likes")
-				var buckets1 = this.buckets1;
-				var _this = this;
-				var maxVids = this.getMaxVideosPerCol(buckets1);
-				var quotient = Math.ceil(maxVids/10);
-				buckets1.forEach(function(bucket, index) {
-
-					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10 && quotient > 0) {
-						var showCount = Math.floor(bucket.length/quotient);
-
-						_this.drawBigDot(index, bucket.length-showCount);
-						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[show[i]].heatmap[1];
-							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
-						}
-					}
-					else {
-						for(var i=0; i<bucket.length; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
-							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
-						}
-					}
-				})
-			}
-		}
-		else {
-			if(yState == 'byViews') {
-				console.log("by mentioned, by views")
-				var buckets2 = this.buckets2;
-				var _this = this;
-				var maxVids = this.getMaxVideosPerCol(buckets2);
-				var quotient = Math.ceil(maxVids/10);
-				buckets2.forEach(function(bucket, index) {
-
-					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10 && quotient > 0) {
-						var showCount = Math.floor(bucket.length/quotient);
-
-						_this.drawBigDot(index, bucket.length-showCount);
-						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[show[i]].heatmap[0];
-							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
-						}
-					}
-					else {
-						for(var i=0; i<bucket.length; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[0];
-							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
-						}
-					}
-				})
-			}
-			else {
-				console.log("by mentioned, by likes")
-				var buckets3 = this.buckets3;
-				var _this = this;
-				var maxVids = this.getMaxVideosPerCol(buckets3);
-				var quotient = Math.ceil(maxVids/10);
-				buckets3.forEach(function(bucket, index) {
-
-					_this.drawXLabel(index, canvasHeight);
-					if(bucket.length > 10 && quotient > 0) {
-						var showCount = Math.floor(bucket.length/quotient);
-
-						_this.drawBigDot(index, bucket.length-showCount);
-						var show = bucket.slice(bucket.length-showCount-1, bucket.length-1);
-						for(var i=0; i<showCount; i++) {
-							var colorLevel = _this.props.videos.positions[show[i]].heatmap[1];
-							_this.drawDot(index, i+2, show[i], colorLevel, canvasHeight);
-						}
-					}
-					else {
-						for(var i=0; i<bucket.length; i++) {
-							var colorLevel = _this.props.videos.positions[bucket[i]].heatmap[1];
-							_this.drawDot(index, i+1, bucket[i], colorLevel, canvasHeight);
-						}
-					}
-				})
-			}
-		}
+		this.drawVideoSection(xState, yState);
 	}
 
 	getDotPosition(x){
