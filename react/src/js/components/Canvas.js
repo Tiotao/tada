@@ -48,8 +48,9 @@ export default class Canvas extends React.Component {
 
 	componentDidUpdate() {
 		if(this.props.videos) {
+			this.parseData(this.props.videos);
 			if(this.timeScale == '86400') {
-				this.parseData(this.props.videos);
+				this.handleVideoPosition();
 			}
 			else {
 				this.handleDayView(this.currentDay);
@@ -104,7 +105,6 @@ export default class Canvas extends React.Component {
 		this.buckets2 = buckets2;
 		this.buckets3 = buckets3;
 
-		this.handleVideoPosition();
 	}
 
 	/**
@@ -327,7 +327,6 @@ export default class Canvas extends React.Component {
   	}
 
   	drawVideoSection(xState, yState) {
-  		console.log("Axes X Y", xState, yState);
   		let bucket;
   		if(xState === 'byPosted' && yState === 'byViews') 
 			bucket = this.buckets0;
@@ -342,7 +341,6 @@ export default class Canvas extends React.Component {
 		var _this = this;
 		var maxVids = this.getMaxVideosPerCol(bucket);
 		var quotient = Math.ceil(maxVids/maxRevealedDots);
-		console.log(maxVids, quotient);
 		bucket.forEach(function(bucketCol, index) {
 			_this.drawXLabel(index, canvasHeight);
 			if(bucketCol.length > maxRevealedDots && quotient > 0) {
