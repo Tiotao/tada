@@ -8,6 +8,11 @@ export default class Selected extends React.Component {
 		// console.log(props)
 	}
 
+	/**
+	 * Remove label from middle section
+	 * @param {Object} - mouse down event object
+	 * @return {null}
+	 */
 	removeLabelFromTopBar(e) {
 		e.preventDefault();
 
@@ -28,7 +33,6 @@ export default class Selected extends React.Component {
 	}
 
 	render() {
-
 		return (
 			<li class="TopBarLabel">
 				<p class="TopBarLabelName" id={this.props.id}>{this.props.name}</p>

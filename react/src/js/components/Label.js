@@ -11,6 +11,11 @@ export default class Label extends React.Component {
 		this.createLabelElement = this.createLabelElement.bind(this);
 	}
 
+	/**
+	 * Handle click 
+	 * @param {Object} - mouse down event object
+	 * @return {null}
+	 */
 	handleClick(e) {
 		event.stopPropagation();
 
@@ -31,6 +36,11 @@ export default class Label extends React.Component {
 	    });
 	}
 	
+	/**
+	 * Create label element 
+	 * @param {Bool} - this.state.selected
+	 * @return {React Element} - a label element
+	 */
 	createLabelElement(isSelected) {
 		let heatmapElement, labelNameElement, labelCountElement, labelTooltipElement, labelContainerElement;
 		heatmapElement = React.createElement(
@@ -64,6 +74,11 @@ export default class Label extends React.Component {
 		return labelContainerElement;
 	}
 	
+	/**
+	 * Get selected label class name
+	 * @param {Bool} -this.state.selected
+	 * @return {String} - class name
+	 */
 	getSelectedLabelClassName(isSelected) {
 		if(isSelected)
 			return 'LeftBarLabel Selected';
@@ -71,6 +86,10 @@ export default class Label extends React.Component {
 			return 'LeftBarLabel';
 	}
 
+	/**
+	 * Draw heatmap of a label
+	 * @return {DOM} - SVG element
+	 */
 	drawHeatmap() {
 		var days = [];
 		var history = this.props.history;
@@ -97,12 +116,6 @@ export default class Label extends React.Component {
 
 	render() {
 		let element = this.createLabelElement(this.state.selected);
-		return element;/*(
-			<li class="LeftBarLabel" onClick={this.handleClick} data-name={name} data-id={this.props._id}>
-                <div class="LeftBarLabelHeatmap">{this.drawHeatmap()}</div>
-                <p class="LeftBarLabelName" id={this.props._id}>{name}</p>
-                <p class="LeftBarLabelCount">{count}</p>
-            </li>
-		);*/
+		return element;
 	}
 }

@@ -10,6 +10,10 @@ export default class Filters extends React.Component {
 		this.resetFilters = this.resetFilters.bind(this);
 	}
 
+	/**
+	 * Reset filters
+	 * @return {null}
+	 */
 	resetFilters() {
 		var canvasLeft = document.getElementById('view');
 		var canvasRight = document.getElementById('vl_ratio');
@@ -19,8 +23,6 @@ export default class Filters extends React.Component {
 		ctxLeft.clearRect(0, 0, canvasLeft.width, canvasLeft.height);
 		ctxRight.clearRect(0, 0, canvasRight.width, canvasRight.height);
 
-		//this.props.handleUpdate('view', 0, 100);
-		//this.props.handleUpdate('vl_ratio', 0, 100);
 		this.props.handleUpdate(null);
 	}
 

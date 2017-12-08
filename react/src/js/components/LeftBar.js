@@ -32,6 +32,10 @@ export default class LeftBar extends React.Component {
     this.fuse = new Fuse(this.props.labels, options);
 	}
 
+	/**
+	 * Handle search
+	 * @return {null}
+	 */
 	handleSearch() {
 		var query = $('.SearchField').val();
 
