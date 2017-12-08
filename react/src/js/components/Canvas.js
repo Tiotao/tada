@@ -57,19 +57,26 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	parseData(data) {
+	/**
+	 * Parse data, use their global position to group videos for each day
+	 * @param {Object} - data
+	 * @return {null}
+	 */
+	parseData(data) { 
+		//4 buckets because of 4 combination of X,Y axis
 		let buckets0 = new Array(30),
 			buckets1 = new Array(30),
 			buckets2 = new Array(30),
 			buckets3 = new Array(30);
 
+		//Each buckets has 30 bucket, collecting video IDs of one day
 		for(var i = 0; i < 30; i++) {
 			buckets0[i] = new Array();
 			buckets1[i] = new Array();
 			buckets2[i] = new Array();
 			buckets3[i] = new Array();
 		}
-		console.log(data);
+
 		let positions = data.positions;
 
 		for(var video in positions) {
@@ -86,10 +93,6 @@ export default class Canvas extends React.Component {
 				x = positions[video]['86400'][2][0];
 				buckets2[x].push(video);
 			}
-			// else {
-			// 	console.log(positions[video]['86400'])
-			// 	count2++;
-			// }
 			if(positions[video]['86400'][3]) {
 				x = positions[video]['86400'][3][0];
 				buckets3[x].push(video);
@@ -104,21 +107,23 @@ export default class Canvas extends React.Component {
 		this.handleVideoPosition();
 	}
 
-
+	/**
+	 * Get max videos per column
+	 * @param {Array} - bucket, one column of videos
+	 * @return {Number} - height of tallest column
+	 */
 	getMaxVideosPerCol(bucket){
-		//let max = 0;
-		//console.log(bucket);
 		return bucket.reduce((prev, curr) => {
 			return Math.max(prev, curr.length);
 		}, 0);
-		//console.log("max videos", max);
 		return max;
 	}
+
 	/*
 	 * Draw labels on x axis in month view
-	 * @ x {int} column index
-	 * @ canvasHeight {int} canvas height
-	 * return {null}
+	 * @param {Number} column index
+	 * @param {Number} canvas height
+	 * @return {null}
 	 */
 	drawXLabel(x, canvasHeight) {
 		var date = new Date();
@@ -146,7 +151,7 @@ export default class Canvas extends React.Component {
 
 	/* 
 	 * Draw labels on x axis in day view
-	 * return {null}
+	 * @return {null}
 	 */
 	drawXLabelDayView() {
 		var col = 24;
@@ -174,6 +179,13 @@ export default class Canvas extends React.Component {
 			this.stage.addChild(labelText);
 		}
 	}
+
+	/**
+	 * Draw agregated dots
+	 * @param {Number} index
+	 * @param {Number} videos being hidden
+	 * @return {null}
+	 */
   drawBigDot(x, count) {
 	var box = new PIXI.Container();
 	var dot = new PIXI.Graphics();
@@ -195,8 +207,7 @@ export default class Canvas extends React.Component {
     hiddenCount.y = -5;
     box.addChild(hiddenCount);
 
-    dot
-      .on('pointerdown', onButtonDown)
+    dot.on('pointerdown', onButtonDown)
       // .on('pointerover', onButtonOver)
 
     var _this = this;
@@ -209,6 +220,11 @@ export default class Canvas extends React.Component {
     this.stage.addChild(box);
   }
 
+  /**
+   * Handle day view
+   * @param {Number} - index of the column
+   * @return {null}
+   */
   	handleDayView(index) {
 	  	var canvasHeight = document.getElementById("canvas").childNodes[0].clientHeight - 30;
 	  	this.stage.destroy();
@@ -348,6 +364,10 @@ export default class Canvas extends React.Component {
 		});
   	}
 
+  /**
+   * Handle video position
+   * @return {null}
+	 */
 	handleVideoPosition() {
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
@@ -357,6 +377,11 @@ export default class Canvas extends React.Component {
 		this.drawVideoSection(xState, yState);
 	}
 
+	/**
+	 * Get dot position
+	 * @param {Number} - column index
+	 * @return {Number} - x position
+	 */
 	getDotPosition(x){
 		return x * dotMarginX + screenLeftOffset + screenMarginX;
 	}
@@ -365,145 +390,148 @@ export default class Canvas extends React.Component {
 		var box = new PIXI.Container();
 		var dot = new PIXI.Graphics();
 		box.x = this.getDotPosition(x);
-		// box.y = - pos[i][1] * dotMargin + canvasHeight;
 		box.y = this.random();
-		//box.pivot.x = box.width / 2;
-	    box.pivot.y = box.height / 2;
-	    box.index = id;
+    box.pivot.y = box.height / 2;
+    box.index = id;
 
-	    var tweenY = new Tween(box, "y", - y * smallDotSpacingY + canvasHeight - smallDotMarginY, 30, true);
+    var tweenY = new Tween(box, "y", - y * smallDotSpacingY + canvasHeight - smallDotMarginY, 30, true);
 		tweenY.easing = Tween.outCubic;
 
-	    box.addChild(dot);
+    box.addChild(dot);
 
-	    var color = [];
-	    switch(colorLevel) {
-	    	case 0:
-	    		color = [250,159,181];
-	    		break;
-	    	case 1:
-	    		color = [247,104,161];
-	    		break;
-	    	case 2: 
-	    		color = [221,52,151];
-	    		break;
-	    	case 3:
-	    		color = [174,1,126];
-	    		break;
-	    	case 4:
-	    		color = [122,1,119];
-	    		break;
-	    	case 5: 
-	    		color = [73,0,106];
-	    		break;
-	    	defult:
-	    		color = [250,159,181];
-	    }
-	    color = (color[0] << 16) + (color[1] << 8) + (color[2]);
-	    dot.beginFill(color);
-	    dot.drawCircle(0, 0, smallDotSize);
+    var color = [];
+    switch(colorLevel) {
+    	case 0:
+    		color = [250,159,181];
+    		break;
+    	case 1:
+    		color = [247,104,161];
+    		break;
+    	case 2: 
+    		color = [221,52,151];
+    		break;
+    	case 3:
+    		color = [174,1,126];
+    		break;
+    	case 4:
+    		color = [122,1,119];
+    		break;
+    	case 5: 
+    		color = [73,0,106];
+    		break;
+    	defult:
+    		color = [250,159,181];
+    }
+    color = (color[0] << 16) + (color[1] << 8) + (color[2]);
+    dot.beginFill(color);
+    dot.drawCircle(0, 0, smallDotSize);
 
-	    dot.interactive = true;
-	    dot.buttonMode = true;
+    dot.interactive = true;
+    dot.buttonMode = true;
 
-	    dot
-	      .on('pointerover', onButtonOver)
-	      .on('pointerout', onButtonOut);
+    dot
+      .on('pointerover', onButtonOver)
+      .on('pointerout', onButtonOut);
 
-	    var _this = this;
-	  	function onButtonOver() {
-	  		var stage = this.parent.parent;
-	      axios.get('/api/videos/'+this.parent.index)
-	      	.then(res => {
-			    	var data = res.data;
+    var _this = this;
+  	function onButtonOver() {
+  		var stage = this.parent.parent;
+      axios.get('/api/videos/'+this.parent.index)
+      	.then(res => {
+		    	var data = res.data;
 
-			    	var previewData = {
-			    		id: data.id,
-			    		href: data.thumbnail,
-			    		title: data.title,
-			    		views: data.stats.view_count,
-			    		likes: data.stats.like_count
-			    	}
+		    	var previewData = {
+		    		id: data.id,
+		    		href: data.thumbnail,
+		    		title: data.title,
+		    		views: data.stats.view_count,
+		    		likes: data.stats.like_count
+		    	}
 
-			    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
+		    	var viewportOffset = document.getElementById("canvas").getBoundingClientRect();
 
-						var top = viewportOffset.top;
-						var left = viewportOffset.left + 80;
+					var top = viewportOffset.top;
+					var left = viewportOffset.left + 80;
 
-						var canvasPosition = new PIXI.Point(left, top);
-						var elementPostion = this.parent.toGlobal(canvasPosition);
+					var canvasPosition = new PIXI.Point(left, top);
+					var elementPostion = this.parent.toGlobal(canvasPosition);
 
-						$('.Preview').removeClass("hidden");
-						if(x == 0) {
-							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) + 100);
+					$('.Preview').removeClass("hidden");
+					if(x == 0) {
+						$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) + 100);
+					}
+					else if(x >= 27) {
+						$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
+					}
+					else {
+						$('.Preview').css("left", elementPostion.x - 20);
+					}
+					$('.Preview').css("top", elementPostion.y);
+					$('.PreviewImg').attr("src", previewData.href);
+					$('.PreviewTitle').html(previewData.title);
+					$('.Preview').addClass("load");
+					$('.PreviewViews').html("Views: " + previewData.views);
+					$('.PreviewLikes').html("Likes: " + previewData.likes);
+
+					$('.Preview').mouseout(function() {
+						$('.Preview').addClass("hidden");
+					})
+
+					$('.Preview').click(function(){
+						var href;
+						var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+				    var match = data.href.match(regExp);
+				    if (match && match[2].length == 11) {
+				        href = match[2];
+				    } else {
+				        console.log(error);
+				    }
+				    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
+
+				    //yes. that's right. i'm just gonna rander the video popup here. i can't react today.
+				    $('.Overlay').removeClass('hidden').addClass('reveal');
+						$('.OverlayVideo').attr('src', href);
+						$('.Overlay').addClass('load');
+						$('.OverlayVideo').addClass('load');
+
+					  $('.VideoTitle').attr('href', href).html(data.title);
+					  $('.VideoChannel').html("Posted on " + data.channel);
+					  $('.VideoPostedTime').html("at " + _this.parseDate(data.timestamp));
+					  $('.VideoView').html("Views: " + data.stats.view_count);
+					  $('.VideoComment').html("Comments: " + data.stats.comment_count);
+					  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
+					  $('.VideoLike').html("Likes: " + data.stats.like_count);
+					  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
+					  $('.VideoVLRatio').html("Like/view ratio: " + (data.stats.vl_ratio*100).toFixed(1) + "%");
+					  $('.VideoCaption').html(data.description);
+					  $('.ShareURL').val(data.href);
+
+					  $('.VideoLabels').empty();
+						for(var i = 0; i < data.labels.length; i++) {
+							$('.VideoLabels').append(
+								$('<li>').attr('class', 'VideoLabelsName').append(
+									$('<a>').append(data.labels[i].name)));
 						}
-						else if(x >= 27) {
-							$('.Preview').css("left", elementPostion.x - (canvasWidth-window.screen.width) - 200);
-						}
-						else {
-							$('.Preview').css("left", elementPostion.x - 20);
-						}
-						$('.Preview').css("top", elementPostion.y);
-						$('.PreviewImg').attr("src", previewData.href);
-						$('.PreviewTitle').html(previewData.title);
-						$('.Preview').addClass("load");
-						$('.PreviewViews').html("Views: " + previewData.views);
-						$('.PreviewLikes').html("Likes: " + previewData.likes);
+					})	
+      	})
+      	.catch(err => {
+      		console.log(err);
+      	})
+    }
 
-						$('.Preview').mouseout(function() {
-							$('.Preview').addClass("hidden");
-						})
+    function onButtonOut() {
+      this.height = 12;
+      this.width = 12;
+    }
 
-						$('.Preview').click(function(){
-							var href;
-							var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-					    var match = data.href.match(regExp);
-					    if (match && match[2].length == 11) {
-					        href = match[2];
-					    } else {
-					        console.log(error);
-					    }
-					    href = 'https://www.youtube.com/embed/'+ href +'?autoplay=1';
-
-					    //yes. that's right. i'm just gonna rander the video popup here. i can't react today.
-					    $('.Overlay').removeClass('hidden').addClass('reveal');
-							$('.OverlayVideo').attr('src', href);
-							$('.Overlay').addClass('load');
-							$('.OverlayVideo').addClass('load');
-
-						  $('.VideoTitle').attr('href', href).html(data.title);
-						  $('.VideoChannel').html("Posted on " + data.channel);
-						  $('.VideoPostedTime').html("at " + _this.parseDate(data.timestamp));
-						  $('.VideoView').html("Views: " + data.stats.view_count);
-						  $('.VideoComment').html("Comments: " + data.stats.comment_count);
-						  $('.VideoDislike').html("Dislikes: " + data.stats.dislike_count);
-						  $('.VideoLike').html("Likes: " + data.stats.like_count);
-						  $('.VideoFav').html("Favorite: " + data.stats.fav_count);
-						  $('.VideoVLRatio').html("Like/view ratio: " + (data.stats.vl_ratio*100).toFixed(1) + "%");
-						  $('.VideoCaption').html(data.description);
-						  $('.ShareURL').val(data.href);
-
-						  $('.VideoLabels').empty();
-							for(var i = 0; i < data.labels.length; i++) {
-								$('.VideoLabels').append(
-									$('<li>').attr('class', 'VideoLabelsName').append(
-										$('<a>').append(data.labels[i].name)));
-							}
-						})	
-	      	})
-	      	.catch(err => {
-	      		console.log(err);
-	      	})
-	    }
-
-	    function onButtonOut() {
-	      this.height = 12;
-	      this.width = 12;
-	    }
-
-	    this.stage.addChild(box);
+    this.stage.addChild(box);
 	}
 
+	/**
+	 * Parse date from Unix timestamp
+	 *@param {Number} - Unix time
+	 *@return {String} - date in yyyy/mm/dd format
+	 */
 	parseDate(timestamp) {
 		var date = new Date(timestamp * 1000);
 		var year = date.getFullYear()
@@ -512,8 +540,10 @@ export default class Canvas extends React.Component {
 		return year + "/"+ month + "/" + day
 	}
 
+	/**
+	 * Initialize canvas and resize canvas
+	 */
 	componentDidMount() {
-
 		var canvasHeight = document.getElementById("canvas").clientHeight;
 		this.renderer = PIXI.autoDetectRenderer(1920, canvasHeight, {
 			transparent: true,
@@ -531,28 +561,39 @@ export default class Canvas extends React.Component {
 		this.animate();
 	}
 
+	/**
+	 * Randomize dot position for animation
+	 * @return {Number} - position
+	 */
 	random() {
     var min = -500, max = 500;
     return Math.floor(Math.random()*(max-min+1)+min);
   }
 
+  /**
+   * Clear canvas
+   */
 	componentWillReceiveProps(nextProps) {
-		//console.log("props", nextProps);
 		this.stage.destroy();
 		this.stage = new PIXI.Container();
 	}
 
+	/**
+	 * Canvas animation loop
+	 */
 	animate() {
 		Tween.runTweens();
 		this.renderer.render(this.stage);
 		this.frame = requestAnimationFrame(this.animate);
 	}
 
+	/**
+	 * Resize canvas
+	 */
 	resize() {
 		var canvasHeight = document.getElementById("canvas").clientHeight;
 		if (this.renderer.height < canvasHeight) {
 			this.renderer.resize(1920, canvasHeight);
-			// this.componentDidUpdate();
 		}
 	}
 
