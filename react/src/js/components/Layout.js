@@ -178,7 +178,7 @@ export default class Layout extends React.Component {
     axios.get('/api/labels').then(res => {
         this.state.labels = res.data.data.slice(0,80);
         return axios.post('/api/filter', {
-          "ids": [],
+          "ids": this.getSelectedLabelIds(),
           "view_count_range": this.state.view,
           "like_ratio_range": this.state.vl_ratio
         });
