@@ -12,6 +12,7 @@ export default class Overlay extends React.Component {
 	}
 
 	componentDidMount() {
+		//Close video overlay when clicking close button
 		$('.OverlayClose').click(function() {
 			$('.Overlay').removeClass('reveal').removeClass('load');
 			$('.OverlayVideo').removeClass('load');
@@ -23,6 +24,11 @@ export default class Overlay extends React.Component {
 		})
 	}
 
+	/**
+	 * Add new label to one video
+	 * @return {null}
+	 * (only add to the DOM. not connected to database)
+	 */
 	addNewLabel() {
 		var newLabel = $(".VideoAddNewLabelInput").val();
 
@@ -33,6 +39,11 @@ export default class Overlay extends React.Component {
 		$(".VideoAddNewLabelInput").val('');
 	}
 
+	/**
+	 * Add one video to a list
+	 * @return {null}
+	 * (only add to the DOM. not connected to database)
+	 */
 	addToList(e) {
 		if($(e.target).hasClass('added')) {
 			$(e.target).removeClass('added');
@@ -42,6 +53,11 @@ export default class Overlay extends React.Component {
 		}
 	}
 
+	/**
+	 * Show input box for adding a new list
+	 * @return {null}
+	 * (only add to the DOM. not connected to database)
+	 */
 	showNewListInput() {
 		if($('.VideoActionAddNewList').find('input').length == 0) {
 			$('.VideoActionAddNewListText').hide();
@@ -51,6 +67,11 @@ export default class Overlay extends React.Component {
 		}
 	}
 
+	/**
+	 * Create a new video list
+	 * @return {null}
+	 * (only add to the DOM. not connected to database)
+	 */
 	createNewList() {
 		if($('.VideoActionAddNewList').find('input').length != 0) {
 			var newList = $('.VideoActionAddNewListInput').val();

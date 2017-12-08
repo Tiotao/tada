@@ -23,6 +23,11 @@ export default class Filter extends React.Component {
 
 		var _this = this;
 
+		/**
+		 * Detect starting point of a filter selection
+		 * @param {Object} e - mouse down event
+		 * @return {null}
+		 */
 		function mouseDown(e) {
 			if(TopBar.getVisibility() === 'hidden')
 				return;
@@ -46,6 +51,11 @@ export default class Filter extends React.Component {
 			}
 		}
 
+		/**
+		 * Detect ending point of a filter selection
+		 * @param {Object} e - mouse up event
+		 * @return {null}
+		 */
 		function mouseUp(e) {
 			drag = false;
 
@@ -77,10 +87,14 @@ export default class Filter extends React.Component {
 				_this.props.handleUpdate(this.id, _this.startFilter, _this.endFilter);
 			}
 		}
-		var i = 0;
+
+		/**
+		 * Draw filter selection on a canvas
+		 * @param {Object} e - mouse move event
+		 * @return {null}
+		 */
 		function mouseMove(e) {
 			if(drag) {
-
 				//update x label
 				var endFilter = Math.floor((e.pageX - this.getBoundingClientRect().x) /3);
 				if(e.target.id == "view") {
@@ -109,6 +123,10 @@ export default class Filter extends React.Component {
 		}
 	}
 
+	/**
+	 * Draw SVG bars on filters
+	 * @return {null}
+	 */
 	drawFilterGraph() {
 		if(this.props.data) {
 			var data = this.props.data;

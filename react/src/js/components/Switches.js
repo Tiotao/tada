@@ -24,6 +24,11 @@ export default class Switches extends React.Component {
 		this.handleSwitchY = this.handleSwitchY.bind(this);
 	}
 
+	/**
+	 * Handle switch X
+	 * @param {Object} - mouse down event object
+	 * @return {null}
+	 */
 	handleSwitchX(e) {
 		e.preventDefault();
 		if(this.state.x == e.target.id) return;
@@ -39,6 +44,11 @@ export default class Switches extends React.Component {
 		}
 	}
 
+	/**
+	 * Draw drop down menu
+	 * @param {String} - switch id
+	 * @return {DOM} - button
+	 */
 	drawDropDown(id){
 		if(id === xPostedId)
 			return (<button type="button" id={xMentionedId} class="Switch" onClick={this.handleSwitchX}>{xMentionedText}</button>);
@@ -50,6 +60,11 @@ export default class Switches extends React.Component {
 			return (<button type="button" id={yViewId} class="Switch active" onClick={this.handleSwitchY}>{yViewText}</button>);
 	}
 
+	/**
+	 * Handle switch Y
+	 * @param {Object} - mouse down event object
+	 * @return {null}
+	 */
 	handleSwitchY(e) {
 		e.preventDefault();
 		
@@ -66,10 +81,18 @@ export default class Switches extends React.Component {
 		}
 	}
 
+	/**
+	 * Get default X axis
+	 * @return {String} - axis id
+	 */
 	static getDefaultXAxis() {
 		return xPostedId;
 	}
 
+	/**
+	 * Get default Y axis
+	 * @return {String} - axis id
+	 */
 	static getDefaultYAxis() {
 		return yViewId;
 	}

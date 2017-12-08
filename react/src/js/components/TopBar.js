@@ -14,6 +14,10 @@ export default class TopBar extends React.Component {
 		this.hideBottom = this.hideBottom.bind(this);
 	}
 
+	/**
+	 * Hide label section
+	 * @return {null}
+	 */
 	hideTopBar() {
 		if(TopBar.visibility == 'shown') {
 			$('.TopbarContainer').css("top", -300);
@@ -29,9 +33,12 @@ export default class TopBar extends React.Component {
 			$('.HideBottom').css("opacity", 1).css('cursor', 'pointer');
 			TopBar.visibility = 'shown';
 		}
-		console.log(TopBar.visibility);
 	}
 
+	/**
+	 * Hide video dots section
+	 * @return {null}
+	 */
 	hideBottom() {
 		if(TopBar.visibility == 'hidden') {
 			$('.TopbarContainer').css("top", 0);
@@ -47,7 +54,6 @@ export default class TopBar extends React.Component {
 			$('.HideBottom').css("opacity", 0.3).css('cursor', 'inherit');
 			TopBar.visibility = 'full';
 		}
-		console.log(TopBar.visibility);
 	}
 
 	static getVisibility() {

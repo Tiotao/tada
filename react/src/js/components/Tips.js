@@ -15,6 +15,10 @@ export default class Tips extends React.Component {
 		this.closeTips = this.closeTips.bind(this);
 	}
 
+	/**
+	 * Close tips overlay
+	 * @return {null}
+	 */
 	closeTips() {
 		$(".Tips").addClass("mini");
 		$(".TipsTable").addClass("hidden");
@@ -24,6 +28,10 @@ export default class Tips extends React.Component {
 		})
 	}
 
+	/**
+	 * Open tips overlay
+	 * @return {null}
+	 */
 	openTips() {
 		if(!this.state.open) {
 			$(".Tips").removeClass("mini");

@@ -4,12 +4,17 @@ import $ from "jquery";
 export default class Action extends React.Component {
 	constructor(props) {
 		super();
-
-		// this.handleClick = this.handleClick.bind(this);
 	}
 
+	/**
+	 * Handle click actions in video overlay
+	 * @param {Object} - mouse down event object
+	 * @return {null}
+	 */
 	handleClick(e) {
 		var action = $(e.target).parent().attr('id'); 
+
+		//click Add button
 		if(action == "Add") {
 			$('.VideoActionAdd').removeClass('hidden').addClass('load');
 			$(document).click(function(e) {
@@ -20,6 +25,8 @@ export default class Action extends React.Component {
 				}
 			})
 		}
+
+		//click Share button
 		if(action == "Share") {
 			$('.VideoActionShare').removeClass('hidden').addClass('load');
 			// document.execCommand('copy');
