@@ -28,7 +28,7 @@ const maxRevealedDots = 10;
 export default class Canvas extends React.Component {
 	constructor(props) {
 		super(props);
-
+ 
 		this.timeScale = '86400';
 		this.currentDay = null;
 
@@ -126,7 +126,7 @@ export default class Canvas extends React.Component {
 	 * @return {null}
 	 */
 	drawXLabel(x, canvasHeight) {
-		var date = new Date();
+		var date = new Date(parseInt(this.props.end_time*1000));
 		var labelText = new PIXI.Text();
 		if(x == 29) {
 			labelText.text = "Today";

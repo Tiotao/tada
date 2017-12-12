@@ -29,7 +29,8 @@ export default class Layout extends React.Component {
       previewData: "",
       graph: [],
       view: [0,100],
-      vl_ratio: [0,100]
+      vl_ratio: [0,100],
+      end_time: Math.floor(new Date() / 1000)
     };
 
     this.view = [0,100];
@@ -52,6 +53,7 @@ export default class Layout extends React.Component {
     axios.get('/api/labels')
       .then(res => {
         this.state.labels = res.data.data;
+        this.state.end_time = res.data.description.end_time;
         return axios.post('/api/filter', {
           "ids": [],
           "view_count_range": this.state.view,
@@ -241,7 +243,7 @@ export default class Layout extends React.Component {
             setVideos={this.setVideos}/>
         </div>
         <div class="CenterContainer">
-          <Canvas videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
+          <Canvas end_time={this.state.end_time} videos={this.state.videos} x={this.state.x} y={this.state.y} time={this.state.time} handlePreviewUpdate={this.handlePreviewUpdate}/>
         </div>
         <div class="FooterContainer">
           <div class="FooterSwitch">

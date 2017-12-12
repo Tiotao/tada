@@ -202,7 +202,7 @@ async function getOneLabel(id) {
     const day = 86400;
 
     if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
-        end_time = new Date() / 1000;
+        end_time = Math.floor(new Date() / 1000);
     } else {
         end_time = config.get("Scraper.end_time")
     }
@@ -391,11 +391,19 @@ async function getLabels() {
         $orderby: { count: -1 }
     }).toArray();
     
+    let end_time;
+
+    if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
+        end_time = Math.floor(new Date() / 1000);
+    } else {
+        end_time = config.get("Scraper.end_time")
+    }
 
     const ret = {
         description: {
             "sorted_by": "popularity",
             "label_count": labels.length,
+            "end_time": end_time,
         },
         data: _.sortBy(labels, (l)=>{return _.reduce(l.history, (memo, num, id)=>{
             let add;
@@ -1065,7 +1073,7 @@ async function graphQuery(label_ids, view_count_range, vl_ratio_range) {
         const day = 86400;
 
         if (config.get("Scraper.schedule_scraping") || !config.has("Scraper.end_time")) {
-            end_time = new Date() / 1000;
+            end_time = Math.floor(new Date() / 1000);
         } else {
             end_time = config.get("Scraper.end_time")
         }
