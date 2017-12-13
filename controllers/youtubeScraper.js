@@ -18,6 +18,42 @@ const utils = require('../utils/scrape-utils');
 const natural = require('natural');
 const parallel = require('async-await-parallel');
 
+/**
+ * Get List of video from YouTube and format to the following format
+ * {
+ *      content: {
+ *          title: string
+ *          text: string - description
+ *      },
+ *      source: "youtube",
+ *      media_type: "video",
+ *      search_ref: array of search references 
+ *                  {keyword: string, type: 'recent'},
+ *      entities: {
+ *          urls: array of urls mentioned in the tweets
+ *          videos: array of videos {id: string, source: 'youtube'}
+ *      },
+ *      local_id: string - id of the youtube video,
+ *      author: string,
+ *      timestamp: 10 digit timestamp,
+ *      stats: {
+ *          view_count: int,
+ *          like_count: int,
+ *          dislike_count: int,
+ *          fav_count: int,
+ *          comment_count: int,
+ *          vl_ratio: float - like view ratio,
+ *          heatmap: {
+ *              view: int - heatmap level defined using 
+ *                          utils.calculateHeatmapLevel,
+ *              vl_ratio: int - heatmap level defined using 
+ *                              utils.calculateHeatmapLevel, 
+ *          }
+ *      }
+ * }
+ * @param {String} query - keywords/id that are used to query YouTube Video
+ * @param {*} method - type of query, eg. "keyword", "id"
+ */
 async function getListOfVideos(query, method) {
     logger.info('labelling', 'recent', 'posts from:', query);
 
@@ -26,6 +62,7 @@ async function getListOfVideos(query, method) {
     const shared_stats = await stats_collection.find({}).toArray();
     const max_view = shared_stats[0].max_view;
 
+    // format result from YouTube API
     function formatVideo(video, method, max_view) {
         let formatted_video = {};
         formatted_video = {
@@ -44,6 +81,7 @@ async function getListOfVideos(query, method) {
             author: video.snippet.channelTitle,
             timestamp: new Date(video.snippet.publishedAt).getTime() / 1000
         }
+        // append stats if query from id
         if (method == "id") {
             let mention = query.mentions[video.id]
             let vl_ratio = video.statistics.likeCount / video.statistics.viewCount;
@@ -52,7 +90,6 @@ async function getListOfVideos(query, method) {
             }
 
             const heatmap_level = utils.calculateHeatmapLevel(video.statistics.viewCount, vl_ratio, max_view);
-
             formatted_video.stats = {
                 "view_count": parseInt(video.statistics.viewCount),
                 "like_count": parseInt(video.statistics.likeCount),
@@ -108,6 +145,7 @@ async function getListOfVideos(query, method) {
 
     try {
         let response;
+        // query youtube video through search keyword, without stats
         if (method == "keyword") {
             response = await YouTubeGetRecent({
                 "part": "snippet",
@@ -116,6 +154,7 @@ async function getListOfVideos(query, method) {
                 "maxResults": 50,
                 "order": "date"
             })
+        // query youtube video through id, with stats
         } else {
             response = await YouTubeGetStats({
                 "part": "snippet, statistics",
@@ -123,7 +162,7 @@ async function getListOfVideos(query, method) {
             })
 
         }
-
+        // format youtube api results into video entry
         let videos = response.items.map((v)=>{ 
             return formatVideo(v, method, max_view)
         });
@@ -131,7 +170,9 @@ async function getListOfVideos(query, method) {
         if (method == "id") {
             return videos;
         }
-        
+
+        // there is no stats in video entry while query from keyword
+        // query additional stats from YouTube API and append to entry
         let videos_dict = videos.reduce(videoToDict, {});
         const video_stats = await scrapeStats(videos);
         videos_dict = video_stats.reduce(appendStats, videos_dict);
@@ -144,6 +185,12 @@ async function getListOfVideos(query, method) {
     }
 }
 
+/**
+ * Scrape video from youtube with keyword
+ * @param {Object} video_collection - database collection
+ * @param {String} keyword - youtube search keyword
+ * @return {Object} video entries defined in getListOfVideos
+ */
 async function scrapeKeyword(video_collection, keyword) {
     
     let raw_video_list = await getListOfVideos(keyword, "keyword");
@@ -172,38 +219,33 @@ async function scrapeKeyword(video_collection, keyword) {
     return ret;
 }
 
-async function scrape(mentions) {
+/**
+ * Scrape video from YouTube and save to database
+ */
+async function scrape() {
     
     logger.info('start scarpping youtube recent posts...');
     const keywords = config.get("Scraper.youtube.keywords");
+
     try {
         logger.info('connecting to database...');
         const db = await MongoClient.connect(config.get("Database.url"));
         let video_collection = db.collection(config.get("Database.video_collection"));
         let label_collection = db.collection(config.get("Database.label_collection"));
-        let promises;
 
-        if (mentions) {
-            logger.info('start scarpping youtube video with id');
-            promises = [await getListOfVideos(mentions, "id")]
-        } else {
-            promises = keywords.map(async (keyword) => {
-                return await scrapeKeyword(video_collection, keyword)
-            })
-        }
+        let promises = keywords.map(async (keyword) => {
+            return await scrapeKeyword(video_collection, keyword)
+        })
 
         let videos = await Promise.all(promises);
-        
         videos = utils.combineDuplicates(videos);
 
-        // label title
+        // label title and description
         let labelled_videos = await languageCtrl.label(videos, false);
 
         async function convertEntityToLabel(entities) {
             const id_promises = entities.map(async (entity) => {
-
                 let label_name = natural.PorterStemmer.stem(entity.name);
-                
                 const label = await label_collection.findOne({name: label_name});
                 
                 if (label) {
@@ -244,15 +286,19 @@ async function scrape(mentions) {
         await video_collection.insert(labelled_videos);
         logger.info('database updated with', labelled_videos.length, 'posts.');
         db.close();
-        return labelled_videos;
+        return;
 
     } catch (err) {
         logger.error(err);
-        return err;
+        return;
     }
 }
 
-
+/**
+ * Update selected video's stats from YouTube
+ * @param {Array<Object>} query_videos - video entries from database
+ *                                       if null, all videos
+ */
 async function scrapeStats(query_videos) {
     try {
         console.time("SCRAPE_STATS");
@@ -361,7 +407,6 @@ async function scrapeStats(query_videos) {
     }
 
 }
-
 
 module.exports = {
     scrape: async (req, res) => {

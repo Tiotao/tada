@@ -19,7 +19,7 @@ async function labelPosts(posts, sentiment=true) {
 
     async function label(post) {
         const document = {
-            content: post.content.title,
+            content: post.content.title + " " + post.content.text,
             type: "PLAIN_TEXT"
         }
 
@@ -55,7 +55,6 @@ async function labelPosts(posts, sentiment=true) {
             return e
         })
         posts[i].content.entities = entities;
-        // posts[i].content.language = r[0].language;
     }
 
     const promises = posts.map(label)

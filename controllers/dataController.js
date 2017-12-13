@@ -382,6 +382,18 @@ async function getOneVideo(id) {
 
 }
 
+/**
+ * get list of labels from database
+ * @return {Object} 
+ * {
+ *      description: {
+ *          sorted_by: "popularity",
+            label_count: int,
+            end_time: end_time - last data timestamp
+ *      },
+ *      data: array of labels sorted by number of videos
+ * }
+ */
 async function getLabels() {
     const db = await MongoClient.connect(config.get("Database.url"));
     let cache_collection = db.collection(config.get("Database.cache_collection"));
