@@ -4,6 +4,29 @@
 
 Follow the following steps to setup TADA server. Alternatively, you can run `$ sh deploy/build.sh` if you already have all the dependency installed and database created and running.
 
+### Step 0: Credentials
+
+In order to use the full functionality of TADA. You will need to apply the following credentials.
+
+- [Twitter's API](https://developer.twitter.com/en/docs/basics/authentication/overview/application-only)
+- [YouTube Data API](https://developers.google.com/youtube/v3/)
+- [Google's Natural Language API](https://cloud.google.com/natural-language/docs/)
+
+A sample collection of credentials should look like (in config):
+
+```
+Credentials:
+  twitter:
+    consumer_key: xvz1evFS4wEEPTGEFPHBog
+    consumer_secret: L8qq9PZyRg6ieKGEKhZolGC0vJWLw8iEJ88DRdyOg
+    bearer_token: xvz1evFS4wEEPTGEFPHBog:L8qq9PZyRg6ieKGEKhZolGC0vJWLw8iEJ88DRdyOg
+  youtube:
+    api_key: L8qq9PZyRg6ieKGEKhZolGC0vJWLw8iEJ88DRdyOg
+  google_cloud:
+    project_id: yourproject
+    keyfile_name: yourproject.json  #keyfile issued by Google
+```
+
 ### Step 1: Clone Repo
 ```
 $ git clone https://github.com/Tiotao/tada.git
